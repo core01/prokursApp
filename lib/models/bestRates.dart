@@ -1,0 +1,41 @@
+class BestRates {
+  final num buyUSD;
+  final num sellUSD;
+  final num buyEUR;
+  final num sellEUR;
+  final num buyRUB;
+  final num sellRUB;
+  final num buyCNY;
+  final num sellCNY;
+  final num buyGBP;
+  final num sellGBP;
+
+  BestRates({
+    this.buyCNY = -1,
+    this.buyEUR = -1,
+    this.buyGBP = -1,
+    this.buyRUB = -1,
+    this.buyUSD = -1,
+    this.sellCNY = 10000,
+    this.sellEUR = 10000,
+    this.sellGBP = 10000,
+    this.sellRUB = 10000,
+    this.sellUSD = 10000,
+  });
+
+  factory BestRates.fromJson(Map<String, dynamic> bestRatesFromJson) {
+    print('test $bestRatesFromJson');
+    return BestRates(
+      buyCNY: bestRatesFromJson['buyCNY'],
+      buyEUR: bestRatesFromJson['buyEUR'],
+      buyGBP: bestRatesFromJson['buyGBP'],
+      buyRUB: bestRatesFromJson['buyRUB'],
+      buyUSD: bestRatesFromJson['buyUSD'],
+      sellCNY: bestRatesFromJson['sellCNY'],
+      sellEUR: bestRatesFromJson['sellEUR'],
+      sellGBP: bestRatesFromJson['sellGBP'],
+      sellRUB: bestRatesFromJson['sellRUB'],
+      sellUSD: bestRatesFromJson['sellUSD'],
+    );
+  }
+}
