@@ -23,6 +23,31 @@ class BestRates {
     this.sellUSD = 10000,
   });
 
+  Map<String, dynamic> _toMap() {
+    return {
+      'buyCNY': buyCNY,
+      'buyEUR': buyEUR,
+      'buyGBP': buyGBP,
+      'buyRUB': buyRUB,
+      'buyUSD': buyUSD,
+      'sellCNY': sellCNY,
+      'sellEUR': sellEUR,
+      'sellGBP': sellGBP,
+      'sellRUB': sellRUB,
+      'sellUSD': sellUSD,
+    };
+  }
+
+  dynamic get(String propertyName) {
+    var _mapRep = _toMap();
+    if (_mapRep.containsKey(propertyName)) {
+      return _mapRep[propertyName];
+    }
+
+    print('Throwing error $propertyName');
+    throw ArgumentError('property not found');
+  }
+
   factory BestRates.fromJson(Map<String, dynamic> bestRatesFromJson) {
     print('test $bestRatesFromJson');
     return BestRates(

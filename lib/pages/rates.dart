@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
 import 'package:prokurs/models/arguments/ratesScreenArguments.dart';
 import 'package:prokurs/providers/exchangeRates.dart';
 import 'package:prokurs/widgets/RatesTable.dart';
@@ -35,34 +36,17 @@ class _HomePageState extends State<RatesPage> {
         .changeSelectedCurrency(currency: currencies[_activeTabIndex]['id']);
   }
 
-  void _toggleRatesType() {
-    context.read<ExchangeRates>().changeRatesType();
-  }
-
   void _toggleSortDirection() {
     context.read<ExchangeRates>().changeSortDirection();
   }
 
-  void _scrollListener(scrollDirection) {
-    print('SCROLLING');
-    if (scrollDirection == ScrollDirection.reverse) {
-      if (buttonContainerVisible)
-        setState(() {
-          buttonContainerVisible = !buttonContainerVisible;
-        });
-    }
-    if (scrollDirection == ScrollDirection.forward) {
-      if (buttonContainerVisible == false)
-        setState(() {
-          buttonContainerVisible = true;
-        });
-    }
-  }
-
-  @override
-  void initState() {
-    print('INIT');
-    super.initState();
+  Future<void> _onRatesRefresh() {
+    print('_onRatesRefresh');
+    final args =
+        ModalRoute.of(context)!.settings.arguments as RatesScreenArguments;
+    return context
+        .read<ExchangeRates>()
+        .fetchAndSetExchangeRates(cityId: args.city.id);
   }
 
   @override
@@ -138,10 +122,15 @@ class _HomePageState extends State<RatesPage> {
         return CupertinoTabView(
           builder: (BuildContext context) {
             final showBuy = context.watch<ExchangeRates>().showBuy;
-            final isGross = context.watch<ExchangeRates>().isGross;
             final exchangeRates = Provider.of<ExchangeRates>(context).items;
+            final bestRetailRates =
+                Provider.of<ExchangeRates>(context).bestRetailRates;
+            final bestGrossRates =
+                Provider.of<ExchangeRates>(context).bestGrossRates;
             final selectedCurrency =
                 Provider.of<ExchangeRates>(context).selectedCurrency;
+            final ratesUpdateTime =
+                Provider.of<ExchangeRates>(context).ratesUpdateTime;
             final exchangeRatesLength = exchangeRates.length;
             print('Home -> build -> inside builder -> $selectedCurrency');
             print(
@@ -169,7 +158,19 @@ class _HomePageState extends State<RatesPage> {
                           ],
                         ),
                       ),
-                      middle: Text(args.city.title),
+                      middle: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Text(args.city.title),
+                          Text(
+                            'Время обновления $ratesUpdateTime',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     child: SafeArea(
                       child: Container(
@@ -183,55 +184,20 @@ class _HomePageState extends State<RatesPage> {
                                       child: Container(
                                         alignment: Alignment.center,
                                         child: Text(
-                                            'К сожалению, на данный момент нет информации по ${isGross ? 'оптовой' : 'розничной'} ${showBuy ? 'покупке' : 'продаже'} ${currencies[_activeTabIndex]['unicode']} в городе ${args.city.title}',
+                                            'К сожалению, на данный момент нет информации по ${showBuy ? 'покупке' : 'продаже'} ${currencies[_activeTabIndex]['unicode']} в городе ${args.city.title}',
                                             textAlign: TextAlign.center,
                                             style: TextStyle(fontSize: 18)),
                                       ),
                                     )
                                   : RatesTable(
                                       exchangeRates: exchangeRates,
-                                      onScroll: _scrollListener,
                                       onToggleSortDirection:
                                           _toggleSortDirection,
                                       selectedCurrency: selectedCurrency,
+                                      bestGrossRates: bestGrossRates,
+                                      bestRetailRates: bestRetailRates,
+                                      onRefresh: _onRatesRefresh,
                                     ),
-                            ),
-                            Positioned(
-                              bottom: 50,
-                              left: 10.0,
-                              right: 10.0,
-                              child: Visibility(
-                                child: Container(
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Container(
-                                        child: ElevatedButton(
-                                          onPressed: () => _toggleRatesType(),
-                                          child:
-                                              Text(isGross ? 'Опт' : 'Розница'),
-                                        ),
-                                        width: 100,
-                                      ),
-                                      Container(
-                                        child: ElevatedButton(
-                                          onPressed: () =>
-                                              _toggleSortDirection(),
-                                          child: Text(
-                                              'Сортировка: ${showBuy ? 'Покупка' : 'Продажа'}'),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                maintainSize: true,
-                                maintainAnimation: true,
-                                maintainState: true,
-                                visible: buttonContainerVisible,
-                              ),
                             ),
                           ],
                         ),

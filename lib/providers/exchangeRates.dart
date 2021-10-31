@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:prokurs/models/bestRates.dart';
 import 'dart:convert';
 
@@ -7,23 +8,28 @@ import 'package:prokurs/models/exchangeRate.dart';
 
 class ExchangeRates with ChangeNotifier {
   List<ExchangeRate> _exchangeRates = [];
-  bool _gross = true;
 
   String _currency = 'USD';
   bool _showBuy = true;
+  DateTime? _updateTime;
 
   BestRates _bestRetailRates = BestRates();
   BestRates _bestGrossRates = BestRates();
 
   String get selectedCurrency => _currency;
   bool get showBuy => _showBuy;
-  bool get isGross => _gross;
 
   List<ExchangeRate> get items => _exchangeRates.where((el) {
-        return el.get('buy$_currency') != 0 &&
-            el.get('sell$_currency') != 0 &&
-            (_gross ? el.gross > 0 : el.gross == 0);
+        return el.get('buy$_currency') != 0 && el.get('sell$_currency') != 0;
       }).toList();
+
+  BestRates get bestRetailRates => _bestRetailRates;
+  BestRates get bestGrossRates => _bestGrossRates;
+
+  String? get ratesUpdateTime {
+    var f = new DateFormat('HH:mm');
+    return _updateTime != null ? f.format(_updateTime!) : null;
+  }
 
   void sortExchangeRates() {
     final String buyKey = 'buy$_currency';
@@ -44,13 +50,7 @@ class ExchangeRates with ChangeNotifier {
     notifyListeners();
   }
 
-  void changeRatesType() {
-    _gross = !_gross;
-    sortExchangeRates();
-    notifyListeners();
-  }
-
-  void changeSortDirection(){
+  void changeSortDirection() {
     _showBuy = !_showBuy;
     sortExchangeRates();
     notifyListeners();
@@ -70,6 +70,7 @@ class ExchangeRates with ChangeNotifier {
       _bestRetailRates = BestRates.fromJson(extractedData['best']['retail']);
       _bestGrossRates = BestRates.fromJson(extractedData['best']['gross']);
       _exchangeRates = exchangeRates;
+      _updateTime = DateTime.now();
       sortExchangeRates();
 
       notifyListeners();
