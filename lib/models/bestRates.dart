@@ -44,12 +44,10 @@ class BestRates {
       return _mapRep[propertyName];
     }
 
-    print('Throwing error $propertyName');
-    throw ArgumentError('property not found');
+    throw ArgumentError('property not found $propertyName');
   }
 
   factory BestRates.fromJson(Map<String, dynamic> bestRatesFromJson) {
-    print('test $bestRatesFromJson');
     return BestRates(
       buyCNY: bestRatesFromJson['buyCNY'],
       buyEUR: bestRatesFromJson['buyEUR'],

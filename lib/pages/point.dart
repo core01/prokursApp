@@ -1,0 +1,27 @@
+import 'package:flutter/cupertino.dart';
+import 'package:prokurs/models/arguments/pointScreenArguments.dart';
+import 'package:prokurs/widgets/pointCard.dart';
+
+class PointPage extends StatelessWidget {
+  static const routeName = '/point';
+
+  @override
+  Widget build(BuildContext context) {
+    final args =
+        ModalRoute.of(context)!.settings.arguments as PointScreenArguments;
+    final exchangePoint = args.exchangePoint;
+
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        leading: CupertinoButton(
+          child: Text('Закрыть'),
+          padding: EdgeInsets.symmetric(vertical: 5),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      child: SafeArea(
+        child: PointCard(point: exchangePoint),
+      ),
+    );
+  }
+}

@@ -1,4 +1,6 @@
-class ExchangeRate {
+import 'package:flutter/rendering.dart';
+
+class ExchangePoint {
   final num id;
   final String name;
   final num buyUSD;
@@ -22,7 +24,7 @@ class ExchangeRate {
   final num gross;
   final num? atms;
 
-  ExchangeRate({
+  ExchangePoint({
     required this.atms,
     required this.buyCNY,
     required this.buyEUR,
@@ -50,6 +52,7 @@ class ExchangeRate {
   Map<String, dynamic> _toMap() {
     return {
       'id': id,
+      'name': name,
       'buyCNY': buyCNY,
       'buyEUR': buyEUR,
       'buyGBP': buyGBP,
@@ -60,6 +63,7 @@ class ExchangeRate {
       'sellGBP': sellGBP,
       'sellRUB': sellRUB,
       'sellUSD': sellUSD,
+      'gross': gross,
     };
   }
 
@@ -69,12 +73,12 @@ class ExchangeRate {
       return _mapRep[propertyName];
     }
 
-    print('Throwing error $propertyName');
+    debugPrint('Throwing error $propertyName');
     throw ArgumentError('property not found');
   }
 
-  factory ExchangeRate.fromJson(Map<String, dynamic> exchangeRateFromJson) {
-    return ExchangeRate(
+  factory ExchangePoint.fromJson(Map<String, dynamic> exchangeRateFromJson) {
+    return ExchangePoint(
       atms: exchangeRateFromJson['atms'],
       buyCNY: exchangeRateFromJson['buyCNY'],
       buyEUR: exchangeRateFromJson['buyEUR'],

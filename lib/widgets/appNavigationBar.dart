@@ -25,7 +25,7 @@ class AppNavigationBar extends StatelessWidget {
                 size: 32,
               ),
               onPressed: () {
-                print('ON BUTTON CLICK');
+                debugPrint('ON BUTTON CLICK');
               }),
         ],
       ),
