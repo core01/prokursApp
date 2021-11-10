@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:prokurs/constants.dart';
 import 'package:prokurs/models/exchangePoint.dart';
-import 'package:url_launcher/url_launcher.dart' as UrlLauncher;
+import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
 
 class PointCard extends StatelessWidget {
@@ -30,6 +30,7 @@ class PointCard extends StatelessWidget {
           ),
           TableCell(
             child: Container(
+              alignment: Alignment.center,
               padding: EdgeInsets.all(5),
               child: Text(
                 'Покупка',
@@ -41,6 +42,7 @@ class PointCard extends StatelessWidget {
           ),
           TableCell(
             child: Container(
+              alignment: Alignment.center,
               padding: EdgeInsets.all(5),
               child: Text(
                 'Продажа',
@@ -62,25 +64,32 @@ class PointCard extends StatelessWidget {
               child: Container(
                 padding: EdgeInsets.all(5),
                 child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Text(currency['label']),
-                      Icon(
-                        currency['icon'],
-                        color: CupertinoColors.systemGrey,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      child: Text(
+                        currency['label'],
                       ),
-                    ]),
+                    ),
+                    Icon(
+                      currency['icon'],
+                      color: CupertinoColors.systemGrey2,
+                    ),
+                  ],
+                ),
               ),
             ),
             TableCell(
               child: Container(
                 padding: EdgeInsets.all(5),
+                alignment: Alignment.center,
                 child: Text(buyValue != 0 ? buyValue.toString() : '-'),
               ),
             ),
             TableCell(
               child: Container(
                 padding: EdgeInsets.all(5),
+                alignment: Alignment.center,
                 child: Text(sellValue != 0 ? sellValue.toString() : '-'),
               ),
             ),
@@ -90,8 +99,21 @@ class PointCard extends StatelessWidget {
     ];
   }
 
+  void _launchPhone(phone) async {
+    var phoneLink = 'tel://${phone.replaceAll(new RegExp("[^\\d+]"), "")}';
+
+    if (await canLaunch(phoneLink)) {
+      await launch(phoneLink);
+      debugPrint('Launching $phoneLink');
+    } else {
+      debugPrint('Can\'t launch $phoneLink');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    double textScaleFactor = MediaQuery.of(context).textScaleFactor;
+
     return Container(
       child: SingleChildScrollView(
         child: Column(
@@ -140,13 +162,8 @@ class PointCard extends StatelessWidget {
                           return CupertinoButton(
                             minSize: 0.5,
                             padding: EdgeInsets.all(5),
-                            onPressed: () async {
-                              await UrlLauncher.launch('tel://$phone');
-                            },
-                            child: Text(
-                              phone,
-                              style: TextStyle(fontSize: 14),
-                            ),
+                            onPressed: () => _launchPhone(phone),
+                            child: Text(phone),
                           );
                         })
                       ],
@@ -173,11 +190,18 @@ class PointCard extends StatelessWidget {
               ),
             ),
             Table(
-              border: TableBorder.all(
-                width: 1,
-                color: CupertinoColors.systemGrey6,
+              border: TableBorder(
+                horizontalInside: BorderSide(
+                  color: CupertinoColors.systemGrey6,
+                  width: 1,
+                ),
+                verticalInside: BorderSide(
+                  color: CupertinoColors.systemGrey6,
+                  width: 1,
+                ),
               ),
-              defaultColumnWidth: FractionColumnWidth(0.25),
+              defaultColumnWidth: FractionColumnWidth(0.25 * textScaleFactor),
+              columnWidths: {0: FractionColumnWidth(0.2 * textScaleFactor)},
               defaultVerticalAlignment: TableCellVerticalAlignment.middle,
               children: [
                 ...buildRatesTableRows(),

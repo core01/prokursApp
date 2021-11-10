@@ -13,9 +13,10 @@ class PointPage extends StatelessWidget {
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
+        padding: EdgeInsetsDirectional.fromSTEB(10, 5, 5, 5),
         leading: CupertinoButton(
           child: Text('Закрыть'),
-          padding: EdgeInsets.symmetric(vertical: 5),
+          padding: EdgeInsets.symmetric(vertical: 5, horizontal: 0),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),

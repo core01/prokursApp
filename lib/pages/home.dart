@@ -29,13 +29,13 @@ class _HomeState extends State<HomePage> {
                     children: [
                       Image(
                         image: AssetImage('images/logo.png'),
+                        width: 275,
                       ),
                       Container(
                         child: Text(
                           'Выберите город',
                           style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
                           ),
                         ),
                         margin: EdgeInsets.symmetric(
@@ -61,9 +61,6 @@ class _HomeState extends State<HomePage> {
                     ],
                   ),
                 ),
-                // Text(
-                //   'v1 2021',
-                // ),
               ],
             ),
           ),

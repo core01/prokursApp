@@ -1,8 +1,8 @@
 import 'dart:core';
 import 'dart:ui';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:prokurs/models/cityList.dart';
@@ -16,15 +16,13 @@ import '../constants.dart';
 
 class RatesPage extends StatefulWidget {
   @override
-  _HomePageState createState() => _HomePageState();
+  _RatesPageState createState() => _RatesPageState();
 
   static const routeName = '/ratesPage';
 }
 
-class _HomePageState extends State<RatesPage> {
+class _RatesPageState extends State<RatesPage> {
   int _activeTabIndex = 0;
-
-  var buttonContainerVisible = true;
 
   bool _isInit = true;
   bool _isLoading = true;
@@ -44,10 +42,14 @@ class _HomePageState extends State<RatesPage> {
     context.read<ExchangePoints>().changeSortDirection();
   }
 
-  Future<void> _onRatesRefresh() {
-    return context
-        .read<ExchangePoints>()
-        .fetchAndSetExchangeRates(cityId: _selectedCity.id);
+  Future<void> _onRatesRefresh() async {
+    try {
+      await context
+          .read<ExchangePoints>()
+          .fetchAndSetExchangeRates(cityId: _selectedCity.id);
+    } catch (err) {
+      debugPrint('RatesPage -> _onRatesRefresh: catch error $err');
+    }
   }
 
   @override
@@ -58,9 +60,14 @@ class _HomePageState extends State<RatesPage> {
       final cityId = prefs.getInt('cityId') ?? CityList.NUR_SULTAN.id;
       debugPrint('Rates -> didChangeDependencies() -> cityId $cityId');
       _selectedCity = CityList().findById(cityId);
-      await context
-          .read<ExchangePoints>()
-          .fetchAndSetExchangeRates(cityId: cityId);
+      try {
+        await context
+            .read<ExchangePoints>()
+            .fetchAndSetExchangeRates(cityId: cityId);
+      } catch (err) {
+        debugPrint(
+            'Rates -> didChangeDependencies -> catch error in fetchAndSetExchangeRates: $err');
+      }
 
       setState(() {
         _isLoading = false;
@@ -97,7 +104,6 @@ class _HomePageState extends State<RatesPage> {
                 context.watch<ExchangePoints>().selectedCurrency;
             final ratesUpdateTime =
                 context.watch<ExchangePoints>().ratesUpdateTime;
-            final exchangeRatesLength = exchangeRates.length;
             debugPrint(
                 'Home -> build -> tabBuilder: selectedCurrency=$selectedCurrency');
             debugPrint(
@@ -114,7 +120,22 @@ class _HomePageState extends State<RatesPage> {
                           Navigator.pop(widgetContext);
                         },
                         child: Container(
-                          child: Icon(CupertinoIcons.left_chevron),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Icon(
+                                CupertinoIcons.left_chevron,
+                                size: 18,
+                              ),
+                              Text(
+                                'Назад',
+                                style: TextStyle(
+                                  color: CupertinoColors.activeBlue,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       middle: Column(
@@ -127,7 +148,7 @@ class _HomePageState extends State<RatesPage> {
                             ),
                           ),
                           Text(
-                            'Время обновления $ratesUpdateTime',
+                            ' ${ratesUpdateTime != null ? 'Время обновления $ratesUpdateTime' : '—'}',
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.normal,
@@ -138,31 +159,21 @@ class _HomePageState extends State<RatesPage> {
                     ),
                     child: SafeArea(
                       child: Container(
-                        padding: EdgeInsets.all(8),
-                        constraints: BoxConstraints.expand(),
                         child: Stack(
                           children: [
                             Container(
-                              child: exchangeRatesLength < 1
-                                  ? Center(
-                                      child: Container(
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                            'К сожалению, на данный момент нет информации по ${showBuy ? 'покупке' : 'продаже'} ${CURRENCY_LIST[_activeTabIndex]['unicode']} в городе ${_selectedCity.title}',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(fontSize: 18)),
-                                      ),
-                                    )
-                                  : RatesTable(
-                                      exchangeRates: exchangeRates,
-                                      onToggleSortDirection:
-                                          _toggleSortDirection,
-                                      selectedCurrency: selectedCurrency,
-                                      bestGrossRates: bestGrossRates,
-                                      bestRetailRates: bestRetailRates,
-                                      onRefresh: _onRatesRefresh,
-                                      showBuy: showBuy,
-                                    ),
+                              padding: EdgeInsets.all(8),
+                              child: RatesTable(
+                                emptyNoticeText:
+                                    'К сожалению, на данный момент нет информации по актуальному курсу ${showBuy ? 'покупки' : 'продажи'} ${CURRENCY_LIST[_activeTabIndex]['unicode']} в городе ${_selectedCity.title}',
+                                exchangeRates: exchangeRates,
+                                onToggleSortDirection: _toggleSortDirection,
+                                selectedCurrency: selectedCurrency,
+                                bestGrossRates: bestGrossRates,
+                                bestRetailRates: bestRetailRates,
+                                onRefresh: _onRatesRefresh,
+                                showBuy: showBuy,
+                              ),
                             ),
                           ],
                         ),

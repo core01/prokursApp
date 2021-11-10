@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:prokurs/models/bestRates.dart';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:prokurs/models/exchangePoint.dart';
 
@@ -96,22 +97,18 @@ class ExchangePoints with ChangeNotifier {
   Future<void> fetchAndSetExchangeRates({required int cityId}) async {
     final url = Uri.parse('https://api.cityinfo.kz/courses/$cityId');
 
-    try {
-      final response = await http.get(url);
-      final extractedData = json.decode(response.body) as Map<String, dynamic>;
-      List<ExchangePoint> exchangeRates = [];
-      extractedData['rates'].forEach((exchangeData) {
-        exchangeRates.add(ExchangePoint.fromJson(exchangeData));
-      });
-      _bestRetailRates = BestRates.fromJson(extractedData['best']['retail']);
-      _bestGrossRates = BestRates.fromJson(extractedData['best']['gross']);
-      _exchangeRates = exchangeRates;
-      _updateTime = DateTime.now();
-      sortExchangeRates();
+    final response = await http.get(url);
+    final extractedData = json.decode(response.body) as Map<String, dynamic>;
+    List<ExchangePoint> exchangeRates = [];
+    extractedData['rates'].forEach((exchangeData) {
+      exchangeRates.add(ExchangePoint.fromJson(exchangeData));
+    });
+    _bestRetailRates = BestRates.fromJson(extractedData['best']['retail']);
+    _bestGrossRates = BestRates.fromJson(extractedData['best']['gross']);
+    _exchangeRates = exchangeRates;
+    _updateTime = DateTime.now();
+    sortExchangeRates();
 
-      notifyListeners();
-    } catch (error) {
-      throw (error);
-    }
+    notifyListeners();
   }
 }

@@ -6,7 +6,6 @@ import 'package:prokurs/models/bestRates.dart';
 import 'package:prokurs/models/exchangePoint.dart';
 import 'package:prokurs/pages/point.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:prokurs/widgets/pointCard.dart';
 
 class RatesTable extends StatefulWidget {
   final List<ExchangePoint> exchangeRates;
@@ -16,6 +15,7 @@ class RatesTable extends StatefulWidget {
   final BestRates bestGrossRates;
   final onRefresh;
   final bool showBuy;
+  final String emptyNoticeText;
 
   const RatesTable({
     Key? key,
@@ -26,6 +26,7 @@ class RatesTable extends StatefulWidget {
     required this.bestGrossRates,
     required Function this.onRefresh,
     required this.showBuy,
+    required this.emptyNoticeText,
   }) : super(key: key);
 
   @override
@@ -33,11 +34,6 @@ class RatesTable extends StatefulWidget {
 }
 
 class _RatesTable extends State<RatesTable> {
-  final Map<int, Widget> ratesTabs = const <int, Widget>{
-    0: Text("Покупка"),
-    1: Text("Продажа")
-  };
-
   void _onToggleSortDirection() {
     debugPrint('RatesTable -> _onToggleSortDirection');
     widget.onToggleSortDirection();
@@ -88,179 +84,200 @@ class _RatesTable extends State<RatesTable> {
 
   @override
   Widget build(BuildContext context) {
-    final exchangeRates = widget.exchangeRates;
-    final selectedCurrency = widget.selectedCurrency;
-    final showBuy = widget.showBuy;
+    double textScaleFactor = MediaQuery.of(context).textScaleFactor;
 
-    var items = <Widget>[
-      Container(
-        padding: EdgeInsets.all(5),
-        margin: EdgeInsets.only(bottom: 10),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                'Обменный пункт',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-              ),
-            ),
-            Container(
-              width: 160,
-              alignment: Alignment.center,
-              child: CupertinoSlidingSegmentedControl(
-                  groupValue: showBuy ? 0 : 1,
-                  children: ratesTabs,
-                  onValueChanged: (i) {
-                    _onToggleSortDirection();
-                  }),
-            ),
-          ],
+    final Map<int, Widget> ratesTabs = <int, Widget>{
+      0: Text("Покупка", style: TextStyle(fontSize: 16 / textScaleFactor)),
+      1: Text("Продажа", style: TextStyle(fontSize: 16 / textScaleFactor)),
+    };
+
+    final List<ExchangePoint> exchangeRates = widget.exchangeRates;
+    final String selectedCurrency = widget.selectedCurrency;
+    final bool showBuy = widget.showBuy;
+    final String emptyNoticeText = widget.emptyNoticeText;
+    List<Widget> items = [];
+
+    if (exchangeRates.length < 1) {
+      items = <Widget>[
+        Container(
+          margin: EdgeInsets.only(top: 20),
+          child: Text(
+            emptyNoticeText,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 16 / textScaleFactor),
+          ),
         ),
-      ),
-      ...exchangeRates.map((rate) {
-        return GestureDetector(
-          onTap: () {
-            showCupertinoModalBottomSheet(
-              context: context,
-              builder: (context) => PointPage(),
-              expand: true,
-              settings: RouteSettings(
-                arguments: PointScreenArguments(rate),
-              ),
-            );
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(
-                  width: 2,
-                  color: CupertinoColors.systemGrey6,
-                ),
-              ),
-            ),
-            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  child: Text(
-                    rate.name,
-                    textAlign: TextAlign.left,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
+      ];
+    } else {
+      items = <Widget>[
+        Container(
+          padding: EdgeInsets.all(5),
+          margin: EdgeInsets.only(bottom: 10),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Обменный пункт',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18 / textScaleFactor,
                   ),
-                  margin: EdgeInsets.only(bottom: 5),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Container(
-                        padding: EdgeInsets.only(right: 10),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            if (rate.gross > 0)
+              ),
+              Container(
+                alignment: Alignment.center,
+                child: CupertinoSlidingSegmentedControl(
+                    groupValue: showBuy ? 0 : 1,
+                    children: ratesTabs,
+                    onValueChanged: (i) {
+                      _onToggleSortDirection();
+                    }),
+              ),
+            ],
+          ),
+        ),
+        ...exchangeRates.map((rate) {
+          return GestureDetector(
+            onTap: () {
+              showCupertinoModalBottomSheet(
+                context: context,
+                builder: (context) => PointPage(),
+                expand: true,
+                settings: RouteSettings(
+                  arguments: PointScreenArguments(rate),
+                ),
+              );
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  top: BorderSide(
+                    width: 2,
+                    color: CupertinoColors.systemGrey6,
+                  ),
+                ),
+              ),
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    child: Text(
+                      rate.name,
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    margin: EdgeInsets.only(bottom: 5),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: EdgeInsets.only(right: 10),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              if (rate.gross > 0)
+                                Container(
+                                  margin: EdgeInsets.only(bottom: 5),
+                                  child: Text(
+                                    'Оптовый курс',
+                                    style: TextStyle(
+                                      color: CupertinoColors.systemOrange,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
                               Container(
                                 margin: EdgeInsets.only(bottom: 5),
                                 child: Text(
-                                  'Оптовый курс',
+                                  '${rate.info != null ? rate.info : '-'}',
+                                  textAlign: TextAlign.left,
                                   style: TextStyle(
-                                    color: CupertinoColors.systemOrange,
                                     fontSize: 14,
-                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ),
-                            Container(
-                              margin: EdgeInsets.only(bottom: 5),
-                              child: Text(
-                                '${rate.info != null ? rate.info : '-'}',
-                                textAlign: TextAlign.left,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                ),
-                              ),
+                            ],
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        width: 75,
+                        alignment: Alignment.center,
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            right: BorderSide(
+                              width: 0.5,
+                              color: Color(0xFFAFAFAF),
                             ),
-                          ],
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          ),
                         ),
-                      ),
-                    ),
-                    Container(
-                      width: 75,
-                      alignment: Alignment.center,
-                      decoration: const BoxDecoration(
-                        border: Border(
-                          right: BorderSide(
-                            width: 0.5,
-                            color: Color(0xFFAFAFAF),
+                        child: Text(
+                          getRateCurrencyStringValue(
+                            rate,
+                            'buy$selectedCurrency',
+                          ),
+                          style: getRateCurrencyTextStyle(
+                            rate,
+                            'buy$selectedCurrency',
                           ),
                         ),
                       ),
-                      child: Text(
-                        getRateCurrencyStringValue(
-                          rate,
-                          'buy$selectedCurrency',
-                        ),
-                        style: getRateCurrencyTextStyle(
-                          rate,
-                          'buy$selectedCurrency',
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width: 75,
-                      alignment: Alignment.center,
-                      child: Text(
-                        getRateCurrencyStringValue(
-                          rate,
-                          'sell$selectedCurrency',
-                        ),
-                        style: getRateCurrencyTextStyle(
-                          rate,
-                          'sell$selectedCurrency',
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Container(
-                  margin: EdgeInsets.only(bottom: 5),
-                  child: Row(
-                    children: [
-                      Text(
-                        'Обновлено в ',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        DateFormat('HH:mm').format(
-                          DateTime.fromMillisecondsSinceEpoch(
-                            rate.date_update * 1000 as int,
+                      Container(
+                        width: 75,
+                        alignment: Alignment.center,
+                        child: Text(
+                          getRateCurrencyStringValue(
+                            rate,
+                            'sell$selectedCurrency',
                           ),
-                        ),
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                          style: getRateCurrencyTextStyle(
+                            rate,
+                            'sell$selectedCurrency',
+                          ),
                         ),
                       ),
                     ],
                   ),
-                ),
-              ],
+                  Container(
+                    margin: EdgeInsets.only(bottom: 5),
+                    child: Row(
+                      children: [
+                        Text(
+                          'Обновлено в ',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          DateFormat('HH:mm').format(
+                            DateTime.fromMillisecondsSinceEpoch(
+                              rate.date_update * 1000 as int,
+                            ),
+                          ),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        );
-      }),
-    ];
+          );
+        }),
+      ];
+    }
 
     return Container(
       child: Column(
