@@ -1,4 +1,4 @@
-package com.example.prokurs
+package com.prokurs.app
 
 import io.flutter.embedding.android.FlutterActivity
 
