@@ -1,14 +1,13 @@
 import 'package:flutter/cupertino.dart';
-import 'package:prokurs/models/arguments/pointScreenArguments.dart';
-import 'package:prokurs/widgets/pointCard.dart';
+import 'package:prokurs/models/arguments/point_screen_arguments.dart';
+import 'package:prokurs/widgets/point_card.dart';
 
 class PointPage extends StatelessWidget {
   static const routeName = '/point';
 
   @override
   Widget build(BuildContext context) {
-    final args =
-        ModalRoute.of(context)!.settings.arguments as PointScreenArguments;
+    final args = ModalRoute.of(context)!.settings.arguments as PointScreenArguments;
     final exchangePoint = args.exchangePoint;
 
     return CupertinoPageScaffold(

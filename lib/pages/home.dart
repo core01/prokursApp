@@ -1,18 +1,34 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:prokurs/models/arguments/ratesScreenArguments.dart';
-import 'package:prokurs/models/cityList.dart';
+import 'package:prokurs/models/city_list.dart';
 import 'package:prokurs/pages/rates.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   static const routeName = '/';
+
   @override
   _HomeState createState() => _HomeState();
 }
 
 class _HomeState extends State<HomePage> {
   var cities = CityList().items;
+
+  Iterable<CupertinoButton> formatCityList() {
+    return cities.map((city) => CupertinoButton(
+        child: Text(
+          city.title,
+          style: TextStyle(
+            fontSize: 18,
+          ),
+        ),
+        onPressed: () async {
+          final prefs = await SharedPreferences.getInstance();
+          prefs.setInt('cityId', city.id);
+          debugPrint('Home -> formatCityList -> onPressed ${city.id}');
+
+          Navigator.pushNamed(context, RatesPage.routeName);
+        }));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,10 +43,6 @@ class _HomeState extends State<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Image(
-                        image: AssetImage('images/logo.png'),
-                        width: 275,
-                      ),
                       Container(
                         child: Text(
                           'Выберите город',
@@ -42,22 +54,7 @@ class _HomeState extends State<HomePage> {
                           vertical: 20,
                         ),
                       ),
-                      ...cities.map(
-                        (city) => CupertinoButton(
-                          child: Text(city.title),
-                          onPressed: () async {
-                            final prefs = await SharedPreferences.getInstance();
-                            prefs.setInt('cityId', city.id);
-                            debugPrint('Home -> build -> setCityId ${city.id}');
-
-                            Navigator.pushNamed(
-                              context,
-                              RatesPage.routeName,
-                              arguments: RatesScreenArguments(city),
-                            );
-                          },
-                        ),
-                      ),
+                      ...formatCityList()
                     ],
                   ),
                 ),

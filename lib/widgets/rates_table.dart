@@ -1,11 +1,12 @@
 import 'package:flutter/cupertino.dart';
-
 import 'package:intl/intl.dart';
-import 'package:prokurs/models/arguments/pointScreenArguments.dart';
-import 'package:prokurs/models/bestRates.dart';
-import 'package:prokurs/models/exchangePoint.dart';
-import 'package:prokurs/pages/point.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:prokurs/constants.dart';
+import 'package:prokurs/models/arguments/point_screen_arguments.dart';
+import 'package:prokurs/models/best_rates.dart';
+import 'package:prokurs/models/exchange_point.dart';
+import 'package:prokurs/pages/point.dart';
+import 'package:prokurs/utils.dart';
 
 class RatesTable extends StatefulWidget {
   final List<ExchangePoint> exchangeRates;
@@ -43,52 +44,38 @@ class _RatesTable extends State<RatesTable> {
     await widget.onRefresh();
   }
 
-  String getRateCurrencyStringValue(ExchangePoint rate, String property) {
-    var numberFormatter = NumberFormat("###.00");
-    num currencyValue = rate.get(property);
-
-    debugPrint(
-        'Home -> getRateCurrencyStringValue property $property currencyValue $currencyValue');
-    return currencyValue == 0 ? '-' : numberFormatter.format((currencyValue));
-  }
-
 // синий покупка  /  красный продажа
   TextStyle getRateCurrencyTextStyle(ExchangePoint rate, String property) {
     num currencyValue = rate.get(property);
-    bool isBestGross =
-        rate.gross > 0 && currencyValue == widget.bestGrossRates.get(property);
-    bool isBestRetail = rate.gross == 0 &&
-        currencyValue == widget.bestRetailRates.get(property);
-    debugPrint(
-        'getRateCurrencyTextStyle best retail ${widget.bestRetailRates.get(property)}');
-    debugPrint(
-        'getRateCurrencyTextStyle best gross ${widget.bestGrossRates.get(property)}');
+    bool isBestGross = rate.gross > 0 && currencyValue == widget.bestGrossRates.get(property);
+    bool isBestRetail = rate.gross == 0 && currencyValue == widget.bestRetailRates.get(property);
+    debugPrint('getRateCurrencyTextStyle best retail ${widget.bestRetailRates.get(property)}');
+    debugPrint('getRateCurrencyTextStyle best gross ${widget.bestGrossRates.get(property)}');
     debugPrint('getRateCurrencyTextStyle currencyValue $currencyValue');
 
-    bool isBuy = property.contains('buy');
+    bool isBuy = property.contains(BUY_KEY);
     var color;
     var fontWeight = FontWeight.normal;
     if (isBestGross || isBestRetail) {
-      color = isBuy ? Color(0xff800000) : Color(0xff0c14b2);
-      fontWeight = FontWeight.bold;
+      var bestColors = isDarkModeOn() ? [Color(0xffa95e79), Color(0xff4079ae)] : [Color(0xff800000), Color(0xff0c14b2)];
+      color = isBuy ? bestColors[0] : bestColors[1];
+      fontWeight = FontWeight.w500;
     } else {
-      color = CupertinoColors.black;
+      color = CupertinoTheme.of(context).textTheme.textStyle.color;
     }
 
     return new TextStyle(
       color: color,
       fontWeight: fontWeight,
-      fontSize: 16,
+      fontSize: 18,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    double textScaleFactor = MediaQuery.of(context).textScaleFactor;
-
-    final Map<int, Widget> ratesTabs = <int, Widget>{
-      0: Text("Покупка", style: TextStyle(fontSize: 16 / textScaleFactor)),
-      1: Text("Продажа", style: TextStyle(fontSize: 16 / textScaleFactor)),
+    final Map<int, Widget> sortDirectionTabs = <int, Widget>{
+      0: Text("Покупка", style: TextStyle(fontSize: 16)),
+      1: Text("Продажа", style: TextStyle(fontSize: 16)),
     };
 
     final List<ExchangePoint> exchangeRates = widget.exchangeRates;
@@ -104,7 +91,9 @@ class _RatesTable extends State<RatesTable> {
           child: Text(
             emptyNoticeText,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16 / textScaleFactor),
+            style: TextStyle(
+              fontSize: 16,
+            ),
           ),
         ),
       ];
@@ -114,24 +103,15 @@ class _RatesTable extends State<RatesTable> {
           padding: EdgeInsets.all(5),
           margin: EdgeInsets.only(bottom: 10),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Expanded(
-                child: Text(
-                  'Обменный пункт',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18 / textScaleFactor,
-                  ),
-                ),
-              ),
               Container(
                 alignment: Alignment.center,
                 child: CupertinoSlidingSegmentedControl(
-                    groupValue: showBuy ? 0 : 1,
-                    children: ratesTabs,
-                    onValueChanged: (i) {
-                      _onToggleSortDirection();
-                    }),
+                  groupValue: showBuy ? 0 : 1,
+                  children: sortDirectionTabs,
+                  onValueChanged: (i) => _onToggleSortDirection(),
+                ),
               ),
             ],
           ),
@@ -166,8 +146,7 @@ class _RatesTable extends State<RatesTable> {
                       rate.name,
                       textAlign: TextAlign.left,
                       style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     margin: EdgeInsets.only(bottom: 5),
@@ -209,7 +188,6 @@ class _RatesTable extends State<RatesTable> {
                         ),
                       ),
                       Container(
-                        width: 75,
                         alignment: Alignment.center,
                         decoration: const BoxDecoration(
                           border: Border(
@@ -220,29 +198,30 @@ class _RatesTable extends State<RatesTable> {
                           ),
                         ),
                         child: Text(
-                          getRateCurrencyStringValue(
+                          getPointCurrencyRateStringFormatted(
                             rate,
-                            'buy$selectedCurrency',
+                            '$BUY_KEY$selectedCurrency',
                           ),
                           style: getRateCurrencyTextStyle(
                             rate,
-                            'buy$selectedCurrency',
+                            '$BUY_KEY$selectedCurrency',
                           ),
                         ),
+                        padding: EdgeInsets.symmetric(horizontal: 10),
                       ),
                       Container(
-                        width: 75,
                         alignment: Alignment.center,
                         child: Text(
-                          getRateCurrencyStringValue(
+                          getPointCurrencyRateStringFormatted(
                             rate,
-                            'sell$selectedCurrency',
+                            '$SELL_KEY$selectedCurrency',
                           ),
                           style: getRateCurrencyTextStyle(
                             rate,
-                            'sell$selectedCurrency',
+                            '$SELL_KEY$selectedCurrency',
                           ),
                         ),
+                        padding: EdgeInsets.symmetric(horizontal: 10),
                       ),
                     ],
                   ),
@@ -254,7 +233,7 @@ class _RatesTable extends State<RatesTable> {
                           'Обновлено в ',
                           style: TextStyle(
                             fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                         Text(
@@ -265,7 +244,7 @@ class _RatesTable extends State<RatesTable> {
                           ),
                           style: TextStyle(
                             fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],

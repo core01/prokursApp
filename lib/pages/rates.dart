@@ -1,18 +1,14 @@
 import 'dart:core';
-import 'dart:ui';
-import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
-import 'package:prokurs/models/cityList.dart';
-import 'package:prokurs/providers/exchangePoints.dart';
-import 'package:prokurs/widgets/RatesTable.dart';
+import 'package:prokurs/models/city_list.dart';
+import 'package:prokurs/providers/exchange_points.dart';
+import 'package:prokurs/widgets/rates_table.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/city.dart';
 
 import '../constants.dart';
+import '../models/city.dart';
 
 class RatesPage extends StatefulWidget {
   @override
@@ -22,19 +18,15 @@ class RatesPage extends StatefulWidget {
 }
 
 class _RatesPageState extends State<RatesPage> {
-  int _activeTabIndex = 0;
+  final CupertinoTabController _currencyTabController = CupertinoTabController();
 
-  bool _isInit = true;
+  bool _isInitializationNeeded = true;
   bool _isLoading = true;
+
   late City _selectedCity;
 
   void setActiveTab(int activeTabIndex) {
-    setState(() {
-      this._activeTabIndex = activeTabIndex;
-    });
-    context
-        .read<ExchangePoints>()
-        .changeSelectedCurrency(currency: CURRENCY_LIST[_activeTabIndex]['id']);
+    context.read<ExchangePoints>().changeSelectedCurrency(currency: CURRENCY_LIST[_currencyTabController.index].id);
   }
 
   void _toggleSortDirection() {
@@ -44,9 +36,7 @@ class _RatesPageState extends State<RatesPage> {
 
   Future<void> _onRatesRefresh() async {
     try {
-      await context
-          .read<ExchangePoints>()
-          .fetchAndSetExchangeRates(cityId: _selectedCity.id);
+      await context.read<ExchangePoints>().fetchAndSetExchangeRates(cityId: _selectedCity.id);
     } catch (err) {
       debugPrint('RatesPage -> _onRatesRefresh: catch error $err');
     }
@@ -54,25 +44,28 @@ class _RatesPageState extends State<RatesPage> {
 
   @override
   void didChangeDependencies() async {
-    if (_isInit) {
+    if (_isInitializationNeeded) {
       final prefs = await SharedPreferences.getInstance();
 
       final cityId = prefs.getInt('cityId') ?? CityList.NUR_SULTAN.id;
       debugPrint('Rates -> didChangeDependencies() -> cityId $cityId');
       _selectedCity = CityList().findById(cityId);
+      final selectedCurrency = context.read<ExchangePoints>().selectedCurrency;
+      int tabIndex = CURRENCY_LIST.indexWhere((currency) => currency.id == selectedCurrency);
+      if (tabIndex > -1) {
+        _currencyTabController.index = tabIndex;
+        debugPrint('Rates -> didChangeDependencies() -> tabIndex $tabIndex');
+      }
       try {
-        await context
-            .read<ExchangePoints>()
-            .fetchAndSetExchangeRates(cityId: cityId);
+        await context.read<ExchangePoints>().fetchAndSetExchangeRates(cityId: cityId);
       } catch (err) {
-        debugPrint(
-            'Rates -> didChangeDependencies -> catch error in fetchAndSetExchangeRates: $err');
+        debugPrint('Rates -> didChangeDependencies -> catch error in fetchAndSetExchangeRates: $err');
       }
 
       setState(() {
         _isLoading = false;
       });
-      _isInit = false;
+      _isInitializationNeeded = false;
     }
 
     super.didChangeDependencies();
@@ -84,30 +77,24 @@ class _RatesPageState extends State<RatesPage> {
       tabBar: CupertinoTabBar(
         items: CURRENCY_LIST.map((currency) {
           return BottomNavigationBarItem(
-            icon: Icon(currency['icon']),
-            label: currency['label'],
+            icon: Icon(currency.icon),
+            label: currency.label,
           );
         }).toList(),
-        currentIndex: _activeTabIndex,
         onTap: (newIndex) => setActiveTab(newIndex),
       ),
+      controller: _currencyTabController,
       tabBuilder: (BuildContext context, int index) {
         return CupertinoTabView(
           builder: (BuildContext context) {
             final showBuy = context.watch<ExchangePoints>().showBuy;
             final exchangeRates = context.watch<ExchangePoints>().items;
-            final bestRetailRates =
-                context.watch<ExchangePoints>().bestRetailRates;
-            final bestGrossRates =
-                context.watch<ExchangePoints>().bestGrossRates;
-            final selectedCurrency =
-                context.watch<ExchangePoints>().selectedCurrency;
-            final ratesUpdateTime =
-                context.watch<ExchangePoints>().ratesUpdateTime;
-            debugPrint(
-                'Home -> build -> tabBuilder: selectedCurrency=$selectedCurrency');
-            debugPrint(
-                'Home -> build -> tabBuilder: exchangeRates.lenth=${exchangeRates.length}');
+            final bestRetailRates = context.watch<ExchangePoints>().bestRetailRates;
+            final bestGrossRates = context.watch<ExchangePoints>().bestGrossRates;
+            final ratesUpdateTime = context.watch<ExchangePoints>().ratesUpdateTime;
+            final selectedCurrency = widgetContext.watch<ExchangePoints>().selectedCurrency;
+            debugPrint('Home -> build -> tabBuilder: selectedCurrency=$selectedCurrency');
+            debugPrint('Home -> build -> tabBuilder: exchangeRates.length=${exchangeRates.length}');
             debugPrint('Home -> build -> tabBuilder: showBuy=$showBuy');
             return _isLoading
                 ? CupertinoActivityIndicator(
@@ -130,8 +117,8 @@ class _RatesPageState extends State<RatesPage> {
                               Text(
                                 'Назад',
                                 style: TextStyle(
-                                  color: CupertinoColors.activeBlue,
-                                  fontSize: 16,
+                                  color: CupertinoTheme.of(context).primaryColor,
+                                  fontSize: 18,
                                 ),
                               ),
                             ],
@@ -150,7 +137,7 @@ class _RatesPageState extends State<RatesPage> {
                           Text(
                             ' ${ratesUpdateTime != null ? 'Время обновления $ratesUpdateTime' : '—'}',
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 14,
                               fontWeight: FontWeight.normal,
                             ),
                           ),
@@ -165,7 +152,7 @@ class _RatesPageState extends State<RatesPage> {
                               padding: EdgeInsets.all(8),
                               child: RatesTable(
                                 emptyNoticeText:
-                                    'К сожалению, на данный момент нет информации по актуальному курсу ${showBuy ? 'покупки' : 'продажи'} ${CURRENCY_LIST[_activeTabIndex]['unicode']} в городе ${_selectedCity.title}',
+                                    'К сожалению, на данный момент нет информации по актуальному курсу ${showBuy ? 'покупки' : 'продажи'} $selectedCurrency в городе ${_selectedCity.title}',
                                 exchangeRates: exchangeRates,
                                 onToggleSortDirection: _toggleSortDirection,
                                 selectedCurrency: selectedCurrency,

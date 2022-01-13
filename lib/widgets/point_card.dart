@@ -1,24 +1,60 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:prokurs/constants.dart';
-import 'package:prokurs/models/exchangePoint.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
+import 'package:prokurs/constants.dart';
+import 'package:prokurs/models/exchange_point.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../utils.dart';
 
 class PointCard extends StatelessWidget {
   final ExchangePoint point;
 
   const PointCard({required this.point});
 
-  List<TableRow> buildRatesTableRows() {
-    String getBuyKey(currency) => 'buy$currency';
-    String getSellKey(currency) => 'sell$currency';
+  String getPointCurrencyBuyValue(String currencyId) {
+    return getPointCurrencyRateStringFormatted(this.point, '$BUY_KEY$currencyId');
+  }
 
+  String getPointCurrencySellValue(String currencyId) {
+    return getPointCurrencyRateStringFormatted(this.point, '$SELL_KEY$currencyId');
+  }
+
+  Widget get getPointDateUpdate => Text(
+        DateFormat('dd.MM.yyyy  HH:mm:ss').format(
+          DateTime.fromMillisecondsSinceEpoch(
+            this.point.date_update * 1000 as int,
+          ),
+        ),
+      );
+
+  Widget get buildPointPhones => point.phones != null
+      ? Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ...point.phones.map((phone) {
+              return CupertinoButton(
+                minSize: 0.5,
+                padding: EdgeInsets.all(5),
+                onPressed: () => _launchPhone(phone),
+                child: Text(phone),
+              );
+            })
+          ],
+        )
+      : Text('-');
+
+  Widget get buildPointInfo => Text(
+        point.info != null ? '${point.info}' : '-',
+      );
+
+  List<TableRow> buildRatesTableRows() {
     return <TableRow>[
       TableRow(
         children: [
           TableCell(
             child: Container(
+              alignment: Alignment.center,
               padding: EdgeInsets.all(5),
               child: Text(
                 'Валюта',
@@ -54,48 +90,46 @@ class PointCard extends StatelessWidget {
           ),
         ],
       ),
-      ...CURRENCY_LIST.map((currency) {
-        num buyValue = point.get(getBuyKey(currency['id']));
-        num sellValue = point.get(getSellKey(currency['id']));
-
-        return TableRow(
-          children: [
-            TableCell(
-              child: Container(
-                padding: EdgeInsets.all(5),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      child: Text(
-                        currency['label'],
+      ...CURRENCY_LIST.map((currency) => TableRow(
+            children: [
+              TableCell(
+                child: Container(
+                  padding: EdgeInsets.all(5),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        child: Text(
+                          currency.label,
+                        ),
                       ),
-                    ),
-                    Icon(
-                      currency['icon'],
-                      color: CupertinoColors.systemGrey2,
-                    ),
-                  ],
+                      Container(
+                        child: Icon(
+                          currency.icon,
+                          color: CupertinoColors.systemGrey2,
+                        ),
+                        padding: EdgeInsets.only(left: 10),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            TableCell(
-              child: Container(
-                padding: EdgeInsets.all(5),
-                alignment: Alignment.center,
-                child: Text(buyValue != 0 ? buyValue.toString() : '-'),
+              TableCell(
+                child: Container(
+                  padding: EdgeInsets.all(5),
+                  alignment: Alignment.center,
+                  child: Text(this.getPointCurrencyBuyValue(currency.id)),
+                ),
               ),
-            ),
-            TableCell(
-              child: Container(
-                padding: EdgeInsets.all(5),
-                alignment: Alignment.center,
-                child: Text(sellValue != 0 ? sellValue.toString() : '-'),
+              TableCell(
+                child: Container(
+                  padding: EdgeInsets.all(5),
+                  alignment: Alignment.center,
+                  child: Text(this.getPointCurrencySellValue(currency.id)),
+                ),
               ),
-            ),
-          ],
-        );
-      }),
+            ],
+          )),
     ];
   }
 
@@ -112,8 +146,6 @@ class PointCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double textScaleFactor = MediaQuery.of(context).textScaleFactor;
-
     return Container(
       child: SingleChildScrollView(
         child: Column(
@@ -140,7 +172,7 @@ class PointCard extends StatelessWidget {
             ),
             Container(
               margin: EdgeInsets.only(bottom: 15),
-              child: Text(point.info != null ? '${point.info}' : '-'),
+              child: this.buildPointInfo,
             ),
             Container(
               margin: EdgeInsets.only(bottom: 5),
@@ -153,22 +185,7 @@ class PointCard extends StatelessWidget {
             ),
             Container(
               margin: EdgeInsets.only(bottom: 10),
-              child: point.phones != null
-                  ? Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ...point.phones.map((phone) {
-                          return CupertinoButton(
-                            minSize: 0.5,
-                            padding: EdgeInsets.all(5),
-                            onPressed: () => _launchPhone(phone),
-                            child: Text(phone),
-                          );
-                        })
-                      ],
-                    )
-                  : Text('-'),
+              child: this.buildPointPhones,
             ),
             Container(
               margin: EdgeInsets.only(bottom: 5),
@@ -181,13 +198,7 @@ class PointCard extends StatelessWidget {
             ),
             Container(
               margin: EdgeInsets.only(bottom: 15),
-              child: Text(
-                DateFormat('dd.MM.yyyy  HH:mm:ss').format(
-                  DateTime.fromMillisecondsSinceEpoch(
-                    point.date_update * 1000 as int,
-                  ),
-                ),
-              ),
+              child: this.getPointDateUpdate,
             ),
             Table(
               border: TableBorder(
@@ -200,8 +211,6 @@ class PointCard extends StatelessWidget {
                   width: 1,
                 ),
               ),
-              defaultColumnWidth: FractionColumnWidth(0.25 * textScaleFactor),
-              columnWidths: {0: FractionColumnWidth(0.2 * textScaleFactor)},
               defaultVerticalAlignment: TableCellVerticalAlignment.middle,
               children: [
                 ...buildRatesTableRows(),

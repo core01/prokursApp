@@ -1,11 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:prokurs/models/bestRates.dart';
-import 'dart:convert';
-import 'dart:io';
-
-import 'package:prokurs/models/exchangePoint.dart';
+import 'package:prokurs/constants.dart';
+import 'package:prokurs/models/best_rates.dart';
+import 'package:prokurs/models/exchange_point.dart';
 
 class ExchangePoints with ChangeNotifier {
   List<ExchangePoint> _exchangeRates = [];
@@ -18,16 +18,19 @@ class ExchangePoints with ChangeNotifier {
   BestRates _bestGrossRates = BestRates();
 
   String get selectedCurrency => _currency;
+
   bool get showBuy => _showBuy;
 
-  String get buyKey => 'buy$_currency';
-  String get sellKey => 'sell$_currency';
+  String get buyKey => '$BUY_KEY$_currency';
+
+  String get sellKey => '$SELL_KEY$_currency';
 
   List<ExchangePoint> get items => _exchangeRates.where((el) {
         return el.get(buyKey) != 0 || el.get(sellKey) != 0;
       }).toList();
 
   BestRates get bestRetailRates => _bestRetailRates;
+
   BestRates get bestGrossRates => _bestGrossRates;
 
   String? get ratesUpdateTime {
@@ -68,21 +71,18 @@ class ExchangePoints with ChangeNotifier {
           returningValue = value.compareTo(compareValue);
         }
       }
-      debugPrint(
-          'exchangePoints -> sortExchangeRates NAME:${b.get('name')} vs ${a.get('name')}');
+      debugPrint('exchangePoints -> sortExchangeRates NAME:${b.get('name')} vs ${a.get('name')}');
       debugPrint(
           'exchangePoints -> sortExchangeRates _showBuy:$_showBuy, value:$value, compareWith:$compareValue, returningValue: $returningValue');
       return returningValue;
     });
 
-    debugPrint(
-        'ExchangeRates Provider -> sortExchangeRates - sorted $_currency');
+    debugPrint('ExchangeRates Provider -> sortExchangeRates - sorted $_currency');
   }
 
   void changeSelectedCurrency({String currency = ''}) {
     _currency = currency.isEmpty ? _currency : currency;
-    debugPrint(
-        'ExchangeRates Provider -> changeSelectedCurrency _currency: $_currency');
+    debugPrint('ExchangeRates Provider -> changeSelectedCurrency _currency: $_currency');
     sortExchangeRates();
 
     notifyListeners();
