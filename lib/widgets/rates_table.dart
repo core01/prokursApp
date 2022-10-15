@@ -35,6 +35,8 @@ class RatesTable extends StatefulWidget {
 }
 
 class _RatesTable extends State<RatesTable> {
+  static const RATE_CELL_MIN_WIDTH = 22 / 100;
+
   void _onToggleSortDirection() {
     debugPrint('RatesTable -> _onToggleSortDirection');
     widget.onToggleSortDirection();
@@ -189,6 +191,7 @@ class _RatesTable extends State<RatesTable> {
                       ),
                       Container(
                         alignment: Alignment.center,
+                        constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width * RATE_CELL_MIN_WIDTH),
                         decoration: const BoxDecoration(
                           border: Border(
                             right: BorderSide(
@@ -210,6 +213,7 @@ class _RatesTable extends State<RatesTable> {
                         padding: EdgeInsets.symmetric(horizontal: 10),
                       ),
                       Container(
+                        constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width * RATE_CELL_MIN_WIDTH),
                         alignment: Alignment.center,
                         child: Text(
                           getPointCurrencyRateStringFormatted(
