@@ -3,7 +3,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:intl/intl.dart';
 import 'package:prokurs/models/exchange_point.dart';
 
-var isDarkModeOn = () => SchedulerBinding.instance!.window.platformBrightness == Brightness.dark;
+var isDarkModeOn = () => SchedulerBinding.instance.window.platformBrightness == Brightness.dark;
 
 String getPointCurrencyRateStringFormatted(ExchangePoint point, String property) {
   var numberFormatter = NumberFormat("####.00");
