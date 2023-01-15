@@ -47,7 +47,7 @@ class _RatesPageState extends State<RatesPage> {
     if (_isInitializationNeeded) {
       final prefs = await SharedPreferences.getInstance();
 
-      final cityId = prefs.getInt('cityId') ?? CityList.NUR_SULTAN.id;
+      final cityId = prefs.getInt('cityId') ?? CityList.ASTANA.id;
       debugPrint('Rates -> didChangeDependencies() -> cityId $cityId');
       _selectedCity = CityList().findById(cityId);
       final selectedCurrency = context.read<ExchangePoints>().selectedCurrency;
