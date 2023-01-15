@@ -134,10 +134,10 @@ class PointCard extends StatelessWidget {
   }
 
   void _launchPhone(phone) async {
-    var phoneLink = 'tel://${phone.replaceAll(new RegExp("[^\\d+]"), "")}';
+    final Uri phoneLink = Uri.parse('tel://${phone.replaceAll(new RegExp("[^\\d+]"), "")}');
 
-    if (await canLaunch(phoneLink)) {
-      await launch(phoneLink);
+    if (await canLaunchUrl(phoneLink)) {
+      await launchUrl(phoneLink);
       debugPrint('Launching $phoneLink');
     } else {
       debugPrint('Can\'t launch $phoneLink');

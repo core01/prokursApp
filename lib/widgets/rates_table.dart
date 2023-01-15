@@ -134,8 +134,8 @@ class _RatesTable extends State<RatesTable> {
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(
-                    width: 2,
-                    color: CupertinoColors.systemGrey6,
+                    width: 1,
+                    color: isDarkModeOn() ? CupertinoColors.systemGrey2: CupertinoColors.systemGrey6,
                   ),
                 ),
               ),
