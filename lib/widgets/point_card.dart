@@ -1,225 +1,348 @@
 import 'package:flutter/cupertino.dart';
-import 'package:intl/intl.dart';
 import 'package:prokurs/constants.dart';
 import 'package:prokurs/models/exchange_point.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 import '../utils.dart';
 
-class PointCard extends StatelessWidget {
+class PointCard extends StatefulWidget {
   final ExchangePoint point;
 
-  const PointCard({required this.point});
+  const PointCard({super.key, required this.point});
+
+  @override
+  PointCardState createState() => PointCardState();
+}
+
+class PointCardState extends State<PointCard> {
+  bool _isLoading = true;
+  List phoneNumbers = [];
+
+  @override
+  void didChangeDependencies() async {
+    super.didChangeDependencies();
+    for (var phone in widget.point.phones) {
+      phoneNumbers.add(phone);
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  bool hasPointCurrencyBuyValue(String currencyId) {
+    return widget.point.get('$BUY_KEY$currencyId') != 0;
+  }
+
+  bool hasPointCurrencySellValue(String currencyId) {
+    return widget.point.get('$SELL_KEY$currencyId') != 0;
+  }
 
   String getPointCurrencyBuyValue(String currencyId) {
-    return getPointCurrencyRateStringFormatted(this.point, '$BUY_KEY$currencyId');
+    return getPointCurrencyRateStringFormatted(
+        widget.point, '$BUY_KEY$currencyId');
   }
 
   String getPointCurrencySellValue(String currencyId) {
-    return getPointCurrencyRateStringFormatted(this.point, '$SELL_KEY$currencyId');
-  }
-
-  Widget get getPointDateUpdate => Text(
-        DateFormat('dd.MM.yyyy  HH:mm:ss').format(
-          DateTime.fromMillisecondsSinceEpoch(
-            this.point.date_update * 1000 as int,
-          ),
-        ),
-      );
-
-  Widget get buildPointPhones => point.phones != null
-      ? Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ...point.phones.map((phone) {
-              return CupertinoButton(
-                minSize: 0.5,
-                padding: EdgeInsets.all(5),
-                onPressed: () => _launchPhone(phone),
-                child: Text(phone),
-              );
-            })
-          ],
-        )
-      : Text('-');
-
-  Widget get buildPointInfo => Text(
-        point.info != null ? '${point.info}' : '-',
-      );
-
-  List<TableRow> buildRatesTableRows() {
-    return <TableRow>[
-      TableRow(
-        children: [
-          TableCell(
-            child: Container(
-              alignment: Alignment.center,
-              padding: EdgeInsets.all(5),
-              child: Text(
-                'Валюта',
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          ),
-          TableCell(
-            child: Container(
-              alignment: Alignment.center,
-              padding: EdgeInsets.all(5),
-              child: Text(
-                'Покупка',
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          ),
-          TableCell(
-            child: Container(
-              alignment: Alignment.center,
-              padding: EdgeInsets.all(5),
-              child: Text(
-                'Продажа',
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-      ...CURRENCY_LIST.map((currency) => TableRow(
-            children: [
-              TableCell(
-                child: Container(
-                  padding: EdgeInsets.all(5),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        child: Text(
-                          currency.label,
-                        ),
-                      ),
-                      Container(
-                        child: Icon(
-                          currency.icon,
-                          color: CupertinoColors.systemGrey2,
-                        ),
-                        padding: EdgeInsets.only(left: 10),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              TableCell(
-                child: Container(
-                  padding: EdgeInsets.all(5),
-                  alignment: Alignment.center,
-                  child: Text(this.getPointCurrencyBuyValue(currency.id)),
-                ),
-              ),
-              TableCell(
-                child: Container(
-                  padding: EdgeInsets.all(5),
-                  alignment: Alignment.center,
-                  child: Text(this.getPointCurrencySellValue(currency.id)),
-                ),
-              ),
-            ],
-          )),
-    ];
+    return getPointCurrencyRateStringFormatted(
+        widget.point, '$SELL_KEY$currencyId');
   }
 
   void _launchPhone(phone) async {
-    final Uri phoneLink = Uri.parse('tel://${phone.replaceAll(new RegExp("[^\\d+]"), "")}');
+    final Uri phoneLink =
+        Uri.parse('tel://${phone.replaceAll(RegExp("[^\\d+]"), "")}');
 
     if (await canLaunchUrl(phoneLink)) {
       await launchUrl(phoneLink);
-      debugPrint('Launching $phoneLink');
     } else {
       debugPrint('Can\'t launch $phoneLink');
     }
   }
 
+  getCurrencyRows() {
+    List<Widget> rows = [];
+
+    for (var i = 0; i < CURRENCY_LIST.length; i++) {
+      var currency = CURRENCY_LIST[i];
+      if (canRenderCurrencyRow(getPointCurrencyBuyValue(currency.id),
+          getPointCurrencySellValue(currency.id))) {
+        rows.add(Container(
+          decoration: BoxDecoration(
+            // color: AppColors.darkTheme.lightDivider,
+            border: i != CURRENCY_LIST.length - 1
+                ? Border(
+                    bottom: BorderSide(
+                      width: 1,
+                      color: AppColors.darkTheme.lightDivider,
+                    ),
+                  )
+                : const Border(),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Row(
+            children: [
+              Flexible(
+                flex: 1,
+                child: Container(
+                  alignment: Alignment.centerLeft,
+                  margin: const EdgeInsets.only(right: 8),
+                  child: Text(
+                    "${currency.icon} ${currency.unicode} ${currency.label}",
+                    style: Typography.body2,
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: Container(
+                        alignment: Alignment.centerRight,
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                        ),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                getPointCurrencyBuyValue(currency.id),
+                                style: Typography.body2,
+                                softWrap: false,
+                              ),
+                              if (hasPointCurrencyBuyValue(currency.id)) ...[
+                                // Tenge sign
+                                const Text('\u{20B8}',
+                                    textAlign: TextAlign.center,
+                                    style: Typography.body3),
+                              ]
+                            ]),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Container(
+                        alignment: Alignment.centerRight,
+                        margin: const EdgeInsets.only(
+                          left: 8,
+                        ),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                getPointCurrencySellValue(currency.id),
+                                style: Typography.body2,
+                                softWrap: false,
+                              ),
+                              if (hasPointCurrencySellValue(currency.id)) ...[
+                                // Tenge sign
+                                const Text('\u{20B8}',
+                                    textAlign: TextAlign.center,
+                                    style: Typography.body3),
+                              ]
+                            ]),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+        ));
+      }
+    }
+
+    return rows;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: SingleChildScrollView(
+    const MapObjectId mapObjectId = MapObjectId('normal_icon_placemark');
+
+    bool hasMapCoordinates =
+        widget.point.latitude != null && widget.point.latitude != null;
+
+    if (_isLoading) {
+      return const CupertinoActivityIndicator(
+        radius: 15,
+      );
+    } else {
+      return SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (hasMapCoordinates) ...[
+              SizedBox(
+                height: 280,
+                width: MediaQuery.of(context).size.width,
+                child: YandexMap(
+                  scrollGesturesEnabled: false,
+                  rotateGesturesEnabled: false,
+                  zoomGesturesEnabled: false,
+                  onMapCreated:
+                      (YandexMapController yandexMapController) async {
+                    yandexMapController.moveCamera(
+                      CameraUpdate.newCameraPosition(
+                        CameraPosition(
+                          target: Point(
+                            latitude: widget.point.latitude as double,
+                            longitude: widget.point.longitude as double,
+                          ),
+                          zoom: 16,
+                        ),
+                      ),
+                    );
+                  },
+                  mapObjects: [
+                    PlacemarkMapObject(
+                      mapId: mapObjectId,
+                      point: Point(
+                        latitude: widget.point.latitude as double,
+                        longitude: widget.point.longitude as double,
+                      ),
+                      opacity: 0.7,
+                      icon: PlacemarkIcon.single(
+                        PlacemarkIconStyle(
+                          scale: 1.2,
+                          image: BitmapDescriptor.fromAssetImage(
+                            'assets/images/pin.png',
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              )
+            ],
             Container(
-              child: Text(
-                point.name,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+              color: AppColors.darkTheme.lightBg,
+              padding: const EdgeInsets.only(bottom: 16),
+              child: SafeArea(
+                top: false,
+                bottom: false,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (widget.point.info != null) ...[
+                      Container(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                        child: Text(
+                          widget.point.info as String,
+                          style: Typography.body2,
+                          textAlign: TextAlign.left,
+                        ),
+                      ),
+                    ],
+                    Container(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 0, 4),
+                      child: Text(
+                        "Телефоны:",
+                        style: Typography.body2.merge(TextStyle(
+                          color: AppColors.darkTheme.lightSecondary,
+                        )),
+                        textAlign: TextAlign.left,
+                      ),
+                    ),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          for (var i = 0; i < phoneNumbers.length; i++) ...[
+                            GestureDetector(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(40),
+                                  color: AppColors.darkTheme.generalWhite,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 3,
+                                  horizontal: 16,
+                                ),
+                                margin: i == 0
+                                    ? const EdgeInsets.fromLTRB(16, 0, 4, 0)
+                                    : const EdgeInsets.only(right: 4),
+                                child: Text(
+                                  phoneNumbers[i],
+                                  style: Typography.body2.merge(TextStyle(
+                                    color: AppColors.darkTheme.generalBlack,
+                                  )),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              onTap: () => _launchPhone(phoneNumbers[i]),
+                            ),
+                          ]
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              margin: EdgeInsets.only(bottom: 15),
             ),
-            Container(
-              margin: EdgeInsets.only(bottom: 5),
-              child: Text(
-                'Информация:',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                ),
+            SafeArea(
+              top: false,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                    child: Row(
+                      children: [
+                        Flexible(
+                          flex: 5,
+                          child: Container(
+                            alignment: Alignment.centerLeft,
+                            child: const Text(
+                              'Валюта',
+                              style: Typography.body3,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 5,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  alignment: Alignment.centerRight,
+                                  margin: const EdgeInsets.only(right: 8),
+                                  child: const Text(
+                                    'Покупка',
+                                    style: Typography.body3,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: Container(
+                                  alignment: Alignment.centerRight,
+                                  child: const Text(
+                                    'Продажа',
+                                    style: Typography.body3,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      children: [
+                        ...getCurrencyRows(),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
-            Container(
-              margin: EdgeInsets.only(bottom: 15),
-              child: this.buildPointInfo,
-            ),
-            Container(
-              margin: EdgeInsets.only(bottom: 5),
-              child: Text(
-                'Телефоны:',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.only(bottom: 10),
-              child: this.buildPointPhones,
-            ),
-            Container(
-              margin: EdgeInsets.only(bottom: 5),
-              child: Text(
-                'Время обновления:',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.only(bottom: 15),
-              child: this.getPointDateUpdate,
-            ),
-            Table(
-              border: TableBorder(
-                horizontalInside: BorderSide(
-                  color: CupertinoColors.systemGrey6,
-                  width: 1,
-                ),
-                verticalInside: BorderSide(
-                  color: CupertinoColors.systemGrey6,
-                  width: 1,
-                ),
-              ),
-              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-              children: [
-                ...buildRatesTableRows(),
-              ],
-            )
           ],
         ),
-      ),
-      padding: EdgeInsets.all(10),
-    );
+      );
+    }
   }
 }

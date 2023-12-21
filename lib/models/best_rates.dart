@@ -39,9 +39,9 @@ class BestRates {
   }
 
   dynamic get(String propertyName) {
-    var _mapRep = _toMap();
-    if (_mapRep.containsKey(propertyName)) {
-      return _mapRep[propertyName];
+    var mapRep = _toMap();
+    if (mapRep.containsKey(propertyName)) {
+      return mapRep[propertyName];
     }
 
     throw ArgumentError('property not found $propertyName');

@@ -2,17 +2,18 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 import 'package:prokurs/constants.dart';
 import 'package:prokurs/models/best_rates.dart';
 import 'package:prokurs/models/exchange_point.dart';
+
+import '../utils.dart';
 
 class ExchangePoints with ChangeNotifier {
   List<ExchangePoint> _exchangeRates = [];
 
   String _currency = 'USD';
   bool _showBuy = true;
-  DateTime? _updateTime;
+  DateTime _updateTime = DateTime.now();
 
   BestRates _bestRetailRates = BestRates();
   BestRates _bestGrossRates = BestRates();
@@ -33,9 +34,8 @@ class ExchangePoints with ChangeNotifier {
 
   BestRates get bestGrossRates => _bestGrossRates;
 
-  String? get ratesUpdateTime {
-    var f = new DateFormat('HH:mm');
-    return _updateTime != null ? f.format(_updateTime!) : null;
+  String get ratesUpdateTime {
+    return getUpdateTime(_updateTime);
   }
 
   void setShowBuy(bool value) {
@@ -71,44 +71,65 @@ class ExchangePoints with ChangeNotifier {
           returningValue = value.compareTo(compareValue);
         }
       }
-      debugPrint('exchangePoints -> sortExchangeRates NAME:${b.get('name')} vs ${a.get('name')}');
-      debugPrint(
-          'exchangePoints -> sortExchangeRates _showBuy:$_showBuy, value:$value, compareWith:$compareValue, returningValue: $returningValue');
       return returningValue;
     });
 
-    debugPrint('ExchangeRates Provider -> sortExchangeRates - sorted $_currency');
+    debugPrint(
+        'ExchangeRates Provider -> sortExchangeRates - sorted $_currency');
   }
 
   void changeSelectedCurrency({String currency = ''}) {
     _currency = currency.isEmpty ? _currency : currency;
-    debugPrint('ExchangeRates Provider -> changeSelectedCurrency _currency: $_currency');
+    debugPrint(
+        'ExchangeRates Provider -> changeSelectedCurrency _currency: $_currency');
     sortExchangeRates();
 
     notifyListeners();
   }
 
   void changeSortDirection() {
-    _showBuy = !_showBuy;
     sortExchangeRates();
     notifyListeners();
   }
 
+  void sortByBestBuy() {
+    if (!_showBuy) {
+      _showBuy = true;
+      changeSortDirection();
+    }
+  }
+
+  void sortByBestSell() {
+    if (_showBuy) {
+      _showBuy = false;
+      changeSortDirection();
+    }
+  }
+
   Future<void> fetchAndSetExchangeRates({required int cityId}) async {
     final url = Uri.parse('https://api.cityinfo.kz/courses/$cityId');
+    // final url = Uri.parse('http://192.168.1.36:3000/courses/$cityId');
+    // debugPrint(
+    //     '1111 -> requesting ${Uri.parse('http://192.168.1.36:3000/courses/$cityId')}');
+    try {
+      final response = await http.get(url);
+      final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      debugPrint('1111 -> received ${extractedData['rates'].length}');
+      List<ExchangePoint> exchangeRates = [];
+      extractedData['rates'].forEach((exchangeData) {
+        exchangeRates.add(ExchangePoint.fromJson(exchangeData));
+      });
+      _bestRetailRates = BestRates.fromJson(extractedData['best']['retail']);
+      _bestGrossRates = BestRates.fromJson(extractedData['best']['gross']);
+      _exchangeRates = exchangeRates;
 
-    final response = await http.get(url);
-    final extractedData = json.decode(response.body) as Map<String, dynamic>;
-    List<ExchangePoint> exchangeRates = [];
-    extractedData['rates'].forEach((exchangeData) {
-      exchangeRates.add(ExchangePoint.fromJson(exchangeData));
-    });
-    _bestRetailRates = BestRates.fromJson(extractedData['best']['retail']);
-    _bestGrossRates = BestRates.fromJson(extractedData['best']['gross']);
-    _exchangeRates = exchangeRates;
+      notifyListeners();
+    } catch (err) {
+      debugPrint("ASDASD $err");
+    }
+
     _updateTime = DateTime.now();
     sortExchangeRates();
-
-    notifyListeners();
+    // debugPrint(response.toString());
   }
 }

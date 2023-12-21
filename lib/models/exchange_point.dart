@@ -14,7 +14,7 @@ class ExchangePoint {
   final num buyGBP;
   final num sellGBP;
   final String? info;
-  final dynamic? phones;
+  final dynamic phones;
   final num date_update;
   final num day_and_night;
   final num published;
@@ -37,8 +37,8 @@ class ExchangePoint {
     required this.gross,
     required this.id,
     required this.info,
-    required this.latitude,
-    required this.longitude,
+    this.latitude,
+    this.longitude,
     required this.name,
     required this.phones,
     required this.published,
@@ -68,9 +68,9 @@ class ExchangePoint {
   }
 
   dynamic get(String propertyName) {
-    var _mapRep = _toMap();
-    if (_mapRep.containsKey(propertyName)) {
-      return _mapRep[propertyName];
+    var mapRep = _toMap();
+    if (mapRep.containsKey(propertyName)) {
+      return mapRep[propertyName];
     }
 
     debugPrint('Throwing error $propertyName');
