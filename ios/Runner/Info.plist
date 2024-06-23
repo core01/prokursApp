@@ -55,5 +55,7 @@
 		<array>
 			<string>tel</string>
 		</array>
+		<key>NSMotionUsageDescription</key>
+		<string>Motion can be used for a map</string>
 	</dict>
 </plist>

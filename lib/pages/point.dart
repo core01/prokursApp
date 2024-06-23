@@ -21,9 +21,9 @@ class PointPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(0, 4, 0, 0),
       child: CupertinoPageScaffold(
-        backgroundColor: AppColors.darkTheme.generalWhite,
+        backgroundColor: DarkTheme.generalWhite,
         navigationBar: CupertinoNavigationBar(
-          backgroundColor: AppColors.darkTheme.mainBlack,
+          backgroundColor: DarkTheme.mainBlack,
           // padding: const EdgeInsetsDirectional.fromSTEB(10, 5, 5, 5),
           leading: GestureDetector(
             onTap: () {
@@ -31,10 +31,10 @@ class PointPage extends StatelessWidget {
             },
             child: Container(
               padding: const EdgeInsets.all(8),
-              child: Icon(
+              child: const Icon(
                 CupertinoIcons.arrow_left,
                 size: 24,
-                color: AppColors.darkTheme.generalWhite,
+                color: DarkTheme.generalWhite,
               ),
             ),
           ),
@@ -44,16 +44,16 @@ class PointPage extends StatelessWidget {
                 child: Text(
                   exchangePoint.name,
                   overflow: TextOverflow.ellipsis,
-                  style: Typography.body2.merge(TextStyle(
-                    color: AppColors.darkTheme.generalWhite,
+                  style: Typography.body2.merge(const TextStyle(
+                    color: DarkTheme.generalWhite,
                   )),
                 ),
               ),
               Container(
                 child: Text(
                   "Обновлено в $updateTime",
-                  style: Typography.body3.merge(
-                      TextStyle(color: AppColors.darkTheme.darkSecondary)),
+                  style: Typography.body3
+                      .merge(const TextStyle(color: DarkTheme.darkSecondary)),
                   textAlign: TextAlign.center,
                 ),
               ),

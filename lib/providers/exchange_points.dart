@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_config/flutter_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:prokurs/constants.dart';
 import 'package:prokurs/models/best_rates.dart';
@@ -107,14 +108,10 @@ class ExchangePoints with ChangeNotifier {
   }
 
   Future<void> fetchAndSetExchangeRates({required int cityId}) async {
-    final url = Uri.parse('https://api.cityinfo.kz/courses/$cityId');
-    // final url = Uri.parse('http://192.168.1.36:3000/courses/$cityId');
-    // debugPrint(
-    //     '1111 -> requesting ${Uri.parse('http://192.168.1.36:3000/courses/$cityId')}');
+    final url = Uri.parse('${FlutterConfig.get('API_URL')}/courses/$cityId');
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
-      debugPrint('1111 -> received ${extractedData['rates'].length}');
       List<ExchangePoint> exchangeRates = [];
       extractedData['rates'].forEach((exchangeData) {
         exchangeRates.add(ExchangePoint.fromJson(exchangeData));
@@ -125,7 +122,7 @@ class ExchangePoints with ChangeNotifier {
 
       notifyListeners();
     } catch (err) {
-      debugPrint("ASDASD $err");
+      debugPrint("Error during rates fetch $err");
     }
 
     _updateTime = DateTime.now();

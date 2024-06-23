@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_config/flutter_config.dart';
 import 'package:prokurs/pages/about.dart';
 import 'package:prokurs/pages/home.dart';
 import 'package:prokurs/pages/point.dart';
 import 'package:prokurs/pages/rates.dart';
+import 'package:prokurs/providers/cities.dart';
 import 'package:prokurs/providers/exchange_points.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,6 +14,7 @@ import 'constants.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await FlutterConfig.loadEnvVariables();
   final prefs = await SharedPreferences.getInstance();
   final cityId = prefs.getInt('cityId');
   final bool hasSelectedCity = cityId != null;
@@ -41,6 +44,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => ExchangePoints(),
         ),
+        ChangeNotifierProvider(
+          create: (_) => CitiesProvider(),
+        ),
       ],
       child: CupertinoApp(
         debugShowCheckedModeBanner: false,
@@ -67,14 +73,14 @@ class MyApp extends StatelessWidget {
         //     child: child ?? const SizedBox.shrink(),
         //   );
         // },
-        theme: CupertinoThemeData(
-            primaryColor: AppColors.darkTheme.generalWhite,
-            scaffoldBackgroundColor: AppColors.darkTheme.mainBlack,
+        theme: const CupertinoThemeData(
+            primaryColor: DarkTheme.generalWhite,
+            scaffoldBackgroundColor: DarkTheme.mainBlack,
             textTheme: CupertinoTextThemeData(
               textStyle: TextStyle(
                 fontFamily: 'Manrope',
-                color: AppColors.darkTheme.generalBlack,
-                fontFamilyFallback: const ['Montserrat'],
+                color: DarkTheme.generalBlack,
+                fontFamilyFallback: ['Montserrat'],
               ),
             )),
       ),

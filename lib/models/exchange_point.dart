@@ -23,6 +23,9 @@ class ExchangePoint {
   final num? company_id;
   final num gross;
   final num? atms;
+  final String? logo;
+
+  bool get hasLogo => logo != null && logo!.isNotEmpty;
 
   ExchangePoint({
     required this.atms,
@@ -47,6 +50,7 @@ class ExchangePoint {
     required this.sellGBP,
     required this.sellRUB,
     required this.sellUSD,
+    this.logo,
   });
 
   Map<String, dynamic> _toMap() {
@@ -101,6 +105,7 @@ class ExchangePoint {
       sellGBP: exchangeRateFromJson['sellGBP'],
       sellRUB: exchangeRateFromJson['sellRUB'],
       sellUSD: exchangeRateFromJson['sellUSD'],
+      logo: exchangeRateFromJson['logo'],
     );
   }
 }

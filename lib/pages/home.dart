@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart' hide Typography;
 import 'package:prokurs/constants.dart';
-import 'package:prokurs/models/city_list.dart';
+import 'package:prokurs/models/city.dart';
 import 'package:prokurs/pages/rates.dart';
+import 'package:prokurs/providers/cities.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
@@ -14,86 +17,117 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomeState extends State<HomePage> {
-  var cities = CityList().items;
+  late TextEditingController textController;
 
-  Iterable<Container> formatCityList() {
-    return cities.map(
-      (city) => Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        child: CupertinoButton(
-          color: AppColors.darkTheme.lightBg,
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+  buildCityList(List<City> cities) {
+    return ListView.separated(
+        scrollDirection: Axis.vertical,
+        itemCount: cities.length,
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        separatorBuilder: (context, index) => const Divider(
+              color: DarkTheme.lightDivider,
+              // height: 20,
+              indent: 0,
+            ),
+        padding: const EdgeInsets.all(10),
+        itemBuilder: (context, index) {
+          City city = cities[index];
 
-          // @todo rethink logic to add padding to all items but last
-          child: Text(
-            city.title,
-            style: Typography.body.merge(TextStyle(
-              color: AppColors.darkTheme.generalBlack,
-            )),
-          ),
-          onPressed: () async {
-            final prefs = await SharedPreferences.getInstance();
-            prefs.setInt('cityId', city.id);
-
-            Navigator.pushNamed(context, RatesPage.routeName);
-          },
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      backgroundColor: AppColors.darkTheme.generalWhite,
-      child: SafeArea(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Center(
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+          return GestureDetector(
+            child: Container(
+              color: Colors.transparent,
+              child: Row(
                 children: [
-                  SizedBox(
-                    width: 260,
-                    height: 260,
-                    child: Stack(
-                      alignment: AlignmentDirectional.center,
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.fromLTRB(0, 97.5, 0, 22),
-                          child: const Image(
-                            width: 195,
-                            height: 143,
-                            image:
-                                AssetImage('assets/images/home/background.png'),
-                          ),
-                        ),
-                        Container(
-                          margin: const EdgeInsets.only(bottom: 82),
-                          child: const Image(
-                            width: 130,
-                            height: 162,
-                            image: AssetImage('assets/images/home/point.png'),
-                          ),
-                        ),
-                      ],
-                    ),
+                  Text(
+                    city.title,
+                    style: Typography.body,
                   ),
-                  Container(
-                    alignment: Alignment.center,
-                    margin: const EdgeInsets.fromLTRB(0, 32, 0, 24),
-                    child: const Text(
-                      'Выберите город',
-                      style: Typography.heading,
-                    ),
+                  const Spacer(),
+                  const Icon(
+                    CupertinoIcons.chevron_forward,
+                    color: DarkTheme.lightSecondary,
+                    size: 24,
                   ),
-                  ...formatCityList()
                 ],
               ),
             ),
-          ),
+            onTap: () async {
+              final prefs = await SharedPreferences.getInstance();
+              prefs.setInt('cityId', city.id);
+              if (mounted) {
+                Navigator.pushNamed(context, RatesPage.routeName);
+              }
+            },
+          );
+        });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    textController = TextEditingController(text: 'initial text');
+    context.read<CitiesProvider>().fetchCities();
+  }
+
+  @override
+  void dispose() {
+    textController.dispose();
+    super.dispose();
+  }
+
+  bool onSubmitted = false;
+  bool bottomEnabled = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final popularCities = context.watch<CitiesProvider>().popularCities;
+    final unpopularCities = context.watch<CitiesProvider>().unpopularCities;
+
+    return CupertinoPageScaffold(
+      backgroundColor: DarkTheme.lightBg,
+      // A ScrollView that creates custom scroll effects using slivers.
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(0, 4, 0, 0),
+        child: CustomScrollView(
+          slivers: <Widget>[
+            const CupertinoSliverNavigationBar(
+              // This title is visible in both collapsed and expanded states.
+              // When the "middle" parameter is omitted, the widget provided
+              // in the "largeTitle" parameter is used instead in the collapsed state.
+              largeTitle: Text('Выберите город'),
+              backgroundColor: DarkTheme.lightBg,
+              border: Border(),
+            ),
+            SliverList(
+              delegate: SliverChildListDelegate([
+                const SizedBox(
+                  height: 20,
+                ),
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 15),
+                  decoration: BoxDecoration(
+                    color: DarkTheme.generalWhite,
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  //padding: EdgeInsets.symmetric(horizontal: 15),
+                  child: buildCityList(popularCities),
+                ),
+                const SizedBox(
+                  height: 40,
+                ),
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 15),
+                  decoration: BoxDecoration(
+                    color: DarkTheme.generalWhite,
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  //padding: EdgeInsets.symmetric(horizontal: 15),
+                  child: buildCityList(unpopularCities),
+                ),
+              ]),
+            ),
+          ],
         ),
       ),
     );

@@ -87,170 +87,11 @@ class _RatesTable extends State<RatesTable> {
   Widget build(BuildContext context) {
     final List<ExchangePoint> exchangeRates = widget.exchangeRates;
     final String selectedCurrency = widget.selectedCurrency;
-    List<Widget> items = [];
-
-    items = <Widget>[
-      Container(
-        padding: const EdgeInsets.all(16),
-        color: AppColors.darkTheme.lightBg,
-        child: SafeArea(
-          bottom: false,
-          top: false,
-          child: Row(
-            children: [
-              Expanded(
-                flex: 5,
-                child: Container(
-                  margin: const EdgeInsets.only(right: 4),
-                  alignment: Alignment.centerLeft,
-                  child: CupertinoButton(
-                    padding: const EdgeInsets.all(0),
-                    child: Text(
-                      'Обменный пункт',
-                      style: Typography.body3.merge(TextStyle(
-                        color: AppColors.darkTheme.generalBlack,
-                      )),
-                    ),
-                    onPressed: () async {},
-                  ),
-                ),
-              ),
-              Flexible(
-                flex: 5,
-                child: Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        child: Text(
-                          'Покупка',
-                          style: Typography.body3.merge(TextStyle(
-                            color: AppColors.darkTheme.generalBlack,
-                          )),
-                        ),
-                      ),
-                      Container(
-                        child: Text(
-                          'Продажа',
-                          style: Typography.body3.merge(TextStyle(
-                            color: AppColors.darkTheme.generalBlack,
-                          )),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      ...exchangeRates.map((rate) {
-        return GestureDetector(
-          onTap: () {
-            widget.onPointClick(rate);
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            decoration: BoxDecoration(
-              color: CupertinoColors.white,
-              border: Border(
-                top: BorderSide(
-                  width: 1,
-                  color: AppColors.darkTheme.lightDivider,
-                ),
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      flex: 5,
-                      child: Container(
-                        margin: const EdgeInsets.only(right: 4),
-                        child: Text(
-                          overflow: TextOverflow.ellipsis,
-                          rate.name,
-                          style: Typography.body2,
-                        ),
-                      ),
-                    ),
-                    Flexible(
-                      flex: 5,
-                      child: Container(
-                        margin: const EdgeInsets.only(left: 4),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            getPointCurrencyRateContainer(
-                              rate,
-                              '$BUY_KEY$selectedCurrency',
-                            ),
-                            getPointCurrencyRateContainer(
-                              rate,
-                              '$SELL_KEY$selectedCurrency',
-                            ),
-                          ],
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-                Container(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    children: [
-                      Text(
-                        'Обновлено в ',
-                        style: Typography.body3.merge(TextStyle(
-                          color: AppColors.darkTheme.lightSecondary,
-                        )),
-                      ),
-                      Text(
-                        DateFormat('HH:mm').format(
-                          DateTime.fromMillisecondsSinceEpoch(
-                            rate.date_update * 1000 as int,
-                          ),
-                        ),
-                        style: Typography.body3.merge(TextStyle(
-                          color: AppColors.darkTheme.lightSecondary,
-                        )),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  child: Text(
-                    rate.info ?? '-',
-                    textAlign: TextAlign.left,
-                    style: Typography.body3.merge(TextStyle(
-                      color: AppColors.darkTheme.lightSecondary,
-                    )),
-                  ),
-                ),
-                if (rate.gross > 0)
-                  Container(
-                    margin: const EdgeInsets.only(top: 8),
-                    child: Text(
-                      'Оптовый курс',
-                      style: Typography.body3.merge(const TextStyle(
-                        color: CupertinoColors.systemOrange,
-                      )),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        );
-      }),
-    ];
 
     return SliverStickyHeader(
       header: Container(
         padding: const EdgeInsets.all(16),
-        color: AppColors.darkTheme.lightBg,
+        color: DarkTheme.lightBg,
         child: SafeArea(
             bottom: false,
             top: false,
@@ -263,8 +104,8 @@ class _RatesTable extends State<RatesTable> {
                     alignment: Alignment.centerLeft,
                     child: Text(
                       'Обменный пункт',
-                      style: Typography.body3.merge(TextStyle(
-                        color: AppColors.darkTheme.generalBlack,
+                      style: Typography.body3.merge(const TextStyle(
+                        color: DarkTheme.generalBlack,
                       )),
                     ),
                   ),
@@ -281,8 +122,8 @@ class _RatesTable extends State<RatesTable> {
                           child: Text(
                             'Покупка',
                             textAlign: TextAlign.center,
-                            style: Typography.body3.merge(TextStyle(
-                              color: AppColors.darkTheme.generalBlack,
+                            style: Typography.body3.merge(const TextStyle(
+                              color: DarkTheme.generalBlack,
                             )),
                           ),
                         ),
@@ -290,8 +131,8 @@ class _RatesTable extends State<RatesTable> {
                           child: Text(
                             'Продажа',
                             textAlign: TextAlign.center,
-                            style: Typography.body3.merge(TextStyle(
-                              color: AppColors.darkTheme.generalBlack,
+                            style: Typography.body3.merge(const TextStyle(
+                              color: DarkTheme.generalBlack,
                             )),
                           ),
                         ),
@@ -313,12 +154,12 @@ class _RatesTable extends State<RatesTable> {
               child: Container(
                 padding:
                     const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: CupertinoColors.white,
                   border: Border(
                     top: BorderSide(
                       width: 1,
-                      color: AppColors.darkTheme.lightDivider,
+                      color: DarkTheme.lightDivider,
                     ),
                   ),
                 ),
@@ -332,13 +173,28 @@ class _RatesTable extends State<RatesTable> {
                           children: [
                             Expanded(
                               flex: 5,
-                              child: Container(
-                                margin: const EdgeInsets.only(right: 4),
-                                child: Text(
-                                  overflow: TextOverflow.ellipsis,
-                                  rate.name,
-                                  style: Typography.body2,
-                                ),
+                              child: Row(
+                                children: [
+                                  if (rate.hasLogo) ...[
+                                    Container(
+                                        margin: const EdgeInsets.only(right: 8),
+                                        child: Image.network(
+                                          rate.logo!,
+                                          width: 24,
+                                          height: 24,
+                                        ))
+                                  ],
+                                  Expanded(
+                                    child: Container(
+                                      margin: const EdgeInsets.only(right: 4),
+                                      child: Text(
+                                        overflow: TextOverflow.ellipsis,
+                                        rate.name,
+                                        style: Typography.body2,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                             Expanded(
@@ -383,8 +239,8 @@ class _RatesTable extends State<RatesTable> {
                             children: [
                               Text(
                                 'Обновлено в ',
-                                style: Typography.body3.merge(TextStyle(
-                                  color: AppColors.darkTheme.lightSecondary,
+                                style: Typography.body3.merge(const TextStyle(
+                                  color: DarkTheme.lightSecondary,
                                 )),
                               ),
                               Text(
@@ -393,8 +249,8 @@ class _RatesTable extends State<RatesTable> {
                                     rate.date_update * 1000 as int,
                                   ),
                                 ),
-                                style: Typography.body3.merge(TextStyle(
-                                  color: AppColors.darkTheme.lightSecondary,
+                                style: Typography.body3.merge(const TextStyle(
+                                  color: DarkTheme.lightSecondary,
                                 )),
                               ),
                             ],
@@ -403,8 +259,8 @@ class _RatesTable extends State<RatesTable> {
                         Text(
                           rate.info ?? '-',
                           textAlign: TextAlign.left,
-                          style: Typography.body3.merge(TextStyle(
-                            color: AppColors.darkTheme.lightSecondary,
+                          style: Typography.body3.merge(const TextStyle(
+                            color: DarkTheme.lightSecondary,
                           )),
                         ),
                         if (rate.gross > 0)
@@ -426,15 +282,5 @@ class _RatesTable extends State<RatesTable> {
         ),
       ),
     );
-    return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (BuildContext context, int index) => items[index],
-        childCount: items.length,
-      ),
-    );
-    // return Container(
-    //     child: Column(
-    //   children: [...items],
-    // ));
   }
 }

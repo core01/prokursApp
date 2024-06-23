@@ -45,30 +45,28 @@ const SELL_KEY = 'sell';
 class DarkTheme {
   const DarkTheme();
 
-  Color get mainBlack => const Color(0xFF24292f);
+  static const mainBlack = Color(0xFF24292f);
 
-  Color get darkSecondary => const Color(0xFF8d8e8e);
+  static const darkSecondary = Color(0xFF8d8e8e);
 
-  Color get generalBlack => const Color(0xFF1b1d1e);
+  static const generalBlack = Color(0xFF1b1d1e);
 
-  Color get generalWhite => const Color(0xFFFFFFFF);
+  static const generalWhite = Color(0xFFFFFFFF);
 
-  Color get lightBg => const Color(0xFFf4f4f5);
+  static const lightBg = Color(0xFFf4f4f5);
 
-  Color get lightSecondary => const Color(0xFF9b9ca3);
+  static const lightSecondary = Color(0xFF9b9ca3);
 
-  Color get lightDivider => const Color(0xFFebeded);
+  static const lightDivider = Color(0xFFebeded);
 
-  Color get mainGrey => const Color(0xFF494a4b);
+  static const mainGrey = Color(0xFF494a4b);
 
-  Color get mainBlue => const Color(0xFF00A6FB);
+  static const mainBlue = Color(0xFF00A6FB);
 
-  Color get mainRed => const Color(0xFFC14953);
+  static const mainRed = Color(0xFFC14953);
 }
 
 class AppColors {
-  static DarkTheme darkTheme = const DarkTheme();
-
   static const generalBlack = Color(0xFF1B1D1E);
   static const mainBlack = Color(0xFF24292f); // Dark theme color
   static const lightBg = Color.fromRGBO(244, 244, 245, 1);

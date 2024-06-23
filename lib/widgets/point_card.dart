@@ -1,10 +1,23 @@
+import 'dart:typed_data';
+
 import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart' as http;
 import 'package:prokurs/constants.dart';
 import 'package:prokurs/models/exchange_point.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 import '../utils.dart';
+
+Future<BitmapDescriptor> getBitmapDescriptorFromUrl(String imageUrl) async {
+  final http.Response response = await http.get(Uri.parse(imageUrl));
+  final Uint8List bytes = response.bodyBytes;
+
+  // Create a BitmapDescriptor from the downloaded bytes
+  BitmapDescriptor bitmapDescriptor = BitmapDescriptor.fromBytes(bytes);
+
+  return bitmapDescriptor;
+}
 
 class PointCard extends StatefulWidget {
   final ExchangePoint point;
@@ -18,10 +31,16 @@ class PointCard extends StatefulWidget {
 class PointCardState extends State<PointCard> {
   bool _isLoading = true;
   List phoneNumbers = [];
+  BitmapDescriptor? bitmapDescriptor;
 
   @override
   void didChangeDependencies() async {
     super.didChangeDependencies();
+
+    if (widget.point.hasLogo) {
+      bitmapDescriptor = await getBitmapDescriptorFromUrl(widget.point.logo!);
+    }
+
     for (var phone in widget.point.phones) {
       phoneNumbers.add(phone);
     }
@@ -69,12 +88,11 @@ class PointCardState extends State<PointCard> {
           getPointCurrencySellValue(currency.id))) {
         rows.add(Container(
           decoration: BoxDecoration(
-            // color: AppColors.darkTheme.lightDivider,
             border: i != CURRENCY_LIST.length - 1
-                ? Border(
+                ? const Border(
                     bottom: BorderSide(
                       width: 1,
-                      color: AppColors.darkTheme.lightDivider,
+                      color: DarkTheme.lightDivider,
                     ),
                   )
                 : const Border(),
@@ -165,8 +183,21 @@ class PointCardState extends State<PointCard> {
         widget.point.latitude != null && widget.point.latitude != null;
 
     if (_isLoading) {
-      return const CupertinoActivityIndicator(
-        radius: 15,
+      return const Center(
+        child: Stack(
+          children: [
+            Positioned(
+              top: 15.0,
+              bottom: 15.0,
+              left: 0.0,
+              right: 0.0,
+              child: CupertinoActivityIndicator(
+                color: DarkTheme.mainBlack,
+                radius: 14.0,
+              ),
+            )
+          ],
+        ),
       );
     } else {
       return SingleChildScrollView(
@@ -202,13 +233,17 @@ class PointCardState extends State<PointCard> {
                         latitude: widget.point.latitude as double,
                         longitude: widget.point.longitude as double,
                       ),
-                      opacity: 0.7,
+                      opacity: bitmapDescriptor != null ? 1 : 0.8,
                       icon: PlacemarkIcon.single(
                         PlacemarkIconStyle(
-                          scale: 1.2,
-                          image: BitmapDescriptor.fromAssetImage(
-                            'assets/images/pin.png',
-                          ),
+                          anchor: const Offset(0.7, 1.0),
+                          // bitmapDescriptor has 250x250 size
+                          scale: bitmapDescriptor != null ? 0.4 : 1.2,
+                          image: bitmapDescriptor != null
+                              ? bitmapDescriptor!
+                              : BitmapDescriptor.fromAssetImage(
+                                  'assets/images/pin.png',
+                                ),
                         ),
                       ),
                     )
@@ -217,7 +252,7 @@ class PointCardState extends State<PointCard> {
               )
             ],
             Container(
-              color: AppColors.darkTheme.lightBg,
+              color: DarkTheme.lightBg,
               padding: const EdgeInsets.only(bottom: 16),
               child: SafeArea(
                 top: false,
@@ -239,8 +274,8 @@ class PointCardState extends State<PointCard> {
                       padding: const EdgeInsets.fromLTRB(16, 0, 0, 4),
                       child: Text(
                         "Телефоны:",
-                        style: Typography.body2.merge(TextStyle(
-                          color: AppColors.darkTheme.lightSecondary,
+                        style: Typography.body2.merge(const TextStyle(
+                          color: DarkTheme.lightSecondary,
                         )),
                         textAlign: TextAlign.left,
                       ),
@@ -254,7 +289,7 @@ class PointCardState extends State<PointCard> {
                               child: Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(40),
-                                  color: AppColors.darkTheme.generalWhite,
+                                  color: DarkTheme.generalWhite,
                                 ),
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 3,
@@ -265,8 +300,8 @@ class PointCardState extends State<PointCard> {
                                     : const EdgeInsets.only(right: 4),
                                 child: Text(
                                   phoneNumbers[i],
-                                  style: Typography.body2.merge(TextStyle(
-                                    color: AppColors.darkTheme.generalBlack,
+                                  style: Typography.body2.merge(const TextStyle(
+                                    color: DarkTheme.generalBlack,
                                   )),
                                   textAlign: TextAlign.center,
                                 ),

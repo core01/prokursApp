@@ -3,11 +3,12 @@ import 'dart:core';
 import 'package:extended_sliver/extended_sliver.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide Typography;
+import 'package:flutter/services.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:prokurs/models/arguments/point_screen_arguments.dart';
-import 'package:prokurs/models/city_list.dart';
 import 'package:prokurs/pages/about.dart';
 import 'package:prokurs/pages/point.dart';
+import 'package:prokurs/providers/cities.dart';
 import 'package:prokurs/providers/exchange_points.dart';
 import 'package:prokurs/widgets/MySliverPinnedPersistentHeaderDelegate.dart';
 import 'package:prokurs/widgets/rates_table.dart';
@@ -39,7 +40,9 @@ class _RatesPageState extends State<RatesPage> {
 
   Sorting _sorting = Sorting.buy;
 
-  List<City> get cities => CityList().items;
+  List<City> cities = [];
+  List<City> popularCities = [];
+  List<City> unpopularCities = [];
 
   void onCurrencySelect(CurrencyItem currency) {
     context
@@ -72,13 +75,15 @@ class _RatesPageState extends State<RatesPage> {
       final prefs = await SharedPreferences.getInstance();
 
       prefs.setInt('cityId', cityId);
-    } catch (err) {}
+    } catch (err) {
+      debugPrint('RatesPage -> onCitySelect: catch error $err');
+    }
 
     setState(() {
-      _selectedCity = CityList().findById(cityId);
+      _selectedCity = context.read<CitiesProvider>().findById(cityId);
     });
 
-    if (!context.mounted) {
+    if (!mounted) {
       return;
     }
 
@@ -89,7 +94,6 @@ class _RatesPageState extends State<RatesPage> {
 
   @override
   dispose() {
-    debugPrint('111 dispose');
     scrollController.removeListener(_scrollListener);
     scrollController.dispose(); // Dispose the controller
 
@@ -117,7 +121,7 @@ class _RatesPageState extends State<RatesPage> {
 
   @override
   void didChangeDependencies() async {
-    debugPrint('5555 didChangeDependencies');
+    debugPrint('pages -> rates -> didChangeDependencies');
     if (_isInitializationNeeded) {
       setState(() {
         _isLoading = true;
@@ -125,11 +129,19 @@ class _RatesPageState extends State<RatesPage> {
 
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       try {
-        final cityId = prefs.getInt('cityId') ?? CityList.ASTANA.id;
-        await onCitySelect(cityId);
+        if (mounted) {
+          await context.read<CitiesProvider>().fetchCities();
+
+          cities = context.read<CitiesProvider>().cities;
+          popularCities = context.read<CitiesProvider>().popularCities;
+          unpopularCities = context.read<CitiesProvider>().unpopularCities;
+
+          final cityId = prefs.getInt('cityId') ?? cities.first.id;
+          await onCitySelect(cityId);
+        }
       } catch (err) {
         debugPrint(
-            'Rates -> didChangeDependencies -> catch error in fetchAndSetExchangeRates: $err');
+            'pages -> rates -> didChangeDependencies -> catch error in fetchAndSetExchangeRates: $err');
       } finally {
         _isInitializationNeeded = false;
         Future.delayed(const Duration(milliseconds: 500), () {
@@ -140,7 +152,53 @@ class _RatesPageState extends State<RatesPage> {
       }
     }
 
+    SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(statusBarBrightness: Brightness.dark));
+
     super.didChangeDependencies();
+  }
+
+  buildCityList(List<City> cities) {
+    return ListView.separated(
+        scrollDirection: Axis.vertical,
+        itemCount: cities.length,
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        separatorBuilder: (context, index) => const Divider(
+              color: DarkTheme.lightDivider,
+              height: 20,
+              indent: 0,
+            ),
+        padding: const EdgeInsets.all(10),
+        itemBuilder: (context, index) {
+          City city = cities[index];
+
+          return GestureDetector(
+            child: Container(
+              color: Colors.transparent,
+              child: Row(
+                children: [
+                  Text(
+                    city.title,
+                    style: Typography.body,
+                  ),
+                  const Spacer(),
+                  const Icon(
+                    CupertinoIcons.chevron_forward,
+                    color: DarkTheme.lightSecondary,
+                    size: 24,
+                  ),
+                ],
+              ),
+            ),
+            onTap: () async {
+              await onCitySelect(city.id);
+              if (context.mounted) {
+                Navigator.of(context).pop();
+              }
+            },
+          );
+        });
   }
 
   @override
@@ -157,14 +215,14 @@ class _RatesPageState extends State<RatesPage> {
     final selectedCurrency = context.watch<ExchangePoints>().selectedCurrency;
 
     return CupertinoPageScaffold(
-      backgroundColor: AppColors.darkTheme.generalWhite,
+      backgroundColor: DarkTheme.generalWhite,
       child: Stack(
         alignment: Alignment.center,
         children: [
           if (_isLoading) ...[
-            Center(
+            const Center(
               child: CupertinoActivityIndicator(
-                color: AppColors.darkTheme.mainBlack,
+                color: DarkTheme.mainBlack,
                 radius: 15,
               ),
             ),
@@ -176,7 +234,7 @@ class _RatesPageState extends State<RatesPage> {
                 SliverPinnedPersistentHeader(
                   delegate: MySliverPinnedPersistentHeaderDelegate(
                     maxExtentProtoType: Container(
-                      color: AppColors.darkTheme.mainBlack,
+                      color: DarkTheme.mainBlack,
                       child: SafeArea(
                         bottom: false,
                         child: SingleChildScrollView(
@@ -206,15 +264,15 @@ class _RatesPageState extends State<RatesPage> {
                                             GestureDetector(
                                               onTap: () {
                                                 showCupertinoModalBottomSheet(
-                                                  backgroundColor: AppColors
-                                                      .darkTheme.generalWhite,
+                                                  backgroundColor:
+                                                      DarkTheme.generalWhite,
                                                   context: context,
                                                   builder: (context) =>
                                                       Container(
                                                     padding: const EdgeInsets
-                                                        .fromLTRB(
-                                                        16, 32, 16, 16),
+                                                        .fromLTRB(0, 32, 0, 32),
                                                     // height: 400,
+                                                    color: DarkTheme.lightBg,
                                                     child:
                                                         SingleChildScrollView(
                                                       child: Column(
@@ -236,42 +294,47 @@ class _RatesPageState extends State<RatesPage> {
                                                                       .center,
                                                             ),
                                                           ),
-                                                          ...cities
-                                                              .map(
-                                                                  (city) =>
-                                                                      Container(
-                                                                        margin: const EdgeInsets
-                                                                            .only(
-                                                                            bottom:
-                                                                                8),
-                                                                        child:
-                                                                            CupertinoButton(
-                                                                          color: _selectedCity.id == city.id
-                                                                              ? AppColors.darkTheme.generalBlack
-                                                                              : AppColors.darkTheme.lightBg,
-                                                                          padding: const EdgeInsets
-                                                                              .symmetric(
-                                                                              vertical: 8,
-                                                                              horizontal: 16),
-
-                                                                          // @todo rethink logic to add padding to all items but last
-                                                                          child:
-                                                                              Text(
-                                                                            city.title,
-                                                                            style:
-                                                                                Typography.body.merge(TextStyle(
-                                                                              color: _selectedCity.id == city.id ? AppColors.darkTheme.generalWhite : AppColors.darkTheme.generalBlack,
-                                                                            )),
-                                                                          ),
-                                                                          onPressed:
-                                                                              () async {
-                                                                            await onCitySelect(city.id);
-                                                                            if (context.mounted) {
-                                                                              Navigator.of(context).pop();
-                                                                            }
-                                                                          },
-                                                                        ),
-                                                                      )),
+                                                          Container(
+                                                            margin:
+                                                                const EdgeInsets
+                                                                    .symmetric(
+                                                                    horizontal:
+                                                                        15),
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              color: DarkTheme
+                                                                  .generalWhite,
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          15),
+                                                            ),
+                                                            //padding: EdgeInsets.symmetric(horizontal: 15),
+                                                            child: buildCityList(
+                                                                popularCities),
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 40,
+                                                          ),
+                                                          Container(
+                                                            margin:
+                                                                const EdgeInsets
+                                                                    .symmetric(
+                                                                    horizontal:
+                                                                        15),
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              color: DarkTheme
+                                                                  .generalWhite,
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          15),
+                                                            ),
+                                                            //padding: EdgeInsets.symmetric(horizontal: 15),
+                                                            child: buildCityList(
+                                                                unpopularCities),
+                                                          )
                                                         ],
                                                       ),
                                                     ),
@@ -310,9 +373,9 @@ class _RatesPageState extends State<RatesPage> {
                                       ),
                                       Text(
                                         "Обновлено в $ratesUpdateTime",
-                                        style: Typography.body2.merge(TextStyle(
-                                          color:
-                                              AppColors.darkTheme.darkSecondary,
+                                        style: Typography.body2
+                                            .merge(const TextStyle(
+                                          color: DarkTheme.darkSecondary,
                                         )),
                                         textAlign: TextAlign.left,
                                       )
@@ -341,9 +404,9 @@ class _RatesPageState extends State<RatesPage> {
                                                     const EdgeInsets.symmetric(
                                                         vertical: 0,
                                                         horizontal: 5),
-                                                side: BorderSide(
-                                                  color: AppColors
-                                                      .darkTheme.darkSecondary,
+                                                side: const BorderSide(
+                                                  color:
+                                                      DarkTheme.darkSecondary,
                                                   width: 0.5,
                                                 ),
                                                 shape:
@@ -361,17 +424,15 @@ class _RatesPageState extends State<RatesPage> {
                                                       child: Text(
                                                         CURRENCY_LIST[i]
                                                             .unicode,
-                                                        style: Typography.body2.merge(TextStyle(
-                                                            color: selectedCurrency ==
-                                                                    CURRENCY_LIST[
-                                                                            i]
-                                                                        .id
-                                                                ? AppColors
-                                                                    .darkTheme
-                                                                    .mainBlack
-                                                                : AppColors
-                                                                    .darkTheme
-                                                                    .generalWhite)),
+                                                        style: Typography.body2
+                                                            .merge(TextStyle(
+                                                                color: selectedCurrency ==
+                                                                        CURRENCY_LIST[i]
+                                                                            .id
+                                                                    ? DarkTheme
+                                                                        .mainBlack
+                                                                    : DarkTheme
+                                                                        .generalWhite)),
                                                         textAlign:
                                                             TextAlign.center,
                                                       ),
@@ -379,17 +440,15 @@ class _RatesPageState extends State<RatesPage> {
                                                     Container(
                                                       child: Text(
                                                         CURRENCY_LIST[i].label,
-                                                        style: Typography.body2.merge(TextStyle(
-                                                            color: selectedCurrency ==
-                                                                    CURRENCY_LIST[
-                                                                            i]
-                                                                        .id
-                                                                ? AppColors
-                                                                    .darkTheme
-                                                                    .mainBlack
-                                                                : AppColors
-                                                                    .darkTheme
-                                                                    .generalWhite)),
+                                                        style: Typography.body2
+                                                            .merge(TextStyle(
+                                                                color: selectedCurrency ==
+                                                                        CURRENCY_LIST[i]
+                                                                            .id
+                                                                    ? DarkTheme
+                                                                        .mainBlack
+                                                                    : DarkTheme
+                                                                        .generalWhite)),
                                                         textAlign:
                                                             TextAlign.center,
                                                       ),
@@ -399,10 +458,8 @@ class _RatesPageState extends State<RatesPage> {
                                                 backgroundColor:
                                                     selectedCurrency ==
                                                             CURRENCY_LIST[i].id
-                                                        ? AppColors.darkTheme
-                                                            .generalWhite
-                                                        : AppColors
-                                                            .darkTheme.mainGrey,
+                                                        ? DarkTheme.generalWhite
+                                                        : DarkTheme.mainGrey,
                                                 onPressed: () {
                                                   onCurrencySelect(
                                                       CURRENCY_LIST[i]);
@@ -422,7 +479,7 @@ class _RatesPageState extends State<RatesPage> {
                       ),
                     ),
                     minExtentProtoType: Container(
-                      color: AppColors.darkTheme.mainBlack,
+                      color: DarkTheme.mainBlack,
                       child: SafeArea(
                         bottom: false,
                         child: Container(
@@ -452,7 +509,7 @@ class _RatesPageState extends State<RatesPage> {
                                       onTap: () {
                                         showCupertinoModalBottomSheet(
                                           backgroundColor:
-                                              AppColors.darkTheme.generalWhite,
+                                              DarkTheme.generalWhite,
                                           context: context,
                                           builder: (context) => Container(
                                             padding: const EdgeInsets.fromLTRB(
@@ -483,11 +540,9 @@ class _RatesPageState extends State<RatesPage> {
                                                                 color: selectedCurrency ==
                                                                         currency
                                                                             .id
-                                                                    ? AppColors
-                                                                        .darkTheme
+                                                                    ? DarkTheme
                                                                         .generalBlack
-                                                                    : AppColors
-                                                                        .darkTheme
+                                                                    : DarkTheme
                                                                         .lightBg,
                                                                 padding: const EdgeInsets
                                                                     .symmetric(
@@ -506,11 +561,9 @@ class _RatesPageState extends State<RatesPage> {
                                                                     color: selectedCurrency ==
                                                                             currency
                                                                                 .id
-                                                                        ? AppColors
-                                                                            .darkTheme
+                                                                        ? DarkTheme
                                                                             .generalWhite
-                                                                        : AppColors
-                                                                            .darkTheme
+                                                                        : DarkTheme
                                                                             .generalBlack,
                                                                   )),
                                                                 ),
@@ -551,8 +604,8 @@ class _RatesPageState extends State<RatesPage> {
                               ),
                               Text(
                                 "Обновлено в $ratesUpdateTime",
-                                style: Typography.body3.merge(TextStyle(
-                                  color: AppColors.darkTheme.darkSecondary,
+                                style: Typography.body3.merge(const TextStyle(
+                                  color: DarkTheme.darkSecondary,
                                 )),
                                 textAlign: TextAlign.left,
                               )
@@ -574,7 +627,7 @@ class _RatesPageState extends State<RatesPage> {
                     double refreshTriggerPullDistance,
                     double refreshIndicatorExtent,
                   ) {
-                    return Center(
+                    return const Center(
                         child: Stack(
                       children: [
                         Positioned(
@@ -583,7 +636,7 @@ class _RatesPageState extends State<RatesPage> {
                           left: 0.0,
                           right: 0.0,
                           child: CupertinoActivityIndicator(
-                            color: AppColors.darkTheme.mainBlack,
+                            color: DarkTheme.mainBlack,
                             radius: 14.0,
                           ),
                         )
@@ -596,7 +649,7 @@ class _RatesPageState extends State<RatesPage> {
                     child: Container(
                       alignment: Alignment.center,
                       padding: const EdgeInsets.all(16),
-                      color: AppColors.darkTheme.generalWhite,
+                      color: DarkTheme.generalWhite,
                       child: Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -635,8 +688,8 @@ class _RatesPageState extends State<RatesPage> {
                       margin: const EdgeInsets.only(bottom: 12),
                       child: CupertinoSlidingSegmentedControl(
                         padding: const EdgeInsets.all(4),
-                        backgroundColor: AppColors.darkTheme.mainGrey,
-                        thumbColor: AppColors.darkTheme.mainBlack,
+                        backgroundColor: DarkTheme.mainGrey,
+                        thumbColor: DarkTheme.mainBlack,
                         // This represents the currently selected segmented control.
                         groupValue: _sorting,
                         // Callback that sets the selected segmented control.
