@@ -3,7 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:prokurs/constants.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:prokurs/utils.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
@@ -36,21 +36,6 @@ class _AboutPage extends State<AboutPage> {
     });
   }
 
-  void _launchURL({required String url}) async {
-    final uri = Uri.parse(url);
-    var isEmail = url.startsWith('mailto:');
-
-    try {
-      await launchUrl(uri);
-    } catch (e) {
-      if (isEmail) {
-        await Clipboard.setData(
-            ClipboardData(text: url.substring("mailto:".length)));
-      }
-      throw 'Could not launch $uri';
-    }
-  }
-
   TextSpan _buildClickableTextSpan(
       {required String text, required String url}) {
     return TextSpan(
@@ -60,7 +45,7 @@ class _AboutPage extends State<AboutPage> {
       )),
       recognizer: TapGestureRecognizer()
         ..onTap = () {
-          _launchURL(url: url);
+          openUrl(url: url);
         },
     );
   }
