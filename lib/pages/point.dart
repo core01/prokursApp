@@ -21,7 +21,7 @@ class PointPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(0, 4, 0, 0),
       child: CupertinoPageScaffold(
-        backgroundColor: DarkTheme.generalWhite,
+        backgroundColor: DarkTheme.mainBlack,
         navigationBar: CupertinoNavigationBar(
           backgroundColor: DarkTheme.mainBlack,
           // padding: const EdgeInsetsDirectional.fromSTEB(10, 5, 5, 5),
@@ -60,7 +60,16 @@ class PointPage extends StatelessWidget {
             ],
           ),
         ),
-        child: PointCard(point: exchangePoint),
+        child: Column(
+          children: [
+            Expanded(
+              child: Container(
+                color: DarkTheme.generalWhite,
+                child: PointCard(point: exchangePoint),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

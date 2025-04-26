@@ -28,19 +28,27 @@ class CitiesProvider with ChangeNotifier {
   City findById(int cityId) => cities.firstWhere((city) => city.id == cityId);
 
   Future<List<City>> fetchCities() async {
-    final url = Uri.parse('${FlutterConfig.get('API_URL')}/cities');
-    // @todo add global error handler
-    final response = await http.get(url);
-    final extractedData = json.decode(response.body) as dynamic;
+    try {
+      final url = Uri.parse('${FlutterConfig.get('API_URL')}/cities');
+      final response = await http.get(url);
 
-    List<City> cities = [];
-    extractedData.forEach((city) {
-      cities.add(City.fromJson(city));
-    });
-    _cities = cities;
+      if (response.statusCode != 200) {
+        return [];
+      }
 
-    notifyListeners();
+      final extractedData = json.decode(response.body) as dynamic;
 
-    return cities;
+      List<City> cities = [];
+      extractedData.forEach((city) {
+        cities.add(City.fromJson(city));
+      });
+      _cities = cities;
+
+      notifyListeners();
+
+      return cities;
+    } catch (e) {
+      return [];
+    }
   }
 }

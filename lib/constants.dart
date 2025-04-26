@@ -114,3 +114,11 @@ class Typography {
     height: 19 / 14,
   );
 }
+
+
+class SignUpResult {
+  final String email;
+  final String password;
+
+  SignUpResult({required this.email, required this.password});
+}

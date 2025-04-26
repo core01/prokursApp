@@ -2,7 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide Typography;
 import 'package:prokurs/constants.dart';
 import 'package:prokurs/models/city.dart';
+import 'package:prokurs/pages/my_points.dart';
 import 'package:prokurs/pages/rates.dart';
+import 'package:prokurs/pages/sign_in.dart';
+import 'package:prokurs/providers/auth.dart';
 import 'package:prokurs/providers/cities.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -67,7 +70,6 @@ class _HomeState extends State<HomePage> {
   void initState() {
     super.initState();
     textController = TextEditingController(text: 'initial text');
-    context.read<CitiesProvider>().fetchCities();
   }
 
   @override
@@ -81,6 +83,7 @@ class _HomeState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final isAuthenticated = context.watch<AuthProvider>().isAuthenticated;
     final popularCities = context.watch<CitiesProvider>().popularCities;
     final unpopularCities = context.watch<CitiesProvider>().unpopularCities;
 
@@ -91,42 +94,113 @@ class _HomeState extends State<HomePage> {
         padding: const EdgeInsets.fromLTRB(0, 4, 0, 0),
         child: CustomScrollView(
           slivers: <Widget>[
-            const CupertinoSliverNavigationBar(
-              // This title is visible in both collapsed and expanded states.
-              // When the "middle" parameter is omitted, the widget provided
-              // in the "largeTitle" parameter is used instead in the collapsed state.
-              largeTitle: Text('Выберите город'),
-              backgroundColor: DarkTheme.lightBg,
-              border: Border(),
-            ),
-            SliverList(
-              delegate: SliverChildListDelegate([
-                const SizedBox(
-                  height: 20,
+            if (popularCities.isEmpty && unpopularCities.isEmpty) ...[
+              CupertinoSliverRefreshControl(
+                onRefresh: () async {
+                  await context.read<CitiesProvider>().fetchCities();
+                },
+                builder: (
+                  BuildContext context,
+                  RefreshIndicatorMode refreshState,
+                  double pulledExtent,
+                  double refreshTriggerPullDistance,
+                  double refreshIndicatorExtent,
+                ) {
+                  return const Center(
+                      child: Stack(
+                    children: [
+                      Positioned(
+                        top: 15.0,
+                        bottom: 15.0,
+                        left: 0.0,
+                        right: 0.0,
+                        child: CupertinoActivityIndicator(
+                          color: DarkTheme.mainBlack,
+                          radius: 14.0,
+                        ),
+                      )
+                    ],
+                  ));
+                },
+              ),
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      margin: EdgeInsets.only(bottom: 12),
+                      child: Text(
+                        'Список городов получить не удалось',
+                        style: Typography.body.merge(const TextStyle(
+                          color: DarkTheme.mainBlack,
+                        )),
+                      ),
+                    ),
+                    Text(
+                      'Потяните вниз, что бы попробовать снова',
+                      style: Typography.body3.merge(const TextStyle(
+                        color: DarkTheme.mainBlack,
+                      )),
+                    ),
+                  ],
                 ),
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 15),
-                  decoration: BoxDecoration(
-                    color: DarkTheme.generalWhite,
-                    borderRadius: BorderRadius.circular(15),
+              )
+            ] else ...[
+              CupertinoSliverNavigationBar(
+                // This title is visible in both collapsed and expanded states.
+                // When the "middle" parameter is omitted, the widget provided
+                // in the "largeTitle" parameter is used instead in the collapsed state.
+                largeTitle: Text('Выберите город'),
+                trailing: GestureDetector(
+                  onTap: () {
+                    debugPrint('isAuthenticated: $isAuthenticated');
+                    isAuthenticated
+                        ? Navigator.pushNamed(context, MyPointsPage.routeName)
+                        : Navigator.pushNamed(context, SignInPage.routeName);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    child: Icon(CupertinoIcons.person_circle, color: DarkTheme.mainBlack),
                   ),
-                  //padding: EdgeInsets.symmetric(horizontal: 15),
-                  child: buildCityList(popularCities),
                 ),
-                const SizedBox(
-                  height: 40,
-                ),
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 15),
-                  decoration: BoxDecoration(
-                    color: DarkTheme.generalWhite,
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  //padding: EdgeInsets.symmetric(horizontal: 15),
-                  child: buildCityList(unpopularCities),
-                ),
-              ]),
-            ),
+                backgroundColor: DarkTheme.lightBg,
+                border: Border(),
+              ),
+              SliverList(
+                delegate: SliverChildListDelegate([
+                  if (popularCities.isNotEmpty) ...[
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 15),
+                      decoration: BoxDecoration(
+                        color: DarkTheme.generalWhite,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      //padding: EdgeInsets.symmetric(horizontal: 15),
+                      child: buildCityList(popularCities),
+                    ),
+                  ],
+                  if (unpopularCities.isNotEmpty) ...[
+                    const SizedBox(
+                      height: 40,
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 15),
+                      decoration: BoxDecoration(
+                        color: DarkTheme.generalWhite,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      //padding: EdgeInsets.symmetric(horizontal: 15),
+                      child: buildCityList(unpopularCities),
+                    ),
+                  ],
+                ]),
+              ),
+            ],
           ],
         ),
       ),

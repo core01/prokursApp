@@ -44,10 +44,14 @@ class _RatesPageState extends State<RatesPage> {
   List<City> popularCities = [];
   List<City> unpopularCities = [];
 
+  @override
+  void initState() {
+    super.initState();
+    scrollController.addListener(_scrollListener);
+  }
+
   void onCurrencySelect(CurrencyItem currency) {
-    context
-        .read<ExchangePoints>()
-        .changeSelectedCurrency(currency: currency.id);
+    context.read<ExchangePoints>().changeSelectedCurrency(currency: currency.id);
   }
 
   void _toggleByBestBuy() {
@@ -62,9 +66,7 @@ class _RatesPageState extends State<RatesPage> {
 
   Future<void> _onRatesRefresh() async {
     try {
-      await context
-          .read<ExchangePoints>()
-          .fetchAndSetExchangeRates(cityId: _selectedCity.id);
+      await context.read<ExchangePoints>().fetchAndSetExchangeRates(cityId: _selectedCity.id);
     } catch (err) {
       debugPrint('RatesPage -> _onRatesRefresh: catch error $err');
     }
@@ -87,9 +89,7 @@ class _RatesPageState extends State<RatesPage> {
       return;
     }
 
-    await context
-        .read<ExchangePoints>()
-        .fetchAndSetExchangeRates(cityId: cityId);
+    await context.read<ExchangePoints>().fetchAndSetExchangeRates(cityId: cityId);
   }
 
   @override
@@ -101,8 +101,7 @@ class _RatesPageState extends State<RatesPage> {
   }
 
   void _scrollListener() {
-    if ((scrollController.position.pixels + 25.0) >=
-        scrollController.position.maxScrollExtent) {
+    if ((scrollController.position.pixels + 25.0) >= scrollController.position.maxScrollExtent) {
       setState(() {
         _showSorting = false;
       });
@@ -111,12 +110,6 @@ class _RatesPageState extends State<RatesPage> {
         _showSorting = true;
       });
     }
-  }
-
-  @override
-  void initState() {
-    scrollController.addListener(_scrollListener);
-    super.initState();
   }
 
   @override
@@ -136,12 +129,11 @@ class _RatesPageState extends State<RatesPage> {
           popularCities = context.read<CitiesProvider>().popularCities;
           unpopularCities = context.read<CitiesProvider>().unpopularCities;
 
-          final cityId = prefs.getInt('cityId') ?? cities.first.id;
-          await onCitySelect(cityId);
+          final cityId = prefs.getInt('cityId')!;
+          await onCitySelect(cities.any((city) => city.id == cityId) ? cityId : cities.first.id);
         }
       } catch (err) {
-        debugPrint(
-            'pages -> rates -> didChangeDependencies -> catch error in fetchAndSetExchangeRates: $err');
+        debugPrint('pages -> rates -> didChangeDependencies -> catch error in fetchAndSetExchangeRates: $err');
       } finally {
         _isInitializationNeeded = false;
         Future.delayed(const Duration(milliseconds: 500), () {
@@ -152,8 +144,7 @@ class _RatesPageState extends State<RatesPage> {
       }
     }
 
-    SystemChrome.setSystemUIOverlayStyle(
-        const SystemUiOverlayStyle(statusBarBrightness: Brightness.dark));
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(statusBarBrightness: Brightness.dark));
 
     super.didChangeDependencies();
   }
@@ -204,8 +195,7 @@ class _RatesPageState extends State<RatesPage> {
   @override
   Widget build(BuildContext context) {
     void onPointClick(rate) {
-      Navigator.of(context).pushNamed(PointPage.routeName,
-          arguments: PointScreenArguments(rate));
+      Navigator.of(context).pushNamed(PointPage.routeName, arguments: PointScreenArguments(rate));
     }
 
     final exchangeRates = context.watch<ExchangePoints>().items;
@@ -215,10 +205,15 @@ class _RatesPageState extends State<RatesPage> {
     final selectedCurrency = context.watch<ExchangePoints>().selectedCurrency;
 
     return CupertinoPageScaffold(
-      backgroundColor: DarkTheme.generalWhite,
-      child: Stack(
-        alignment: Alignment.center,
+      backgroundColor: DarkTheme.mainGrey,
+      child: Column(
         children: [
+          Expanded(
+            child: Container(
+              color: DarkTheme.generalWhite,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
           if (_isLoading) ...[
             const Center(
               child: CupertinoActivityIndicator(
@@ -245,96 +240,65 @@ class _RatesPageState extends State<RatesPage> {
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 Container(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Container(
-                                        margin: const EdgeInsets.fromLTRB(
-                                            0, 8, 0, 4),
+                                                margin: const EdgeInsets.fromLTRB(0, 8, 0, 4),
                                         child: Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
+                                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             GestureDetector(
                                               onTap: () {
                                                 showCupertinoModalBottomSheet(
-                                                  backgroundColor:
-                                                      DarkTheme.generalWhite,
+                                                          backgroundColor: DarkTheme.generalWhite,
                                                   context: context,
-                                                  builder: (context) =>
-                                                      Container(
-                                                    padding: const EdgeInsets
-                                                        .fromLTRB(0, 32, 0, 32),
+                                                          builder: (context) => Container(
+                                                            padding: const EdgeInsets.fromLTRB(0, 32, 0, 32),
                                                     // height: 400,
                                                     color: DarkTheme.lightBg,
-                                                    child:
-                                                        SingleChildScrollView(
+                                                            child: SingleChildScrollView(
                                                       child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .stretch,
+                                                                crossAxisAlignment: CrossAxisAlignment.stretch,
                                                         children: [
                                                           Container(
-                                                            margin:
-                                                                const EdgeInsets
-                                                                    .only(
-                                                                    bottom: 24),
+                                                                    margin: const EdgeInsets.only(bottom: 24),
                                                             child: const Text(
                                                               "Выберите город",
-                                                              style: Typography
-                                                                  .heading,
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
+                                                                      style: Typography.heading,
+                                                                      textAlign: TextAlign.center,
                                                             ),
                                                           ),
-                                                          Container(
-                                                            margin:
-                                                                const EdgeInsets
-                                                                    .symmetric(
-                                                                    horizontal:
-                                                                        15),
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              color: DarkTheme
-                                                                  .generalWhite,
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          15),
-                                                            ),
-                                                            //padding: EdgeInsets.symmetric(horizontal: 15),
-                                                            child: buildCityList(
-                                                                popularCities),
-                                                          ),
-                                                          const SizedBox(
-                                                            height: 40,
-                                                          ),
-                                                          Container(
-                                                            margin:
-                                                                const EdgeInsets
-                                                                    .symmetric(
-                                                                    horizontal:
-                                                                        15),
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              color: DarkTheme
-                                                                  .generalWhite,
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          15),
-                                                            ),
-                                                            //padding: EdgeInsets.symmetric(horizontal: 15),
-                                                            child: buildCityList(
-                                                                unpopularCities),
-                                                          )
+                                                                  if (popularCities.isNotEmpty) ...[
+                                                                    Container(
+                                                                      margin:
+                                                                          const EdgeInsets.symmetric(horizontal: 15),
+                                                                      decoration: BoxDecoration(
+                                                                        color: DarkTheme.generalWhite,
+                                                                        borderRadius: BorderRadius.circular(15),
+                                                                      ),
+                                                                      //padding: EdgeInsets.symmetric(horizontal: 15),
+                                                                      child: buildCityList(popularCities),
+                                                                    ),
+                                                                  ],
+                                                                  if (unpopularCities.isNotEmpty) ...[
+                                                                    const SizedBox(
+                                                                      height: 40,
+                                                                    ),
+                                                                    Container(
+                                                                      margin:
+                                                                          const EdgeInsets.symmetric(horizontal: 15),
+                                                                      decoration: BoxDecoration(
+                                                                        color: DarkTheme.generalWhite,
+                                                                        borderRadius: BorderRadius.circular(15),
+                                                                      ),
+                                                                      //padding: EdgeInsets.symmetric(horizontal: 15),
+                                                                      child: buildCityList(unpopularCities),
+                                                                    )
+                                                                  ]
                                                         ],
                                                       ),
                                                     ),
@@ -342,8 +306,7 @@ class _RatesPageState extends State<RatesPage> {
                                                 );
                                               },
                                               child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
+                                                        mainAxisAlignment: MainAxisAlignment.start,
                                                 children: [
                                                   Text(
                                                     _selectedCity.title,
@@ -351,30 +314,24 @@ class _RatesPageState extends State<RatesPage> {
                                                     textAlign: TextAlign.left,
                                                   ),
                                                   Container(
-                                                    margin:
-                                                        const EdgeInsets.only(
-                                                            left: 4),
-                                                    child: const Icon(Icons
-                                                        .keyboard_arrow_down),
+                                                            margin: const EdgeInsets.only(left: 4),
+                                                            child: const Icon(Icons.keyboard_arrow_down),
                                                   )
                                                 ],
                                               ),
                                             ),
                                             GestureDetector(
-                                              child: const Icon(
-                                                  CupertinoIcons.info_circle),
+                                                      child: const Icon(CupertinoIcons.info_circle),
                                               onTap: () {
-                                                Navigator.of(context).pushNamed(
-                                                    AboutPage.routeName);
+                                                        Navigator.of(context).pushNamed(AboutPage.routeName);
                                               },
-                                            )
+                                                    ),
                                           ],
                                         ),
                                       ),
                                       Text(
                                         "Обновлено в $ratesUpdateTime",
-                                        style: Typography.body2
-                                            .merge(const TextStyle(
+                                                style: Typography.body2.merge(const TextStyle(
                                           color: DarkTheme.darkSecondary,
                                         )),
                                         textAlign: TextAlign.left,
@@ -383,86 +340,55 @@ class _RatesPageState extends State<RatesPage> {
                                   ),
                                 ),
                                 Container(
-                                  margin:
-                                      const EdgeInsets.symmetric(vertical: 24),
+                                          margin: const EdgeInsets.symmetric(vertical: 24),
                                   child: Material(
                                     color: Colors.transparent,
                                     child: SingleChildScrollView(
                                       scrollDirection: Axis.horizontal,
                                       child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          for (var i = 0;
-                                              i < CURRENCY_LIST.length;
-                                              i++) ...[
+                                                  for (var i = 0; i < CURRENCY_LIST.length; i++) ...[
                                             Container(
-                                              margin: EdgeInsets.fromLTRB(
-                                                  i == 0 ? 16 : 0, 0, 8, 0),
+                                                      margin: EdgeInsets.fromLTRB(i == 0 ? 16 : 0, 0, 8, 0),
                                               child: ActionChip(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        vertical: 0,
-                                                        horizontal: 5),
+                                                        padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 5),
                                                 side: const BorderSide(
-                                                  color:
-                                                      DarkTheme.darkSecondary,
+                                                          color: DarkTheme.darkSecondary,
                                                   width: 0.5,
                                                 ),
-                                                shape:
-                                                    const RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius.all(
-                                                                Radius.circular(
-                                                                    8))),
+                                                        shape: const RoundedRectangleBorder(
+                                                            borderRadius: BorderRadius.all(Radius.circular(8))),
                                                 label: Row(
                                                   children: [
                                                     Container(
-                                                      margin:
-                                                          const EdgeInsets.only(
-                                                              right: 8),
+                                                              margin: const EdgeInsets.only(right: 8),
                                                       child: Text(
-                                                        CURRENCY_LIST[i]
-                                                            .unicode,
-                                                        style: Typography.body2
-                                                            .merge(TextStyle(
-                                                                color: selectedCurrency ==
-                                                                        CURRENCY_LIST[i]
-                                                                            .id
-                                                                    ? DarkTheme
-                                                                        .mainBlack
-                                                                    : DarkTheme
-                                                                        .generalWhite)),
-                                                        textAlign:
-                                                            TextAlign.center,
+                                                                CURRENCY_LIST[i].unicode,
+                                                                style: Typography.body2.merge(TextStyle(
+                                                                    color: selectedCurrency == CURRENCY_LIST[i].id
+                                                                        ? DarkTheme.mainBlack
+                                                                        : DarkTheme.generalWhite)),
+                                                                textAlign: TextAlign.center,
                                                       ),
                                                     ),
                                                     Container(
                                                       child: Text(
                                                         CURRENCY_LIST[i].label,
-                                                        style: Typography.body2
-                                                            .merge(TextStyle(
-                                                                color: selectedCurrency ==
-                                                                        CURRENCY_LIST[i]
-                                                                            .id
-                                                                    ? DarkTheme
-                                                                        .mainBlack
-                                                                    : DarkTheme
-                                                                        .generalWhite)),
-                                                        textAlign:
-                                                            TextAlign.center,
+                                                                style: Typography.body2.merge(TextStyle(
+                                                                    color: selectedCurrency == CURRENCY_LIST[i].id
+                                                                        ? DarkTheme.mainBlack
+                                                                        : DarkTheme.generalWhite)),
+                                                                textAlign: TextAlign.center,
                                                       ),
                                                     ),
                                                   ],
                                                 ),
-                                                backgroundColor:
-                                                    selectedCurrency ==
-                                                            CURRENCY_LIST[i].id
-                                                        ? DarkTheme.generalWhite
-                                                        : DarkTheme.mainGrey,
+                                                        backgroundColor: selectedCurrency == CURRENCY_LIST[i].id
+                                                            ? DarkTheme.generalWhite
+                                                            : DarkTheme.mainGrey,
                                                 onPressed: () {
-                                                  onCurrencySelect(
-                                                      CURRENCY_LIST[i]);
+                                                          onCurrencySelect(CURRENCY_LIST[i]);
                                                 },
                                               ),
                                             )
@@ -498,8 +424,7 @@ class _RatesPageState extends State<RatesPage> {
                                       textAlign: TextAlign.left,
                                     ),
                                     Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 4),
+                                              padding: const EdgeInsets.symmetric(horizontal: 4),
                                       child: const Text(
                                         "•",
                                         style: Typography.body2,
@@ -508,19 +433,16 @@ class _RatesPageState extends State<RatesPage> {
                                     GestureDetector(
                                       onTap: () {
                                         showCupertinoModalBottomSheet(
-                                          backgroundColor:
-                                              DarkTheme.generalWhite,
+                                                  backgroundColor: DarkTheme.generalWhite,
                                           context: context,
                                           builder: (context) => Container(
-                                            padding: const EdgeInsets.fromLTRB(
-                                                16, 32, 16, 16),
+                                                    padding: const EdgeInsets.fromLTRB(16, 32, 16, 16),
                                             // height: 256,
                                             child: Column(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
                                                 Container(
-                                                  margin: const EdgeInsets.only(
-                                                      bottom: 24),
+                                                          margin: const EdgeInsets.only(bottom: 24),
                                                   child: const Text(
                                                     "Выберите валюту",
                                                     style: Typography.heading,
@@ -532,50 +454,30 @@ class _RatesPageState extends State<RatesPage> {
                                                   spacing: 8,
                                                   runSpacing: 8,
                                                   children: [
-                                                    ...CURRENCY_LIST.map(
-                                                        (currency) => SizedBox(
-                                                              width: 160,
-                                                              child:
-                                                                  CupertinoButton(
-                                                                color: selectedCurrency ==
-                                                                        currency
-                                                                            .id
-                                                                    ? DarkTheme
-                                                                        .generalBlack
-                                                                    : DarkTheme
-                                                                        .lightBg,
-                                                                padding: const EdgeInsets
-                                                                    .symmetric(
-                                                                    vertical: 8,
-                                                                    horizontal:
-                                                                        16),
+                                                            ...CURRENCY_LIST.map((currency) => SizedBox(
+                                                                  width: 160,
+                                                                  child: CupertinoButton(
+                                                                    color: selectedCurrency == currency.id
+                                                                        ? DarkTheme.generalBlack
+                                                                        : DarkTheme.lightBg,
+                                                                    padding: const EdgeInsets.symmetric(
+                                                                        vertical: 8, horizontal: 16),
 
-                                                                // @todo rethink logic to add padding to all items but last
-                                                                child: Text(
-                                                                  currency
-                                                                      .label,
-                                                                  style: Typography
-                                                                      .body
-                                                                      .merge(
-                                                                          TextStyle(
-                                                                    color: selectedCurrency ==
-                                                                            currency
-                                                                                .id
-                                                                        ? DarkTheme
-                                                                            .generalWhite
-                                                                        : DarkTheme
-                                                                            .generalBlack,
-                                                                  )),
-                                                                ),
-                                                                onPressed: () {
-                                                                  onCurrencySelect(
-                                                                      currency);
-                                                                  Navigator.of(
-                                                                          context)
-                                                                      .pop();
-                                                                },
-                                                              ),
-                                                            )),
+                                                                    // @todo rethink logic to add padding to all items but last
+                                                                    child: Text(
+                                                                      currency.label,
+                                                                      style: Typography.body.merge(TextStyle(
+                                                                        color: selectedCurrency == currency.id
+                                                                            ? DarkTheme.generalWhite
+                                                                            : DarkTheme.generalBlack,
+                                                                      )),
+                                                                    ),
+                                                                    onPressed: () {
+                                                                      onCurrencySelect(currency);
+                                                                      Navigator.of(context).pop();
+                                                                    },
+                                                                  ),
+                                                                )),
                                                   ],
                                                 ),
                                               ],
@@ -593,8 +495,7 @@ class _RatesPageState extends State<RatesPage> {
                                           const SizedBox(
                                             height: 24,
                                             width: 24,
-                                            child:
-                                                Icon(Icons.keyboard_arrow_down),
+                                                    child: Icon(Icons.keyboard_arrow_down),
                                           )
                                         ],
                                       ),
@@ -675,8 +576,7 @@ class _RatesPageState extends State<RatesPage> {
                 ],
               ],
             ),
-            if (exchangeRates.isNotEmpty &&
-                (_showSorting || exchangeRates.length <= 4)) ...[
+                    if (exchangeRates.isNotEmpty && (_showSorting || exchangeRates.length <= 4)) ...[
               Positioned.fill(
                 bottom: 38,
                 child: Column(
@@ -735,6 +635,10 @@ class _RatesPageState extends State<RatesPage> {
               ),
             ],
           ],
+        ],
+              ),
+            ),
+          ),
         ],
       ),
     );
