@@ -13,6 +13,26 @@ class AuthProvider extends ChangeNotifier {
   AuthTokens? get tokens => _tokens;
   bool get isAuthenticated => _tokens != null;
   bool get isLoading => _isLoading;
+  
+  String? get userEmail {
+    if (_tokens == null) return null;
+    try {
+      // Get the payload part (second part) of the JWT
+      final parts = _tokens!.accessToken.split('.');
+      if (parts.length != 3) return null;
+
+      // Decode the base64 payload directly with base64Url
+      final normalized = base64Url.normalize(parts[1]);
+      final payloadJson = utf8.decode(base64Url.decode(normalized));
+      final payload = json.decode(payloadJson);
+
+      // Extract email from the payload
+      return payload['username'];
+    } catch (e) {
+      debugPrint('Error decoding token: $e');
+      return null;
+    }
+  }
 
   Future<bool> checkAuth() async {
     try {
@@ -20,8 +40,10 @@ class AuthProvider extends ChangeNotifier {
 
       final accessToken = prefs.getString('access_token');
       final refreshToken = prefs.getString('refresh_token');
+      
       debugPrint('checkAuth -> accessToken: $accessToken');
       debugPrint('checkAuth -> refreshToken: $refreshToken');
+      
       if (accessToken != null && refreshToken != null) {
         _tokens = AuthTokens(
           accessToken: accessToken,
@@ -74,6 +96,7 @@ class AuthProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('access_token');
     await prefs.remove('refresh_token');
+    await prefs.remove('user_email');
   }
 
   Future<void> signOut() async {

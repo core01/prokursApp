@@ -42,7 +42,6 @@ class _SignInState extends State<SignInPage> {
     try {
       await context.read<AuthProvider>().signIn(email, password);
       if (mounted) {
-        // debugPrint('SignIn success');
         // Redirect to My Points page after successful sign-in
         Navigator.of(context).pushReplacementNamed(MyPointsPage.routeName);
       }

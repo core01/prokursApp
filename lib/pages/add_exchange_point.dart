@@ -234,11 +234,9 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
     try {
       final exchangePointData = _form.toJson();
       if (widget.exchangePoint?.id != null) {
-        final result = await _exchangePointsService.updateExchangePoint(widget.exchangePoint!.id, exchangePointData);
-        debugPrint('result: $result');
+        await _exchangePointsService.updateExchangePoint(widget.exchangePoint!.id, exchangePointData);
       } else {
-        final result = await _exchangePointsService.createExchangePoint(exchangePointData);
-        debugPrint('result: $result');
+        await _exchangePointsService.createExchangePoint(exchangePointData);
       }
 
       if (mounted) {
@@ -342,13 +340,14 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
           isEditing ? "Редактировать обменный пункт" : "Добавить обменный пункт",
           style: Typography.heading2,
         ),
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          onPressed: () => Navigator.of(context).pop(),
+        leading: GestureDetector(
           child: const Icon(
             CupertinoIcons.back,
             color: DarkTheme.generalBlack,
+            size: 24.0,
           ),
+          onTap: () => Navigator.of(context).pop(),
+          
         ),
       ),
       child: SafeArea(

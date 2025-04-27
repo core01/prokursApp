@@ -127,6 +127,5 @@ class ExchangePoints with ChangeNotifier {
 
     _updateTime = DateTime.now();
     sortExchangeRates();
-    // debugPrint(response.toString());
   }
 }

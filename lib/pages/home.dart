@@ -160,9 +160,10 @@ class _HomeState extends State<HomePage> {
                         ? Navigator.pushNamed(context, MyPointsPage.routeName)
                         : Navigator.pushNamed(context, SignInPage.routeName);
                   },
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    child: Icon(CupertinoIcons.person_circle, color: DarkTheme.mainBlack),
+                  child: Icon(
+                    CupertinoIcons.person_circle,
+                    color: DarkTheme.mainBlack,
+                    size: 24.0,
                   ),
                 ),
                 backgroundColor: DarkTheme.lightBg,
