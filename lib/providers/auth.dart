@@ -1,8 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:prokurs/models/auth_tokens.dart';
+import 'package:prokurs/pages/sign_in.dart';
+import 'package:prokurs/pages/home.dart';
 import 'package:prokurs/services/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
+import 'package:prokurs/main.dart';
 
 class AuthProvider extends ChangeNotifier {
   final AuthService _authService = AuthService();
@@ -104,6 +108,13 @@ class AuthProvider extends ChangeNotifier {
     try {
       await clearTokens();
       notifyListeners();
+      // First clear to HomePage
+      navigatorKey.currentState?.pushNamedAndRemoveUntil(
+        HomePage.routeName,
+        (route) => false,
+      );
+      // Then push SignInPage
+      navigatorKey.currentState?.pushNamed(SignInPage.routeName);
     } finally {
       _isLoading = false;
     }

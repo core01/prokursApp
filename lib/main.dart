@@ -18,6 +18,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'constants.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FlutterConfig.loadEnvVariables();
@@ -38,11 +40,15 @@ void main() async {
 
     debugPrint('main -> isAuthenticated: $isAuthenticated');
     debugPrint('main -> authProvider.tokens = ${authProvider.tokens?.accessToken}');
+  } catch (e) {
+    debugPrint('main -> error in authProvider.checkAuth: $e');
+  }
 
+  try {
     await citiesProvider.fetchCities();
     hasSelectedCity = cityId != null && citiesProvider.cities.any((city) => city.id == cityId);
   } catch (e) {
-    debugPrint('Error in main initialization: $e');
+    debugPrint('Error in citiesProvider.fetchCities: $e');
     hasSelectedCity = false;
   }
 
@@ -101,6 +107,7 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: CupertinoApp(
+        navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
         localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
           DefaultMaterialLocalizations.delegate,

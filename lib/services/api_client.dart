@@ -49,7 +49,7 @@ class ApiClient {
       onError: (DioException error, handler) async {
         debugPrint('api_client -> onError -> error: $error');
         // Handle auth errors (401)
-        if (error.response?.statusCode == 401 && _authProvider.tokens != null) {
+        if (error.response?.statusCode == 401) {
           // Only attempt to refresh if we're not already refreshing
           if (!_isRefreshing) {
             // Try to refresh the token
@@ -78,11 +78,10 @@ class ApiClient {
 
               // Return the successful response
               return handler.resolve(response);
+            } else {
+              _authProvider.signOut();
             }
           }
-
-          // If we couldn't refresh or we were already refreshing, sign out
-          _authProvider.signOut();
         }
         return handler.next(error);
       },
