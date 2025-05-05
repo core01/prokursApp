@@ -1,34 +1,35 @@
-import 'dart:convert';
-import 'package:flutter_config/flutter_config.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import 'package:prokurs/exceptions/conflict_exception.dart';
 import '../models/auth_tokens.dart';
+import '../exceptions/unauthorized_exception.dart';
+import '../exceptions/api_exception.dart';
+import 'api_client.dart';
 
 class AuthService {
-  static final String _baseUrl = FlutterConfig.get('API_URL');
-
   Future<AuthTokens> signIn({
     required String email,
     required String password,
   }) async {
     try {
-      final response = await http.post(
-        Uri.parse('$_baseUrl/auth/login'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
+      final response = await ApiClient.instance.post(
+        'auth/login',
+        data: {
           'username': email,
           'password': password,
-        }),
+        },
       );
 
-      if (response.statusCode == 201) {
-        return AuthTokens.fromJson(jsonDecode(response.body));
+      return AuthTokens.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) {
+        throw UnauthorizedException(message: 'Invalid credentials');
       } else {
-        throw Exception('Failed to sign in: ${response.statusCode}');
+        throw ApiException(
+          message: 'Failed to sign in',
+          statusCode: e.response?.statusCode,
+          data: e.response?.data,
+        );
       }
-    } catch (e) {
-      throw Exception('Failed to sign in: $e');
     }
   }
 
@@ -38,25 +39,26 @@ class AuthService {
     required String password,
   }) async {
     try {
-      final response = await http.post(
-        Uri.parse('$_baseUrl/auth/register'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
+      final response = await ApiClient.instance.post(
+        'auth/register',
+        data: {
           'fullName': fullName,
-          'email': email,
+          'username': email,
           'password': password,
-        }),
+        },
       );
 
-      if (response.statusCode == 201) {
-        return jsonDecode(response.body);
+      return response.data;
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 409) {
+        throw ConflictException(message: e.response?.data['message']);
       } else {
-        throw Exception('Failed to sign up: ${response.statusCode}');
+        throw ApiException(
+          message: 'Failed to sign up',
+          statusCode: e.response?.statusCode,
+          data: e.response?.data,
+        );
       }
-    } catch (e) {
-      throw Exception('Failed to sign up: $e');
     }
   }
 }

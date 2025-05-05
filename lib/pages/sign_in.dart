@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:prokurs/constants.dart';
 import 'package:prokurs/pages/sign_up.dart';
 import 'package:prokurs/providers/auth.dart';
+import 'package:prokurs/services/translation_service.dart';
 import 'package:prokurs/widgets/forms/sign_in_form.dart';
 import 'package:prokurs/pages/my_points.dart';
 import 'package:provider/provider.dart';
@@ -36,7 +37,6 @@ class _SignInState extends State<SignInPage> {
 
     setState(() {
       _isLoading = true;
-      _errorMessage = null;
     });
 
     try {
@@ -48,7 +48,7 @@ class _SignInState extends State<SignInPage> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = e.toString();
+          _errorMessage = TranslationService.translate(e.toString());
         });
       }
     } finally {
@@ -147,9 +147,11 @@ class _SignInState extends State<SignInPage> {
                   ),
                   SignInForm(
                     onSignIn: _handleSignIn,
+                    signInError: _errorMessage,
                     onSignUp: () {
                       if (mounted) {
-                        Navigator.pushNamed(context, SignUpPage.routeName).then((result) {
+                        Navigator.pushNamed(context, SignUpPage.routeName)
+                            .then((result) {
                           _handleSignUpResult(result as SignUpResult?);
                         });
                       }

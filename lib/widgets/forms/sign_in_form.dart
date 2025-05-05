@@ -4,11 +4,12 @@ import 'package:prokurs/constants.dart';
 class SignInForm extends StatefulWidget {
   final VoidCallback? onSignUp;
   final void Function(String email, String password)? onSignIn;
-
+  final String? signInError;
   const SignInForm({
     super.key,
     this.onSignUp,
     this.onSignIn,
+    this.signInError,
   });
 
   @override
@@ -127,6 +128,17 @@ class _SignInFormState extends State<SignInForm> {
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
                   _passwordError!,
+                  style: const TextStyle(
+                    color: CupertinoColors.destructiveRed,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            if (widget.signInError != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 24),
+                child: Text(
+                  widget.signInError!,
                   style: const TextStyle(
                     color: CupertinoColors.destructiveRed,
                     fontSize: 14,

@@ -1,15 +1,17 @@
 import 'package:flutter/cupertino.dart';
 
-import '../../constants.dart';
+import 'package:prokurs/constants.dart';
+import 'package:prokurs/services/translation_service.dart';
 
 class SignUpForm extends StatefulWidget {
   final void Function(String fullName, String email, String password)? onSignUp;
   final bool isLoading;
-
+  final String? errorMessage;
   const SignUpForm({
     super.key,
     this.onSignUp,
     this.isLoading = false,
+    this.errorMessage,
   });
 
   @override
@@ -20,7 +22,8 @@ class _SignUpFormState extends State<SignUpForm> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _passwordConfirmationController = TextEditingController();
+  final TextEditingController _passwordConfirmationController =
+      TextEditingController();
 
   String? _nameError;
   String? _emailError;
@@ -41,7 +44,8 @@ class _SignUpFormState extends State<SignUpForm> {
         final name = _nameController.text.trim();
         final email = _emailController.text.trim();
         final password = _passwordController.text.trim();
-        final passwordConfirmation = _passwordConfirmationController.text.trim();
+        final passwordConfirmation =
+            _passwordConfirmationController.text.trim();
 
         _nameError = name.isEmpty ? 'Поле обязательно для заполнения' : null;
 
@@ -51,8 +55,10 @@ class _SignUpFormState extends State<SignUpForm> {
                 ? 'Введите валидный email адрес'
                 : null;
 
-        _passwordError = password.isEmpty ? 'Поле обязательно для заполнения' : null;
-        _passwordConfirmationError = password != passwordConfirmation ? 'Пароли не совпадают' : null;
+        _passwordError =
+            password.isEmpty ? 'Поле обязательно для заполнения' : null;
+        _passwordConfirmationError =
+            password != passwordConfirmation ? 'Пароли не совпадают' : null;
       }
     });
   }
@@ -83,7 +89,10 @@ class _SignUpFormState extends State<SignUpForm> {
       _submitted = true;
       _validateFields();
 
-      if (_emailError == null && _passwordError == null && _passwordConfirmationError == null && _nameError == null) {
+      if (_emailError == null &&
+          _passwordError == null &&
+          _passwordConfirmationError == null &&
+          _nameError == null) {
         widget.onSignUp?.call(
           _nameController.text.trim(),
           _emailController.text.trim(),
@@ -197,11 +206,22 @@ class _SignUpFormState extends State<SignUpForm> {
                 ),
               ),
             ),
+          if (widget.errorMessage != null)
+            Container(
+              padding: const EdgeInsets.only(top: 24),
+              child: Text(
+                TranslationService.translate(widget.errorMessage!),
+                style: const TextStyle(color: CupertinoColors.destructiveRed),
+                textAlign: TextAlign.center,
+              ),
+            ),
           const SizedBox(height: 24),
           CupertinoButton(
             color: DarkTheme.generalBlack,
             onPressed: widget.isLoading ? null : _validateAndSubmit,
-            child: widget.isLoading ? const CupertinoActivityIndicator() : const Text('Зарегистрироваться'),
+            child: widget.isLoading
+                ? const CupertinoActivityIndicator()
+                : const Text('Зарегистрироваться'),
           ),
         ],
       ),

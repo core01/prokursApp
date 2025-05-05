@@ -14,7 +14,8 @@ class ApiClient {
   /// Get the singleton instance
   static ApiClient get instance {
     if (_instance == null) {
-      throw Exception('ApiClient not initialized. Call ApiClient.initialize() first.');
+      throw Exception(
+          'ApiClient not initialized. Call ApiClient.initialize() first.');
     }
     return _instance!;
   }
@@ -39,44 +40,42 @@ class ApiClient {
     // Add auth interceptor
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) {
+        // Skip auth for login and register endpoints
+        if (options.path.contains('auth/')) {
+          return handler.next(options);
+        }
+
         // Add auth header if token is available
-        debugPrint('api_client -> onRequest -> _authProvider.tokens: ${_authProvider.tokens}');
         if (_authProvider.tokens != null) {
-          options.headers['Authorization'] = 'Bearer ${_authProvider.tokens!.accessToken}';
+          options.headers['Authorization'] =
+              'Bearer ${_authProvider.tokens!.accessToken}';
         }
         return handler.next(options);
       },
       onError: (DioException error, handler) async {
-        debugPrint('api_client -> onError -> error: $error');
+        // Skip token refresh for login and register endpoints
+        if (error.requestOptions.path.contains('auth/')) {
+          return handler.next(error);
+        }
+
         // Handle auth errors (401)
         if (error.response?.statusCode == 401) {
-          // Only attempt to refresh if we're not already refreshing
           if (!_isRefreshing) {
-            // Try to refresh the token
-            debugPrint('Token expired, attempting to refresh...');
             bool refreshed = await _refreshToken();
-
             if (refreshed) {
-              // If successful, retry the original request
-              debugPrint('Token refreshed, retrying request');
-              // Clone the original request options
-              final options = error.requestOptions;
-
-              // Create a new request
               final response = await dio.request(
-                options.path,
-                data: options.data,
-                queryParameters: options.queryParameters,
+                error.requestOptions.path,
+                data: error.requestOptions.data,
+                queryParameters: error.requestOptions.queryParameters,
                 options: Options(
-                  method: options.method,
+                  method: error.requestOptions.method,
                   headers: {
-                    ...options.headers,
-                    'Authorization': 'Bearer ${_authProvider.tokens!.accessToken}',
+                    ...error.requestOptions.headers,
+                    'Authorization':
+                        'Bearer ${_authProvider.tokens!.accessToken}',
                   },
                 ),
               );
-
-              // Return the successful response
               return handler.resolve(response);
             } else {
               _authProvider.signOut();
@@ -100,25 +99,14 @@ class ApiClient {
   Future<bool> _refreshToken() async {
     try {
       _isRefreshing = true;
-      debugPrint(
-          'ApiClient -> _refreshToken -> attempting with token: ${_authProvider.tokens?.refreshToken.substring(0, 10)}...');
+      final refreshToken = _authProvider.tokens?.refreshToken;
+      if (refreshToken == null) return false;
 
-      // Create a separate Dio instance for the refresh request
-      // to avoid interceptor loops
       final refreshDio = Dio(BaseOptions(
         baseUrl: _baseUrl,
         connectTimeout: const Duration(seconds: 10),
       ));
 
-      // Get the refresh token
-      final refreshToken = _authProvider.tokens?.refreshToken;
-      if (refreshToken == null) {
-        debugPrint('ApiClient -> _refreshToken -> refreshToken is null');
-        return false;
-      }
-
-      // Make the refresh token request
-      debugPrint('ApiClient -> _refreshToken -> making request to ${_baseUrl}auth/refresh');
       final response = await refreshDio.post(
         'auth/refresh',
         options: Options(
@@ -128,16 +116,10 @@ class ApiClient {
         ),
       );
 
-      // Check if the refresh was successful
-      debugPrint('ApiClient -> _refreshToken -> response: ${response.statusCode}');
       if (response.statusCode == 200 || response.statusCode == 201) {
-        debugPrint('ApiClient -> _refreshToken -> refresh successful, data: ${response.data}');
-        // Update tokens in the auth provider
         await _authProvider.updateTokens(response.data);
-        debugPrint('ApiClient -> _refreshToken -> tokens updated: ${_authProvider.tokens}');
         return true;
       }
-
       return false;
     } catch (e) {
       debugPrint('Error refreshing token: $e');

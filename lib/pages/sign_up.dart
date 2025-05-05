@@ -17,7 +17,8 @@ class _SignUpState extends State<SignUpPage> {
   bool _isLoading = false;
   String? _errorMessage;
 
-  Future<void> _handleSignUp(String fullName, String email, String password) async {
+  Future<void> _handleSignUp(
+      String fullName, String email, String password) async {
     if (_isLoading) return;
 
     setState(() {
@@ -26,7 +27,8 @@ class _SignUpState extends State<SignUpPage> {
     });
 
     try {
-      await _authService.signUp(fullName: fullName, email: email, password: password);
+      await _authService.signUp(
+          fullName: fullName, email: email, password: password);
       if (mounted) {
         Navigator.pop(context, SignUpResult(email: email, password: password));
       }
@@ -74,7 +76,8 @@ class _SignUpState extends State<SignUpPage> {
           ),
           middle: Text(
             "Регистрация",
-            style: Typography.heading2.merge(const TextStyle(color: DarkTheme.generalBlack)),
+            style: Typography.heading2
+                .merge(const TextStyle(color: DarkTheme.generalBlack)),
             textAlign: TextAlign.center,
           ),
         ),
@@ -89,15 +92,6 @@ class _SignUpState extends State<SignUpPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    if (_errorMessage != null)
-                      Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: Text(
-                          _errorMessage!,
-                          style: const TextStyle(color: CupertinoColors.destructiveRed),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
                     Container(
                       padding: const EdgeInsets.all(12),
                       margin: const EdgeInsets.only(bottom: 20),
@@ -129,6 +123,7 @@ class _SignUpState extends State<SignUpPage> {
                     SignUpForm(
                       onSignUp: _handleSignUp,
                       isLoading: _isLoading,
+                      errorMessage: _errorMessage,
                     ),
                   ],
                 ),

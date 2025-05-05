@@ -17,7 +17,7 @@ class AuthProvider extends ChangeNotifier {
   AuthTokens? get tokens => _tokens;
   bool get isAuthenticated => _tokens != null;
   bool get isLoading => _isLoading;
-  
+
   String? get userEmail {
     if (_tokens == null) return null;
     try {
@@ -44,10 +44,10 @@ class AuthProvider extends ChangeNotifier {
 
       final accessToken = prefs.getString('access_token');
       final refreshToken = prefs.getString('refresh_token');
-      
+
       debugPrint('checkAuth -> accessToken: $accessToken');
       debugPrint('checkAuth -> refreshToken: $refreshToken');
-      
+
       if (accessToken != null && refreshToken != null) {
         _tokens = AuthTokens(
           accessToken: accessToken,
@@ -89,7 +89,8 @@ class AuthProvider extends ChangeNotifier {
   Future<void> signUp(String fullName, String email, String password) async {
     _isLoading = true;
     try {
-      await _authService.signUp(fullName: fullName, email: email, password: password);
+      await _authService.signUp(
+          fullName: fullName, email: email, password: password);
     } finally {
       _isLoading = false;
     }
