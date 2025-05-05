@@ -14,7 +14,9 @@ class ExchangePointsService {
   Future<List<ExchangePoint>> getMyExchangePointsList() async {
     try {
       final response = await _apiClient.get('$_baseEndpoint/personal');
-      return (response.data as List<dynamic>).map((json) => ExchangePoint.fromJson(json)).toList();
+      return (response.data as List<dynamic>)
+          .map((json) => ExchangePoint.fromJson(json))
+          .toList();
     } catch (e) {
       debugPrint('Error fetching my exchange points: $e');
       rethrow;
@@ -22,9 +24,11 @@ class ExchangePointsService {
   }
 
   /// Create a new exchange point
-  Future<Map<String, dynamic>> createExchangePoint(Map<String, dynamic> pointData) async {
+  Future<Map<String, dynamic>> createExchangePoint(
+      Map<String, dynamic> pointData) async {
     try {
-      final response = await _apiClient.post('$_baseEndpoint/personal', data: pointData);
+      final response =
+          await _apiClient.post('$_baseEndpoint/personal', data: pointData);
       return response.data as Map<String, dynamic>;
     } catch (e) {
       debugPrint('Error creating exchange point: $e');
@@ -33,9 +37,11 @@ class ExchangePointsService {
   }
 
   /// Update an existing exchange point
-  Future<Map<String, dynamic>> updateExchangePoint(num id, Map<String, dynamic> pointData) async {
+  Future<Map<String, dynamic>> updateExchangePoint(
+      num id, Map<String, dynamic> pointData) async {
     try {
-      final response = await _apiClient.put('$_baseEndpoint/personal/$id', data: pointData);
+      final response =
+          await _apiClient.put('$_baseEndpoint/personal/$id', data: pointData);
       return response.data as Map<String, dynamic>;
     } catch (e) {
       debugPrint('Error updating exchange point: $e');

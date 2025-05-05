@@ -118,15 +118,20 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
 
       // Update currency controllers
       _buyUSDController.text = point.buyUSD != 0 ? point.buyUSD.toString() : '';
-      _sellUSDController.text = point.sellUSD != 0 ? point.sellUSD.toString() : '';
+      _sellUSDController.text =
+          point.sellUSD != 0 ? point.sellUSD.toString() : '';
       _buyEURController.text = point.buyEUR != 0 ? point.buyEUR.toString() : '';
-      _sellEURController.text = point.sellEUR != 0 ? point.sellEUR.toString() : '';
+      _sellEURController.text =
+          point.sellEUR != 0 ? point.sellEUR.toString() : '';
       _buyRUBController.text = point.buyRUB != 0 ? point.buyRUB.toString() : '';
-      _sellRUBController.text = point.sellRUB != 0 ? point.sellRUB.toString() : '';
+      _sellRUBController.text =
+          point.sellRUB != 0 ? point.sellRUB.toString() : '';
       _buyCNYController.text = point.buyCNY != 0 ? point.buyCNY.toString() : '';
-      _sellCNYController.text = point.sellCNY != 0 ? point.sellCNY.toString() : '';
+      _sellCNYController.text =
+          point.sellCNY != 0 ? point.sellCNY.toString() : '';
       _buyGBPController.text = point.buyGBP != 0 ? point.buyGBP.toString() : '';
-      _sellGBPController.text = point.sellGBP != 0 ? point.sellGBP.toString() : '';
+      _sellGBPController.text =
+          point.sellGBP != 0 ? point.sellGBP.toString() : '';
     });
 
     // Debug log the form data after setting it
@@ -168,7 +173,8 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
     });
   }
 
-  void _onRateChanged(String value, {required String currency, required bool isBuy}) {
+  void _onRateChanged(String value,
+      {required String currency, required bool isBuy}) {
     setState(() {
       switch (currency) {
         case 'USD':
@@ -234,7 +240,8 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
     try {
       final exchangePointData = _form.toJson();
       if (widget.exchangePoint?.id != null) {
-        await _exchangePointsService.updateExchangePoint(widget.exchangePoint!.id, exchangePointData);
+        await _exchangePointsService.updateExchangePoint(
+            widget.exchangePoint!.id, exchangePointData);
       } else {
         await _exchangePointsService.createExchangePoint(exchangePointData);
       }
@@ -297,7 +304,8 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
               onSelectedItemChanged: (int index) {
                 selectedIndex = index;
                 setState(() {
-                  _form = _form.copyWith(city: CityInput.dirty(_cities[index].id));
+                  _form =
+                      _form.copyWith(city: CityInput.dirty(_cities[index].id));
                 });
               },
               children: _cities.map((City city) {
@@ -327,7 +335,8 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
     // Find the currently selected city to display in the UI
     String cityTitle = "Выберите город";
     if (_form.city.value != null) {
-      final cityIndex = _cities.indexWhere((city) => city.id == _form.city.value);
+      final cityIndex =
+          _cities.indexWhere((city) => city.id == _form.city.value);
       if (cityIndex >= 0) {
         cityTitle = _cities[cityIndex].title;
       }
@@ -337,7 +346,9 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
       backgroundColor: DarkTheme.lightBg,
       navigationBar: CupertinoNavigationBar(
         middle: Text(
-          isEditing ? "Редактировать обменный пункт" : "Добавить обменный пункт",
+          isEditing
+              ? "Редактировать обменный пункт"
+              : "Добавить обменный пункт",
           style: Typography.heading2,
         ),
         leading: GestureDetector(
@@ -347,7 +358,6 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
             size: 24.0,
           ),
           onTap: () => Navigator.of(context).pop(),
-          
         ),
       ),
       child: SafeArea(
@@ -368,7 +378,8 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                         GestureDetector(
                           onTap: () => _showCityPicker(context),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 11),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 11),
                             child: Row(
                               children: [
                                 Container(
@@ -382,7 +393,8 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                                 Text(
                                   cityTitle,
                                   style: _form.city.value == null
-                                      ? Typography.body2.copyWith(color: DarkTheme.darkSecondary)
+                                      ? Typography.body2.copyWith(
+                                          color: DarkTheme.darkSecondary)
                                       : Typography.body2,
                                 ),
                                 const SizedBox(width: 8),
@@ -399,7 +411,8 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                         // Name Field
                         CupertinoTextFormFieldRow(
                           textAlignVertical: TextAlignVertical.top,
-                          padding: const EdgeInsetsDirectional.fromSTEB(28.0, 6.0, 6.0, 6.0),
+                          padding: const EdgeInsetsDirectional.fromSTEB(
+                              28.0, 6.0, 6.0, 6.0),
                           prefix: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.end,
@@ -427,7 +440,8 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
 
                         // Address Field
                         CupertinoTextFormFieldRow(
-                          padding: const EdgeInsetsDirectional.fromSTEB(28.0, 6.0, 6.0, 6.0),
+                          padding: const EdgeInsetsDirectional.fromSTEB(
+                              28.0, 6.0, 6.0, 6.0),
                           prefix: Padding(
                             padding: EdgeInsets.only(right: 32),
                             child: Text(
@@ -448,7 +462,8 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
 
                         // Phone Field
                         CupertinoTextFormFieldRow(
-                          padding: const EdgeInsetsDirectional.fromSTEB(28.0, 6.0, 6.0, 6.0),
+                          padding: const EdgeInsetsDirectional.fromSTEB(
+                              28.0, 6.0, 6.0, 6.0),
                           prefix: Padding(
                             padding: EdgeInsets.only(right: 12),
                             child: Text(
@@ -485,11 +500,13 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                                 },
                                 children: const {
                                   false: Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 20),
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 20),
                                     child: Text('Розница'),
                                   ),
                                   true: Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 20),
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 20),
                                     child: Text('Опт'),
                                   ),
                                 },
@@ -502,11 +519,16 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                       backgroundColor: DarkTheme.lightBg,
                       header: const Text('КУРСЫ ВАЛЮТ'),
                       children: [
-                        _buildStyledCurrencyRow(USD, _form.buyUSD, _form.sellUSD),
-                        _buildStyledCurrencyRow(EUR, _form.buyEUR, _form.sellEUR),
-                        _buildStyledCurrencyRow(RUR, _form.buyRUB, _form.sellRUB),
-                        _buildStyledCurrencyRow(CNY, _form.buyCNY, _form.sellCNY),
-                        _buildStyledCurrencyRow(GBP, _form.buyGBP, _form.sellGBP),
+                        _buildStyledCurrencyRow(
+                            USD, _form.buyUSD, _form.sellUSD),
+                        _buildStyledCurrencyRow(
+                            EUR, _form.buyEUR, _form.sellEUR),
+                        _buildStyledCurrencyRow(
+                            RUR, _form.buyRUB, _form.sellRUB),
+                        _buildStyledCurrencyRow(
+                            CNY, _form.buyCNY, _form.sellCNY),
+                        _buildStyledCurrencyRow(
+                            GBP, _form.buyGBP, _form.sellGBP),
                       ],
                     ),
 
@@ -533,7 +555,8 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
   }
 
   // Enhanced currency row with modern styling
-  Widget _buildStyledCurrencyRow(CurrencyItem currency, String buyValue, String sellValue) {
+  Widget _buildStyledCurrencyRow(
+      CurrencyItem currency, String buyValue, String sellValue) {
     // Get the appropriate controllers based on currency
     TextEditingController buyController;
     TextEditingController sellController;
@@ -619,12 +642,15 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                   Expanded(
                     child: CupertinoTextField(
                       placeholder: "Покупка",
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
                       textAlign: TextAlign.center,
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       style: Typography.body2,
-                      onChanged: (value) => _onRateChanged(value, currency: currency.id, isBuy: true),
-                      decoration: null, // No decoration as we're using the parent container
+                      onChanged: (value) => _onRateChanged(value,
+                          currency: currency.id, isBuy: true),
+                      decoration:
+                          null, // No decoration as we're using the parent container
                       cursorColor: DarkTheme.darkSecondary,
                       controller: buyController,
                     ),
@@ -664,12 +690,15 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                   Expanded(
                     child: CupertinoTextField(
                       placeholder: "Продажа",
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
                       textAlign: TextAlign.center,
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       style: Typography.body2,
-                      onChanged: (value) => _onRateChanged(value, currency: currency.id, isBuy: false),
-                      decoration: null, // No decoration as we're using the parent container
+                      onChanged: (value) => _onRateChanged(value,
+                          currency: currency.id, isBuy: false),
+                      decoration:
+                          null, // No decoration as we're using the parent container
                       cursorColor: DarkTheme.darkSecondary,
                       controller: sellController,
                     ),

@@ -115,7 +115,6 @@ class Typography {
   );
 }
 
-
 class SignUpResult {
   final String email;
   final String password;

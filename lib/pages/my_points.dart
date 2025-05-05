@@ -59,7 +59,8 @@ class _MyPointsState extends State<MyPointsPage> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'Ошибка загрузки обменных пунктов. Потяните экран вниз или нажмите на кнопку "Повторить"';
+          _errorMessage =
+              'Ошибка загрузки обменных пунктов. Потяните экран вниз или нажмите на кнопку "Повторить"';
         });
       }
     }
@@ -123,7 +124,7 @@ class _MyPointsState extends State<MyPointsPage> {
   Widget build(BuildContext context) {
     final userEmail = context.watch<AuthProvider>().userEmail;
     final authProvider = context.read<AuthProvider>();
-    
+
     return CupertinoPageScaffold(
       backgroundColor: DarkTheme.lightBg,
       navigationBar: CupertinoNavigationBar(
@@ -152,7 +153,8 @@ class _MyPointsState extends State<MyPointsPage> {
                   ),
                 ],
                 cancelButton: CupertinoActionSheetAction(
-                  child: Text('Отмена', style: TextStyle(color: DarkTheme.generalBlack)),
+                  child: Text('Отмена',
+                      style: TextStyle(color: DarkTheme.generalBlack)),
                   onPressed: () {
                     Navigator.pop(context);
                   },
@@ -179,15 +181,13 @@ class _MyPointsState extends State<MyPointsPage> {
           ],
         ),
         trailing: GestureDetector(
+          onTap: _showAddPointForm,
           child: const Icon(
             CupertinoIcons.add_circled,
             color: DarkTheme.generalBlack,
             size: 24.0,
           ),
-          onTap: _showAddPointForm,
         ),
-        
-         
       ),
       child: SafeArea(
         child: _points.isEmpty
@@ -203,7 +203,8 @@ class _MyPointsState extends State<MyPointsPage> {
                     CupertinoButton(
                       onPressed: _showAddPointForm,
                       color: DarkTheme.generalBlack,
-                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 16),
                       child: const Text("Добавить"),
                     ),
                   ],
@@ -216,7 +217,8 @@ class _MyPointsState extends State<MyPointsPage> {
                     onRefresh: () async {
                       await _getExchangePoints();
                     },
-                    builder: (context, refreshState, pulledExtent, refreshTriggerPullDistance, refreshIndicatorExtent) {
+                    builder: (context, refreshState, pulledExtent,
+                        refreshTriggerPullDistance, refreshIndicatorExtent) {
                       return const Center(
                         child: Stack(
                           children: [
@@ -235,15 +237,6 @@ class _MyPointsState extends State<MyPointsPage> {
                       );
                     },
                   ),
-                  if (_isLoading)
-                    const SliverToBoxAdapter(
-                      child: Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Center(
-                          child: CupertinoActivityIndicator(),
-                        ),
-                      ),
-                    ),
                   if (_errorMessage != null)
                     SliverToBoxAdapter(
                       child: Padding(
@@ -265,7 +258,8 @@ class _MyPointsState extends State<MyPointsPage> {
                             ),
                             const SizedBox(height: 16),
                             CupertinoButton(
-                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 8, horizontal: 16),
                               color: DarkTheme.generalBlack,
                               onPressed: _getExchangePoints,
                               child: _isLoading
@@ -308,49 +302,60 @@ class _MyPointsState extends State<MyPointsPage> {
                                 confirmDismiss: (direction) async {
                                   return await showCupertinoDialog<bool>(
                                         context: context,
-                                        builder: (context) => CupertinoAlertDialog(
-                                          title: const Text('Удалить обменный пункт?'),
-                                          content: const Text('Вы уверены, что хотите удалить этот обменный пункт?'),
+                                        builder: (context) =>
+                                            CupertinoAlertDialog(
+                                          title: const Text(
+                                              'Удалить обменный пункт?'),
+                                          content: const Text(
+                                              'Вы уверены, что хотите удалить этот обменный пункт?'),
                                           actions: [
                                             CupertinoDialogAction(
                                               child: const Text('Отмена'),
-                                              onPressed: () => Navigator.of(context).pop(false),
+                                              onPressed: () =>
+                                                  Navigator.of(context)
+                                                      .pop(false),
                                             ),
                                             CupertinoDialogAction(
                                               isDestructiveAction: true,
                                               child: const Text('Удалить'),
-                                              onPressed: () => Navigator.of(context).pop(true),
+                                              onPressed: () =>
+                                                  Navigator.of(context)
+                                                      .pop(true),
                                             ),
                                           ],
                                         ),
                                       ) ??
                                       false;
                                 },
-                                child: Container(
-                                  margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: DarkTheme.generalWhite,
-                                    borderRadius: BorderRadius.circular(8),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: CupertinoColors.systemGrey5.withOpacity(0.5),
-                                        blurRadius: 2,
-                                        offset: const Offset(0, 1),
-                                      ),
-                                    ],
-                                  ),
-                                  child: GestureDetector(
-                                    onTap: () => _editExchangePoint(point),
+                                child: GestureDetector(
+                                  onTap: () => _editExchangePoint(point),
+                                  child: Container(
+                                    margin: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: DarkTheme.generalWhite,
+                                      borderRadius: BorderRadius.circular(8),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: CupertinoColors.systemGrey5
+                                              .withOpacity(0.5),
+                                          blurRadius: 2,
+                                          offset: const Offset(0, 1),
+                                        ),
+                                      ],
+                                    ),
                                     child: Padding(
                                       padding: const EdgeInsets.all(16),
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           // Exchange point name and info
                                           Text(
                                             point.name,
                                             style: Typography.body2.merge(
-                                              const TextStyle(fontWeight: FontWeight.bold),
+                                              const TextStyle(
+                                                  fontWeight: FontWeight.bold),
                                             ),
                                           ),
                                           const SizedBox(height: 4),
@@ -363,13 +368,18 @@ class _MyPointsState extends State<MyPointsPage> {
                                           // Currency rates in vertical column
                                           Container(
                                             width: double.infinity,
-                                            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 10, horizontal: 12),
                                             decoration: BoxDecoration(
-                                              color: CupertinoColors.systemBackground,
-                                              borderRadius: BorderRadius.circular(10),
+                                              color: CupertinoColors
+                                                  .systemBackground,
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
                                               boxShadow: [
                                                 BoxShadow(
-                                                  color: CupertinoColors.systemGrey6.withOpacity(0.5),
+                                                  color: CupertinoColors
+                                                      .systemGrey6
+                                                      .withOpacity(0.5),
                                                   blurRadius: 3,
                                                   offset: const Offset(0, 1),
                                                 ),
@@ -379,16 +389,22 @@ class _MyPointsState extends State<MyPointsPage> {
                                               children: [
                                                 // Header row
                                                 Padding(
-                                                  padding: const EdgeInsets.only(bottom: 8),
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          bottom: 8),
                                                   child: Row(
                                                     children: [
                                                       Expanded(
                                                         flex: 2,
                                                         child: Text(
                                                           'Валюта',
-                                                          style: Typography.body3.copyWith(
-                                                            fontWeight: FontWeight.bold,
-                                                            color: DarkTheme.darkSecondary,
+                                                          style: Typography
+                                                              .body3
+                                                              .copyWith(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color: DarkTheme
+                                                                .darkSecondary,
                                                           ),
                                                         ),
                                                       ),
@@ -396,11 +412,16 @@ class _MyPointsState extends State<MyPointsPage> {
                                                         flex: 3,
                                                         child: Text(
                                                           'Покупка / Продажа',
-                                                          style: Typography.body3.copyWith(
-                                                            fontWeight: FontWeight.bold,
-                                                            color: DarkTheme.darkSecondary,
+                                                          style: Typography
+                                                              .body3
+                                                              .copyWith(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color: DarkTheme
+                                                                .darkSecondary,
                                                           ),
-                                                          textAlign: TextAlign.right,
+                                                          textAlign:
+                                                              TextAlign.right,
                                                         ),
                                                       ),
                                                     ],
@@ -411,29 +432,51 @@ class _MyPointsState extends State<MyPointsPage> {
                                                 Container(
                                                   height: 0.5,
                                                   width: double.infinity,
-                                                  color: CupertinoColors.systemGrey5.withOpacity(0.5),
+                                                  color: CupertinoColors
+                                                      .systemGrey5
+                                                      .withOpacity(0.5),
                                                 ),
 
                                                 // Currency rows
-                                                _buildCurrencyRow('USD', point.buyUSD, point.sellUSD),
+                                                _buildCurrencyRow(
+                                                    'USD',
+                                                    point.buyUSD,
+                                                    point.sellUSD),
                                                 _buildCurrencyDivider(),
-                                                _buildCurrencyRow('EUR', point.buyEUR, point.sellEUR),
+                                                _buildCurrencyRow(
+                                                    'EUR',
+                                                    point.buyEUR,
+                                                    point.sellEUR),
                                                 _buildCurrencyDivider(),
-                                                _buildCurrencyRow('RUB', point.buyRUB, point.sellRUB),
+                                                _buildCurrencyRow(
+                                                    'RUB',
+                                                    point.buyRUB,
+                                                    point.sellRUB),
                                                 _buildCurrencyDivider(),
-                                                _buildCurrencyRow('CNY', point.buyCNY, point.sellCNY),
+                                                _buildCurrencyRow(
+                                                    'CNY',
+                                                    point.buyCNY,
+                                                    point.sellCNY),
                                                 _buildCurrencyDivider(),
-                                                _buildCurrencyRow('GBP', point.buyGBP, point.sellGBP),
+                                                _buildCurrencyRow(
+                                                    'GBP',
+                                                    point.buyGBP,
+                                                    point.sellGBP),
 
                                                 // Update time
                                                 Padding(
-                                                  padding: const EdgeInsets.only(top: 8),
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          top: 8),
                                                   child: Align(
-                                                    alignment: Alignment.centerRight,
+                                                    alignment:
+                                                        Alignment.centerRight,
                                                     child: Text(
                                                       'Обновлено: ${_formatDateTime(point.date_update)}',
-                                                      style: Typography.body3.copyWith(
-                                                        color: DarkTheme.darkSecondary,
+                                                      style: Typography.body3
+                                                          .copyWith(
+                                                        color: DarkTheme
+                                                            .darkSecondary,
                                                         fontSize: 12,
                                                       ),
                                                     ),

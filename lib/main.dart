@@ -39,14 +39,16 @@ void main() async {
     ApiClient.initialize(authProvider);
 
     debugPrint('main -> isAuthenticated: $isAuthenticated');
-    debugPrint('main -> authProvider.tokens = ${authProvider.tokens?.accessToken}');
+    debugPrint(
+        'main -> authProvider.tokens = ${authProvider.tokens?.accessToken}');
   } catch (e) {
     debugPrint('main -> error in authProvider.checkAuth: $e');
   }
 
   try {
     await citiesProvider.fetchCities();
-    hasSelectedCity = cityId != null && citiesProvider.cities.any((city) => city.id == cityId);
+    hasSelectedCity = cityId != null &&
+        citiesProvider.cities.any((city) => city.id == cityId);
   } catch (e) {
     debugPrint('Error in citiesProvider.fetchCities: $e');
     hasSelectedCity = false;

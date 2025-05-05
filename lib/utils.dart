@@ -5,8 +5,8 @@ import 'package:intl/intl.dart';
 import 'package:prokurs/models/exchange_point.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-var isDarkModeOn = () =>
-PlatformDispatcher.instance.platformBrightness == Brightness.dark;
+var isDarkModeOn =
+    () => PlatformDispatcher.instance.platformBrightness == Brightness.dark;
 
 const String EMPTY_CURRENCY_VALUE = '-';
 
@@ -27,8 +27,6 @@ bool canRenderCurrencyRow(String buyValue, String sellValue) {
 String getUpdateTime(DateTime date) {
   return DateFormat('HH:mm').format(date);
 }
-
-
 
 void openUrl({required String url}) async {
   final uri = Uri.parse(url);

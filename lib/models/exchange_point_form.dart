@@ -88,7 +88,8 @@ class ExchangePointForm {
     final phoneValid = phones.isValid;
     final cityValid = city.isValid;
 
-    print('Form validation - Name: $nameValid, Info: $infoValid, Phone: $phoneValid, City: $cityValid');
+    print(
+        'Form validation - Name: $nameValid, Info: $infoValid, Phone: $phoneValid, City: $cityValid');
     print('Name value: "${name.value}"');
     print('Info value: "${info.value}"');
     print('Phones value: "${phones.value}"');
@@ -128,7 +129,9 @@ class ExchangePointForm {
     return ExchangePointForm(
       name: NameInput.dirty(point.name),
       info: InfoInput.dirty(point.info ?? ''),
-      phones: PhonesInput.dirty(point.phones != null && point.phones.isNotEmpty ? point.phones[0].toString() : ''),
+      phones: PhonesInput.dirty(point.phones != null && point.phones.isNotEmpty
+          ? point.phones[0].toString()
+          : ''),
       city: CityInput.dirty(point.city_id.toInt()),
       gross: point.gross,
       buyUSD: point.buyUSD != 0 ? point.buyUSD.toString() : '',
