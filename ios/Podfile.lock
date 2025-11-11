@@ -16,8 +16,8 @@ PODS:
     - Flutter
   - yandex_mapkit (0.0.1):
     - Flutter
-    - YandexMapsMobile (= 4.6.1-lite)
-  - YandexMapsMobile (4.6.1-lite)
+    - YandexMapsMobile (= 4.22.0-lite)
+  - YandexMapsMobile (4.22.0-lite)
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
@@ -52,16 +52,16 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/yandex_mapkit/ios"
 
 SPEC CHECKSUMS:
-  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_config: a0cd4b5996f2a1683657d14777c8fa57e04a40ea
   flutter_native_splash: c32d145d68aeda5502d5f543ee38c192065986cf
   package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
-  path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
-  shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
-  url_launcher_ios: 694010445543906933d732453a59da0a173ae33d
-  yandex_mapkit: d9c479705f0f3888a3fc67b0d9c6156108e74270
-  YandexMapsMobile: 7e20ef4db180b901c96f8107fade91d6349248a0
+  path_provider_foundation: bb55f6dbba17d0dccd6737fe6f7f34fbd0376880
+  shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
+  url_launcher_ios: 7a95fa5b60cc718a708b8f2966718e93db0cef1b
+  yandex_mapkit: bac34ca1bdf97e87252a8c6d09a95b1fe39ba103
+  YandexMapsMobile: c73844c6096bbb240d1491adc511c2ef4a88d88d
 
-PODFILE CHECKSUM: de1c4741c98d0d6aa7ac96d88b1bf2001e19d499
+PODFILE CHECKSUM: 835c4a91f253fde4d593335bcc5ee8a2162155d6
 
 COCOAPODS: 1.16.2

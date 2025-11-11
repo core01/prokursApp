@@ -1,6 +1,8 @@
+import 'dart:io' show Platform;
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_config/flutter_config.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:prokurs/providers/auth.dart';
 
 /// API Client that automatically handles authentication
@@ -25,9 +27,11 @@ class ApiClient {
     _instance = ApiClient._internal(authProvider);
   }
 
+  static String get baseUrl => Platform.isAndroid ? dotenv.get('API_URL_ANDROID') : dotenv.get('API_URL_IOS');
+
   /// Private constructor
   ApiClient._internal(this._authProvider)
-      : _baseUrl = '${FlutterConfig.get('API_URL')}/',
+    : _baseUrl = '$baseUrl/',
         dio = Dio() {
     // Configure Dio
     dio.options = BaseOptions(

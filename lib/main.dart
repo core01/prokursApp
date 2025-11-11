@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_config/flutter_config.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:prokurs/pages/about.dart';
 import 'package:prokurs/pages/add_exchange_point.dart';
 import 'package:prokurs/pages/home.dart';
@@ -16,13 +16,16 @@ import 'package:prokurs/services/api_client.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:prokurs/utils/env_helper.dart';
+
 import 'constants.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await FlutterConfig.loadEnvVariables();
+  await dotenv.load(fileName: ".env");
+  EnvHelper.initialize();
 
   final prefs = await SharedPreferences.getInstance();
   final cityId = prefs.getInt('cityId');

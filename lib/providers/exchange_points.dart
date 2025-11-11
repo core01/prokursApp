@@ -1,7 +1,8 @@
 import 'dart:convert';
+import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_config/flutter_config.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:prokurs/constants.dart';
 import 'package:prokurs/models/best_rates.dart';
@@ -10,6 +11,7 @@ import 'package:prokurs/models/exchange_point.dart';
 import '../utils.dart';
 
 class ExchangePoints with ChangeNotifier {
+  String get baseUrl => Platform.isAndroid ? dotenv.get('API_URL_ANDROID') : dotenv.get('API_URL_IOS');
   List<ExchangePoint> _exchangeRates = [];
 
   String _currency = 'USD';
@@ -108,7 +110,7 @@ class ExchangePoints with ChangeNotifier {
   }
 
   Future<void> fetchAndSetExchangeRates({required int cityId}) async {
-    final url = Uri.parse('${FlutterConfig.get('API_URL')}/courses/$cityId');
+    final url = Uri.parse('$baseUrl/courses/$cityId');
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;

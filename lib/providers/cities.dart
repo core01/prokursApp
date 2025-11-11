@@ -1,7 +1,8 @@
 import 'dart:convert';
+import 'dart:io' show Platform;
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_config/flutter_config.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:prokurs/models/city.dart';
 
@@ -10,6 +11,8 @@ class CitiesProvider with ChangeNotifier {
 
   List<City> get cities => _cities..sort((a, b) => a.title.compareTo(b.title));
 
+  String get baseUrl => Platform.isAndroid ? dotenv.get('API_URL_ANDROID') : dotenv.get('API_URL_IOS');
+  
   List<num> popularCityIds = [
     City.ASTANA_ID,
     City.ALMATY_ID,
@@ -29,7 +32,8 @@ class CitiesProvider with ChangeNotifier {
 
   Future<List<City>> fetchCities() async {
     try {
-      final url = Uri.parse('${FlutterConfig.get('API_URL')}/cities');
+      final url = Uri.parse('$baseUrl/cities');
+      debugPrint('CitiesProvider -> fetchCities: url: $url');
       final response = await http.get(url);
 
       if (response.statusCode != 200) {
@@ -45,9 +49,10 @@ class CitiesProvider with ChangeNotifier {
       _cities = cities;
 
       notifyListeners();
-
+debugPrint('CitiesProvider -> fetchCities: cities: $cities');
       return cities;
     } catch (e) {
+      debugPrint('CitiesProvider -> fetchCities: error: $e');
       return [];
     }
   }

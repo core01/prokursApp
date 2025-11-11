@@ -52,21 +52,11 @@ class ExchangePointsService {
   /// Delete an exchange point
   Future<bool> deleteExchangePoint(num id) async {
     try {
-      final response = await _apiClient.delete('$_baseEndpoint/$id');
-      return response.statusCode == 200 || response.statusCode == 204;
+      debugPrint('Deleting exchange point: $_baseEndpoint/personal/$id');
+      final response = await _apiClient.delete('$_baseEndpoint/personal/$id');
+      return response.statusCode == 200;
     } catch (e) {
       debugPrint('Error deleting exchange point: $e');
-      rethrow;
-    }
-  }
-
-  /// Get details of a specific exchange point
-  Future<Map<String, dynamic>> getExchangePointDetails(int id) async {
-    try {
-      final response = await _apiClient.get('$_baseEndpoint/$id');
-      return response.data as Map<String, dynamic>;
-    } catch (e) {
-      debugPrint('Error fetching exchange point details: $e');
       rethrow;
     }
   }
