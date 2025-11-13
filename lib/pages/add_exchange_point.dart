@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show TextEditingController;
 import 'package:prokurs/constants.dart';
 import 'package:prokurs/models/city.dart';
 import 'package:prokurs/models/exchange_point.dart';
@@ -29,6 +28,8 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
   List<City> _cities = [];
   ExchangePointForm _form = ExchangePointForm();
   final ExchangePointsService _exchangePointsService = ExchangePointsService();
+
+  static const EdgeInsetsDirectional _formFieldPadding = EdgeInsetsDirectional.fromSTEB(28.0, 6.0, 6.0, 6.0);
 
   // Currency controllers
   final _buyUSDController = TextEditingController();
@@ -151,25 +152,19 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
 
   void _onNameChanged(String value) {
     setState(() {
-      _form = _form.copyWith(
-        name: NameInput.dirty(value),
-      );
+      _form = _form.copyWith(name: NameInput.dirty(value));
     });
   }
 
   void _onAddressChanged(String value) {
     setState(() {
-      _form = _form.copyWith(
-        info: InfoInput.dirty(value),
-      );
+      _form = _form.copyWith(info: InfoInput.dirty(value));
     });
   }
 
   void _onPhoneChanged(String value) {
     setState(() {
-      _form = _form.copyWith(
-        phones: PhonesInput.dirty(value),
-      );
+      _form = _form.copyWith(phones: PhonesInput.dirty(value));
     });
   }
 
@@ -227,9 +222,16 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
   }
 
   Future<void> _submitForm() async {
-    debugPrint('form validation: ${_form.isValid}');
+    final updatedForm = ExchangePointFormValidation.touchRequiredFields(_form).markSubmitted();
 
-    if (!_form.isValid) {
+    setState(() {
+      _form = updatedForm;
+    });
+
+    final formValid = _formKey.currentState?.validate() ?? false;
+    debugPrint('form validation: ${updatedForm.isValid}');
+
+    if (!formValid || !updatedForm.isValid) {
       return;
     }
 
@@ -365,54 +367,48 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
             ? const Center(child: CupertinoActivityIndicator())
             : Form(
                 key: _formKey,
+                autovalidateMode: _form.isSubmitted ? AutovalidateMode.always : AutovalidateMode.disabled,
                 child: ListView(
                   children: [
                     const SizedBox(height: 16),
-
                     // Basic Info Section
                     CupertinoFormSection.insetGrouped(
                       backgroundColor: DarkTheme.lightBg,
                       header: const Text('ОСНОВНАЯ ИНФОРМАЦИЯ'),
                       children: [
                         // City Selection
-                        GestureDetector(
-                          onTap: () => _showCityPicker(context),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 11),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                             child: Row(
                               children: [
                                 Container(
                                   padding: const EdgeInsets.only(left: 10),
-                                  child: Text(
-                                    'Город',
-                                    style: Typography.body2,
-                                  ),
+                                child: Text('Город', style: Typography.body2),
                                 ),
                                 const Spacer(),
-                                Text(
-                                  cityTitle,
-                                  style: _form.city.value == null
-                                      ? Typography.body2.copyWith(
-                                          color: DarkTheme.darkSecondary)
-                                      : Typography.body2,
+                              GestureDetector(
+                                onTap: () => _showCityPicker(context),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      cityTitle,
+                                      style: _form.city.value == null
+                                          ? Typography.body2.copyWith(color: DarkTheme.darkSecondary)
+                                          : Typography.body2,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    const Icon(CupertinoIcons.chevron_right, color: DarkTheme.darkSecondary, size: 18),
+                                  ],
                                 ),
-                                const SizedBox(width: 8),
-                                const Icon(
-                                  CupertinoIcons.chevron_right,
-                                  color: DarkTheme.darkSecondary,
-                                  size: 18,
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
 
                         // Name Field
                         CupertinoTextFormFieldRow(
-                          textAlignVertical: TextAlignVertical.top,
-                          padding: const EdgeInsetsDirectional.fromSTEB(
-                              28.0, 6.0, 6.0, 6.0),
+                          padding: _formFieldPadding,
+                          validator: (_) => ExchangePointFormValidation.nameError(_form),
                           prefix: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.end,
@@ -433,15 +429,12 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                           initialValue: _form.name.value,
                           cursorColor: DarkTheme.darkSecondary,
                           maxLines: null,
-                          onEditingComplete: () {
-                            debugPrint('Name field value: ${_form.name.value}');
-                          },
                         ),
 
                         // Address Field
                         CupertinoTextFormFieldRow(
-                          padding: const EdgeInsetsDirectional.fromSTEB(
-                              28.0, 6.0, 6.0, 6.0),
+                          padding: _formFieldPadding,
+                          validator: (_) => ExchangePointFormValidation.addressError(_form),
                           prefix: Padding(
                             padding: EdgeInsets.only(right: 32),
                             child: Text(
@@ -462,8 +455,8 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
 
                         // Phone Field
                         CupertinoTextFormFieldRow(
-                          padding: const EdgeInsetsDirectional.fromSTEB(
-                              28.0, 6.0, 6.0, 6.0),
+                          padding: _formFieldPadding,
+                          validator: (_) => ExchangePointFormValidation.phonesError(_form),
                           prefix: Padding(
                             padding: EdgeInsets.only(right: 12),
                             child: Text(
@@ -471,12 +464,12 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                               style: Typography.body2,
                             ),
                           ),
-                          placeholder: "Введите номер телефона",
+                          placeholder: "Номера телефонов через запятую",
                           placeholderStyle: Typography.body2.copyWith(
                             color: DarkTheme.lightSecondary,
                           ),
+                          maxLines: null,
                           style: Typography.body2,
-                          // keyboardType: TextInputType.phone,
                           onChanged: _onPhoneChanged,
                           initialValue: _form.phones.value,
                           cursorColor: DarkTheme.darkSecondary,
@@ -538,7 +531,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: CupertinoButton(
-                        onPressed: _form.isValid ? _submitForm : null,
+                        onPressed: _submitForm,
                         color: DarkTheme.generalBlack,
                         child: Text(
                           isEditing ? "Сохранить" : "Добавить",

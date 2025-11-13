@@ -1,3 +1,4 @@
+import 'package:formz/formz.dart';
 import 'package:prokurs/models/exchange_point.dart';
 import 'package:prokurs/models/form_inputs.dart';
 
@@ -7,6 +8,7 @@ class ExchangePointForm {
   final PhonesInput phones;
   final CityInput city;
   final num gross;
+  final bool isSubmitted;
 
   // Currency rates
   final String buyUSD;
@@ -28,6 +30,7 @@ class ExchangePointForm {
     this.phones = const PhonesInput.pure(),
     this.city = const CityInput.pure(),
     this.gross = 0,
+    this.isSubmitted = false,
     this.buyUSD = '',
     this.sellUSD = '',
     this.buyEUR = '',
@@ -48,6 +51,7 @@ class ExchangePointForm {
     PhonesInput? phones,
     CityInput? city,
     num? gross,
+    bool? isSubmitted,
     String? buyUSD,
     String? sellUSD,
     String? buyEUR,
@@ -67,6 +71,7 @@ class ExchangePointForm {
       phones: phones ?? this.phones,
       city: city ?? this.city,
       gross: gross ?? this.gross,
+      isSubmitted: isSubmitted ?? this.isSubmitted,
       buyUSD: buyUSD ?? this.buyUSD,
       sellUSD: sellUSD ?? this.sellUSD,
       buyEUR: buyEUR ?? this.buyEUR,
@@ -82,21 +87,12 @@ class ExchangePointForm {
     );
   }
 
-  bool get isValid {
-    final nameValid = name.isValid;
-    final infoValid = info.isValid;
-    final phoneValid = phones.isValid;
-    final cityValid = city.isValid;
-
-    print(
-        'Form validation - Name: $nameValid, Info: $infoValid, Phone: $phoneValid, City: $cityValid');
-    print('Name value: "${name.value}"');
-    print('Info value: "${info.value}"');
-    print('Phones value: "${phones.value}"');
-    print('City value: ${city.value}');
-
-    return nameValid && infoValid && phoneValid && cityValid;
+  ExchangePointForm markSubmitted() {
+    if (isSubmitted) return this;
+    return copyWith(isSubmitted: true);
   }
+
+  bool get isValid => Formz.validate([name, info, phones, city]);
 
   double _parseRate(String value) {
     if (value.isEmpty) return 0;
@@ -145,5 +141,54 @@ class ExchangePointForm {
       buyGBP: point.buyGBP != 0 ? point.buyGBP.toString() : '',
       sellGBP: point.sellGBP != 0 ? point.sellGBP.toString() : '',
     );
+  }
+}
+
+class ExchangePointFormValidation {
+  // Make this class to be used as a static class
+  const ExchangePointFormValidation._();
+
+  static ExchangePointForm touchRequiredFields(ExchangePointForm form) {
+    return form.copyWith(
+      name: NameInput.dirty(form.name.value),
+      info: InfoInput.dirty(form.info.value),
+      phones: PhonesInput.dirty(form.phones.value),
+      city: CityInput.dirty(form.city.value),
+    );
+  }
+
+  static String? nameError(ExchangePointForm form) {
+    if (!form.isSubmitted) return null;
+
+    switch (form.name.displayError) {
+      case NameValidationError.empty:
+        return 'Введите название';
+      case null:
+        return null;
+    }
+  }
+
+  static String? addressError(ExchangePointForm form) {
+    if (!form.isSubmitted) return null;
+
+    switch (form.info.displayError) {
+      case AddressValidationError.empty:
+        return 'Введите адрес';
+      case null:
+        return null;
+    }
+  }
+
+  static String? phonesError(ExchangePointForm form) {
+    if (!form.isSubmitted) return null;
+
+    switch (form.phones.displayError) {
+      case PhoneValidationError.empty:
+        return 'Введите телефон';
+      case PhoneValidationError.invalid:
+        return 'Неверный формат телефона';
+      case null:
+        return null;
+    }
   }
 }
