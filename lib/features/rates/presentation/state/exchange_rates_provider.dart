@@ -6,10 +6,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:prokurs/core/constants/app_constants.dart';
 import 'package:prokurs/core/utils/utils.dart';
-import 'package:prokurs/features/exchange_point/domain/models/exchange_point.dart';
+import 'package:prokurs/features/exchange_points/domain/models/exchange_point.dart';
 import 'package:prokurs/features/rates/domain/models/best_rates.dart';
 
-class ExchangePoints with ChangeNotifier {
+class ExchangeRatesProvider with ChangeNotifier {
   String get baseUrl => Platform.isAndroid ? dotenv.get('API_URL_ANDROID') : dotenv.get('API_URL_IOS');
   List<ExchangePoint> _exchangeRates = [];
 

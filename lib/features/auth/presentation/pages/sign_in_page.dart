@@ -4,7 +4,7 @@ import 'package:prokurs/core/services/translation_service.dart';
 import 'package:prokurs/features/auth/presentation/forms/sign_in_form.dart';
 import 'package:prokurs/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:prokurs/features/auth/presentation/state/auth_provider.dart';
-import 'package:prokurs/features/my_points/presentation/pages/my_points_page.dart';
+import 'package:prokurs/features/exchange_points/presentation/pages/my_points_page.dart';
 import 'package:provider/provider.dart';
 
 class SignInPage extends StatefulWidget {

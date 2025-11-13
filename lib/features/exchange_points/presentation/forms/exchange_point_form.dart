@@ -1,6 +1,6 @@
 import 'package:formz/formz.dart';
-import 'package:prokurs/features/exchange_point/domain/models/exchange_point.dart';
-import 'package:prokurs/features/exchange_point/presentation/forms/form_inputs.dart';
+import 'package:prokurs/features/exchange_points/domain/models/exchange_point.dart';
+import 'package:prokurs/features/exchange_points/presentation/forms/form_inputs.dart';
 
 class ExchangePointForm {
   final NameInput name;

@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:prokurs/features/auth/presentation/state/auth_provider.dart';
-import 'package:prokurs/features/exchange_point/data/providers/cities_provider.dart';
+import 'package:prokurs/features/exchange_points/data/providers/cities_provider.dart';
 import 'package:prokurs/main.dart';
 
 void main() {

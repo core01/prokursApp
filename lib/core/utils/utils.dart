@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:prokurs/features/exchange_point/domain/models/exchange_point.dart';
+import 'package:prokurs/features/exchange_points/domain/models/exchange_point.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 var isDarkModeOn =

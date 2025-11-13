@@ -4,13 +4,13 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:prokurs/features/auth/presentation/pages/sign_in_page.dart';
 import 'package:prokurs/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:prokurs/features/auth/presentation/state/auth_provider.dart';
-import 'package:prokurs/features/exchange_point/data/providers/cities_provider.dart';
-import 'package:prokurs/features/exchange_point/presentation/state/exchange_points_provider.dart';
-import 'package:prokurs/features/exchange_point/presentation/pages/add_exchange_point_page.dart';
+import 'package:prokurs/features/exchange_points/data/providers/cities_provider.dart';
+import 'package:prokurs/features/exchange_points/presentation/pages/add_exchange_point_page.dart';
+import 'package:prokurs/features/rates/presentation/state/exchange_rates_provider.dart';
 import 'package:prokurs/features/rates/presentation/pages/rates_page.dart';
 import 'package:prokurs/features/about/presentation/pages/about_page.dart';
 import 'package:prokurs/features/home/presentation/pages/home_page.dart';
-import 'package:prokurs/features/my_points/presentation/pages/my_points_page.dart';
+import 'package:prokurs/features/exchange_points/presentation/pages/my_points_page.dart';
 import 'package:prokurs/features/point/presentation/pages/point_page.dart';
 import 'package:prokurs/core/network/api_client.dart';
 import 'package:provider/provider.dart';
@@ -104,7 +104,7 @@ class MyApp extends StatelessWidget {
           create: (_) => authProvider,
         ),
         ChangeNotifierProvider(
-          create: (_) => ExchangePoints(),
+          create: (_) => ExchangeRatesProvider(),
         ),
         ChangeNotifierProvider(
           create: (_) => citiesProvider,

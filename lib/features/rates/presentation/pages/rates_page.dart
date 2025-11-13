@@ -6,17 +6,17 @@ import 'package:flutter/material.dart' hide Typography;
 import 'package:flutter/services.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:prokurs/features/about/presentation/pages/about_page.dart';
-import 'package:prokurs/features/point/domain/models/point_screen_arguments.dart';
+import 'package:prokurs/features/point/presentation/navigation/point_screen_arguments.dart';
 import 'package:prokurs/features/point/presentation/pages/point_page.dart';
-import 'package:prokurs/features/exchange_point/data/providers/cities_provider.dart';
-import 'package:prokurs/features/exchange_point/presentation/state/exchange_points_provider.dart';
+import 'package:prokurs/features/exchange_points/data/providers/cities_provider.dart';
+import 'package:prokurs/features/rates/presentation/state/exchange_rates_provider.dart';
 import 'package:prokurs/features/rates/presentation/widgets/my_sliver_pinned_persistent_header_delegate.dart';
 import 'package:prokurs/features/rates/presentation/widgets/rates_table.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:prokurs/core/constants/app_constants.dart';
-import 'package:prokurs/features/exchange_point/domain/models/city.dart';
+import 'package:prokurs/features/exchange_points/domain/models/city.dart';
 
 class RatesPage extends StatefulWidget {
   const RatesPage({super.key});
@@ -52,24 +52,24 @@ class _RatesPageState extends State<RatesPage> {
 
   void onCurrencySelect(CurrencyItem currency) {
     context
-        .read<ExchangePoints>()
+        .read<ExchangeRatesProvider>()
         .changeSelectedCurrency(currency: currency.id);
   }
 
   void _toggleByBestBuy() {
     debugPrint('RatesPage -> _toggleByBestBuy');
-    context.read<ExchangePoints>().sortByBestBuy();
+    context.read<ExchangeRatesProvider>().sortByBestBuy();
   }
 
   void _toggleByBestSell() {
     debugPrint('RatesPage -> _toggleByBestSell');
-    context.read<ExchangePoints>().sortByBestSell();
+    context.read<ExchangeRatesProvider>().sortByBestSell();
   }
 
   Future<void> _onRatesRefresh() async {
     try {
       await context
-          .read<ExchangePoints>()
+          .read<ExchangeRatesProvider>()
           .fetchAndSetExchangeRates(cityId: _selectedCity.id);
     } catch (err) {
       debugPrint('RatesPage -> _onRatesRefresh: catch error $err');
@@ -94,7 +94,7 @@ class _RatesPageState extends State<RatesPage> {
     }
 
     await context
-        .read<ExchangePoints>()
+        .read<ExchangeRatesProvider>()
         .fetchAndSetExchangeRates(cityId: cityId);
   }
 
@@ -154,9 +154,6 @@ class _RatesPageState extends State<RatesPage> {
       }
     }
 
-    SystemChrome.setSystemUIOverlayStyle(
-        const SystemUiOverlayStyle(statusBarBrightness: Brightness.dark));
-
     super.didChangeDependencies();
   }
 
@@ -210,49 +207,48 @@ class _RatesPageState extends State<RatesPage> {
           arguments: PointScreenArguments(rate));
     }
 
-    final exchangeRates = context.watch<ExchangePoints>().items;
-    final bestRetailRates = context.watch<ExchangePoints>().bestRetailRates;
-    final bestGrossRates = context.watch<ExchangePoints>().bestGrossRates;
-    final ratesUpdateTime = context.watch<ExchangePoints>().ratesUpdateTime;
-    final selectedCurrency = context.watch<ExchangePoints>().selectedCurrency;
+    final exchangeRates = context.watch<ExchangeRatesProvider>().items;
+    final bestRetailRates = context.watch<ExchangeRatesProvider>().bestRetailRates;
+    final bestGrossRates = context.watch<ExchangeRatesProvider>().bestGrossRates;
+    final ratesUpdateTime = context.watch<ExchangeRatesProvider>().ratesUpdateTime;
+    final selectedCurrency = context.watch<ExchangeRatesProvider>().selectedCurrency;
 
-    return CupertinoPageScaffold(
-      backgroundColor: DarkTheme.mainGrey,
-      child: Column(
-        children: [
-          Expanded(
-            child: Container(
-              color: DarkTheme.generalWhite,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  if (_isLoading) ...[
-                    const Center(
-                      child: CupertinoActivityIndicator(
-                        color: DarkTheme.mainBlack,
-                        radius: 15,
-                      ),
-                    ),
-                  ] else ...[
-                    CustomScrollView(
-                      controller: scrollController,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      slivers: <Widget>[
-                        SliverPinnedPersistentHeader(
-                          delegate: MySliverPinnedPersistentHeaderDelegate(
-                            maxExtentProtoType: Container(
-                              color: DarkTheme.mainBlack,
-                              child: SafeArea(
-                                bottom: false,
-                                child: SingleChildScrollView(
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  child: Container(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(0, 8, 0, 0),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.stretch,
-                                      children: [
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarBrightness: Brightness.dark,
+        statusBarIconBrightness: Brightness.light,
+      ),
+      child: CupertinoPageScaffold(
+        backgroundColor: DarkTheme.mainGrey,
+        child: Column(
+          children: [
+            Expanded(
+              child: Container(
+                color: DarkTheme.generalWhite,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    if (_isLoading) ...[
+                      const Center(child: CupertinoActivityIndicator(color: DarkTheme.mainBlack, radius: 15)),
+                    ] else ...[
+                      CustomScrollView(
+                        controller: scrollController,
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        slivers: <Widget>[
+                          SliverPinnedPersistentHeader(
+                            delegate: MySliverPinnedPersistentHeaderDelegate(
+                              maxExtentProtoType: Container(
+                                color: DarkTheme.mainBlack,
+                                child: SafeArea(
+                                  bottom: false,
+                                  child: SingleChildScrollView(
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    child: Container(
+                                      padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                                        children: [
                                         Container(
                                           padding: const EdgeInsets.fromLTRB(
                                               16, 0, 16, 0),
@@ -788,6 +784,7 @@ class _RatesPageState extends State<RatesPage> {
             ),
           ),
         ],
+      ),
       ),
     );
   }

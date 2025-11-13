@@ -4,7 +4,7 @@ import 'dart:io' show Platform;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
-import 'package:prokurs/features/exchange_point/domain/models/city.dart';
+import 'package:prokurs/features/exchange_points/domain/models/city.dart';
 
 class CitiesProvider with ChangeNotifier {
   List<City> _cities = [];

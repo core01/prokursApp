@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:prokurs/core/constants/app_constants.dart';
 import 'package:prokurs/core/utils/utils.dart';
-import 'package:prokurs/features/point/domain/models/point_screen_arguments.dart';
+import 'package:prokurs/features/point/presentation/navigation/point_screen_arguments.dart';
 import 'package:prokurs/features/point/presentation/widgets/point_card.dart';
 
 class PointPage extends StatelessWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:prokurs/core/network/api_client.dart';
-import 'package:prokurs/features/exchange_point/domain/models/exchange_point.dart';
+import 'package:prokurs/features/exchange_points/domain/models/exchange_point.dart';
 
 /// Service for managing exchange points operations
 class ExchangePointsService {

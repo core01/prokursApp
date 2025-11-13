@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:prokurs/core/constants/app_constants.dart';
-import 'package:prokurs/features/exchange_point/data/providers/cities_provider.dart';
-import 'package:prokurs/features/exchange_point/data/services/exchange_points_service.dart';
-import 'package:prokurs/features/exchange_point/domain/models/city.dart';
-import 'package:prokurs/features/exchange_point/domain/models/exchange_point.dart';
-import 'package:prokurs/features/exchange_point/presentation/forms/exchange_point_form.dart';
-import 'package:prokurs/features/exchange_point/presentation/forms/form_inputs.dart';
+import 'package:prokurs/features/exchange_points/data/providers/cities_provider.dart';
+import 'package:prokurs/features/exchange_points/data/services/exchange_points_service.dart';
+import 'package:prokurs/features/exchange_points/domain/models/city.dart';
+import 'package:prokurs/features/exchange_points/domain/models/exchange_point.dart';
+import 'package:prokurs/features/exchange_points/presentation/forms/exchange_point_form.dart';
+import 'package:prokurs/features/exchange_points/presentation/forms/form_inputs.dart';
 import 'package:provider/provider.dart';
 
 class AddExchangePointPage extends StatefulWidget {
@@ -374,7 +374,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                     // Basic Info Section
                     CupertinoFormSection.insetGrouped(
                       backgroundColor: DarkTheme.lightBg,
-                      header: const Text('ОСНОВНАЯ ИНФОРМАЦИЯ'),
+                      header: const Text('ОСНОВНАЯ ИНФОРМАЦИЯ', style: Typography.heading2),
                       children: [
                         // City Selection
                         Container(
@@ -478,12 +478,12 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                     ),
                     CupertinoFormSection.insetGrouped(
                         backgroundColor: DarkTheme.lightBg,
-                        header: const Text('ТИП ОБМЕНА'),
+                      header: Text('ТИП ОБМЕНА', style: Typography.heading2),
                         children: [
                           Row(children: [
                             Expanded(
                               child: CupertinoSlidingSegmentedControl<bool>(
-                                // backgroundColor: CupertinoColors.systemGrey6,
+                                // backgroundColor: CupertinoColors.black,
                                 thumbColor: DarkTheme.generalWhite,
                                 groupValue: _form.gross > 0,
                                 onValueChanged: (bool? value) {
@@ -510,7 +510,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                     // Currency Rates Section
                     CupertinoFormSection.insetGrouped(
                       backgroundColor: DarkTheme.lightBg,
-                      header: const Text('КУРСЫ ВАЛЮТ'),
+                      header: const Text('КУРСЫ ВАЛЮТ', style: Typography.heading2),
                       children: [
                         _buildStyledCurrencyRow(
                             USD, _form.buyUSD, _form.sellUSD),
