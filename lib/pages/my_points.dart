@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:prokurs/constants.dart';
 import 'package:prokurs/models/exchange_point.dart';
 import 'package:prokurs/pages/add_exchange_point.dart';
-import 'package:prokurs/pages/home.dart';
 import 'package:prokurs/services/exchange_points_service.dart';
 import 'package:prokurs/providers/auth.dart';
 import 'package:provider/provider.dart';
@@ -100,21 +99,19 @@ class _MyPointsState extends State<MyPointsPage> {
 
   Future<void> _deleteExchangePoint(num id) async {
     try {
-      setState(() {
-        _isLoading = true;
-      });
-
+      // Then make the API call
       await _exchangePointsService.deleteExchangePoint(id);
-
+      // First update the UI to remove the item
       if (mounted) {
-        _getExchangePoints(); // Refresh the list
+        setState(() {
+          _points.removeWhere((p) => p.id == id);
+        });
       }
     } catch (e) {
       if (mounted) {
         setState(() {
           _errorMessage = 'Не удалось удалить обменный пункт';
           debugPrint('Error: $e');
-          _isLoading = false;
         });
       }
     }
@@ -296,8 +293,8 @@ class _MyPointsState extends State<MyPointsPage> {
                                     color: CupertinoColors.white,
                                   ),
                                 ),
-                                onDismissed: (direction) {
-                                  _deleteExchangePoint(point.id);
+                                onDismissed: (direction) async {
+                                  await _deleteExchangePoint(point.id);
                                 },
                                 confirmDismiss: (direction) async {
                                   return await showCupertinoDialog<bool>(
@@ -310,7 +307,8 @@ class _MyPointsState extends State<MyPointsPage> {
                                               'Вы уверены, что хотите удалить этот обменный пункт?'),
                                           actions: [
                                             CupertinoDialogAction(
-                                              child: const Text('Отмена'),
+                                              child:
+                                                  const Text('Отмена', style: TextStyle(color: DarkTheme.generalBlack)),
                                               onPressed: () =>
                                                   Navigator.of(context)
                                                       .pop(false),
