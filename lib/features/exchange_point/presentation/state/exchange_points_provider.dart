@@ -1,0 +1,132 @@
+import 'dart:convert';
+import 'dart:io' show Platform;
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
+import 'package:prokurs/core/constants/app_constants.dart';
+import 'package:prokurs/core/utils/utils.dart';
+import 'package:prokurs/features/exchange_point/domain/models/exchange_point.dart';
+import 'package:prokurs/features/rates/domain/models/best_rates.dart';
+
+class ExchangePoints with ChangeNotifier {
+  String get baseUrl => Platform.isAndroid ? dotenv.get('API_URL_ANDROID') : dotenv.get('API_URL_IOS');
+  List<ExchangePoint> _exchangeRates = [];
+
+  String _currency = 'USD';
+  bool _showBuy = true;
+  DateTime _updateTime = DateTime.now();
+
+  BestRates _bestRetailRates = BestRates();
+  BestRates _bestGrossRates = BestRates();
+
+  String get selectedCurrency => _currency;
+
+  bool get showBuy => _showBuy;
+
+  String get buyKey => '$BUY_KEY$_currency';
+
+  String get sellKey => '$SELL_KEY$_currency';
+
+  List<ExchangePoint> get items => _exchangeRates.where((el) {
+        return el.get(buyKey) != 0 || el.get(sellKey) != 0;
+      }).toList();
+
+  BestRates get bestRetailRates => _bestRetailRates;
+
+  BestRates get bestGrossRates => _bestGrossRates;
+
+  String get ratesUpdateTime {
+    return getUpdateTime(_updateTime);
+  }
+
+  void setShowBuy(bool value) {
+    _showBuy = value;
+    notifyListeners();
+  }
+
+  void sortExchangeRates() {
+    _exchangeRates.sort((a, b) {
+      var returningValue;
+      var compareValue;
+      var value;
+      if (_showBuy) {
+        value = b.get(buyKey);
+        compareValue = a.get(buyKey);
+
+        if (value == 0) {
+          returningValue = -1;
+        } else if (compareValue == 0) {
+          returningValue = 1;
+        } else {
+          returningValue = value.compareTo(compareValue);
+        }
+      } else {
+        value = a.get(sellKey);
+        compareValue = b.get(sellKey);
+
+        if (compareValue == 0) {
+          returningValue = -1;
+        } else if (value == 0) {
+          returningValue = 1;
+        } else {
+          returningValue = value.compareTo(compareValue);
+        }
+      }
+      return returningValue;
+    });
+
+    debugPrint(
+        'ExchangeRates Provider -> sortExchangeRates - sorted $_currency');
+  }
+
+  void changeSelectedCurrency({String currency = ''}) {
+    _currency = currency.isEmpty ? _currency : currency;
+    debugPrint(
+        'ExchangeRates Provider -> changeSelectedCurrency _currency: $_currency');
+    sortExchangeRates();
+
+    notifyListeners();
+  }
+
+  void changeSortDirection() {
+    sortExchangeRates();
+    notifyListeners();
+  }
+
+  void sortByBestBuy() {
+    if (!_showBuy) {
+      _showBuy = true;
+      changeSortDirection();
+    }
+  }
+
+  void sortByBestSell() {
+    if (_showBuy) {
+      _showBuy = false;
+      changeSortDirection();
+    }
+  }
+
+  Future<void> fetchAndSetExchangeRates({required int cityId}) async {
+    final url = Uri.parse('$baseUrl/courses/$cityId');
+    try {
+      final response = await http.get(url);
+      final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      List<ExchangePoint> exchangeRates = [];
+      extractedData['rates'].forEach((exchangeData) {
+        exchangeRates.add(ExchangePoint.fromJson(exchangeData));
+      });
+      _bestRetailRates = BestRates.fromJson(extractedData['best']['retail']);
+      _bestGrossRates = BestRates.fromJson(extractedData['best']['gross']);
+      _exchangeRates = exchangeRates;
+
+      notifyListeners();
+    } catch (err) {
+      debugPrint("Error during rates fetch $err");
+    }
+
+    _updateTime = DateTime.now();
+    sortExchangeRates();
+  }
+}

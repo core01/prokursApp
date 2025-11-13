@@ -1,24 +1,23 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:prokurs/pages/about.dart';
-import 'package:prokurs/pages/add_exchange_point.dart';
-import 'package:prokurs/pages/home.dart';
-import 'package:prokurs/pages/my_points.dart';
-import 'package:prokurs/pages/point.dart';
-import 'package:prokurs/pages/rates.dart';
-import 'package:prokurs/pages/sign_in.dart';
-import 'package:prokurs/pages/sign_up.dart';
-import 'package:prokurs/providers/cities.dart';
-import 'package:prokurs/providers/exchange_points.dart';
-import 'package:prokurs/providers/auth.dart';
-import 'package:prokurs/services/api_client.dart';
+import 'package:prokurs/features/auth/presentation/pages/sign_in_page.dart';
+import 'package:prokurs/features/auth/presentation/pages/sign_up_page.dart';
+import 'package:prokurs/features/auth/presentation/state/auth_provider.dart';
+import 'package:prokurs/features/exchange_point/data/providers/cities_provider.dart';
+import 'package:prokurs/features/exchange_point/presentation/state/exchange_points_provider.dart';
+import 'package:prokurs/features/exchange_point/presentation/pages/add_exchange_point_page.dart';
+import 'package:prokurs/features/rates/presentation/pages/rates_page.dart';
+import 'package:prokurs/features/about/presentation/pages/about_page.dart';
+import 'package:prokurs/features/home/presentation/pages/home_page.dart';
+import 'package:prokurs/features/my_points/presentation/pages/my_points_page.dart';
+import 'package:prokurs/features/point/presentation/pages/point_page.dart';
+import 'package:prokurs/core/network/api_client.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:prokurs/utils/env_helper.dart';
-
-import 'constants.dart';
+import 'package:prokurs/core/utils/env_helper.dart';
+import 'package:prokurs/core/constants/app_constants.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 

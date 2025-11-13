@@ -8,12 +8,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:prokurs/features/auth/presentation/state/auth_provider.dart';
+import 'package:prokurs/features/exchange_point/data/providers/cities_provider.dart';
 import 'package:prokurs/main.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(MyApp(
+      hasSelectedCity: false,
+      isAuthenticated: false,
+      authProvider: AuthProvider(),
+      citiesProvider: CitiesProvider(),
+    ));
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);
