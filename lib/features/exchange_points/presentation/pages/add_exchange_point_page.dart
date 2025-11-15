@@ -171,40 +171,41 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
   void _onRateChanged(String value,
       {required String currency, required bool isBuy}) {
     setState(() {
+      final sanitizedValue = value.isEmpty ? value : value.replaceAll(',', '.');
       switch (currency) {
         case 'USD':
           if (isBuy) {
-            _form = _form.copyWith(buyUSD: value);
+            _form = _form.copyWith(buyUSD: sanitizedValue);
           } else {
-            _form = _form.copyWith(sellUSD: value);
+            _form = _form.copyWith(sellUSD: sanitizedValue);
           }
           break;
         case 'EUR':
           if (isBuy) {
-            _form = _form.copyWith(buyEUR: value);
+            _form = _form.copyWith(buyEUR: sanitizedValue);
           } else {
-            _form = _form.copyWith(sellEUR: value);
+            _form = _form.copyWith(sellEUR: sanitizedValue);
           }
           break;
         case 'RUB':
           if (isBuy) {
-            _form = _form.copyWith(buyRUB: value);
+            _form = _form.copyWith(buyRUB: sanitizedValue);
           } else {
-            _form = _form.copyWith(sellRUB: value);
+            _form = _form.copyWith(sellRUB: sanitizedValue);
           }
           break;
         case 'CNY':
           if (isBuy) {
-            _form = _form.copyWith(buyCNY: value);
+            _form = _form.copyWith(buyCNY: sanitizedValue);
           } else {
-            _form = _form.copyWith(sellCNY: value);
+            _form = _form.copyWith(sellCNY: sanitizedValue);
           }
           break;
         case 'GBP':
           if (isBuy) {
-            _form = _form.copyWith(buyGBP: value);
+            _form = _form.copyWith(buyGBP: sanitizedValue);
           } else {
-            _form = _form.copyWith(sellGBP: value);
+            _form = _form.copyWith(sellGBP: sanitizedValue);
           }
           break;
       }
