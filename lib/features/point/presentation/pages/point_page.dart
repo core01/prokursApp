@@ -18,12 +18,22 @@ class PointPage extends StatelessWidget {
         exchangePoint.date_update.toInt() * 1000);
 
     var updateTime = getUpdateTime(datetime);
+
+
+final theme = CupertinoTheme.of(context);
+    final Color themePrimaryContrastingColor = CupertinoDynamicColor.resolve(theme.primaryContrastingColor, context);
+    final Color themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
+    final Color themeScaffoldBackgroundColor = CupertinoDynamicColor.resolve(theme.scaffoldBackgroundColor, context);
+    final Color themeBarBackgroundColor = CupertinoDynamicColor.resolve(theme.barBackgroundColor, context);
+    
+
     return Container(
       padding: const EdgeInsets.fromLTRB(0, 4, 0, 0),
       child: CupertinoPageScaffold(
-        backgroundColor: DarkTheme.mainBlack,
+        backgroundColor: themeScaffoldBackgroundColor,
         navigationBar: CupertinoNavigationBar(
-          backgroundColor: DarkTheme.mainBlack,
+          automaticBackgroundVisibility: false,
+          backgroundColor: themeBarBackgroundColor,
           // padding: const EdgeInsetsDirectional.fromSTEB(10, 5, 5, 5),
           leading: GestureDetector(
             onTap: () {
@@ -31,10 +41,10 @@ class PointPage extends StatelessWidget {
             },
             child: Container(
               padding: const EdgeInsets.all(8),
-              child: const Icon(
+              child: Icon(
                 CupertinoIcons.arrow_left,
                 size: 24,
-                color: DarkTheme.generalWhite,
+                color: AppColors.generalWhite,
               ),
             ),
           ),
@@ -44,8 +54,7 @@ class PointPage extends StatelessWidget {
                 child: Text(
                   exchangePoint.name,
                   overflow: TextOverflow.ellipsis,
-                  style: Typography.body2.merge(const TextStyle(
-                    color: DarkTheme.generalWhite,
+                  style: Typography.body2.merge(TextStyle(color: AppColors.generalWhite,
                   )),
                 ),
               ),
@@ -53,7 +62,7 @@ class PointPage extends StatelessWidget {
                 child: Text(
                   "Обновлено в $updateTime",
                   style: Typography.body3
-                      .merge(const TextStyle(color: DarkTheme.darkSecondary)),
+                      .merge(const TextStyle(color: AppColors.darkSecondary)),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -64,7 +73,7 @@ class PointPage extends StatelessWidget {
           children: [
             Expanded(
               child: Container(
-                color: DarkTheme.generalWhite,
+                color: themePrimaryContrastingColor,
                 child: PointCard(point: exchangePoint),
               ),
             ),

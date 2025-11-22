@@ -66,16 +66,32 @@ class DarkTheme {
   static const mainRed = Color(0xFFC14953);
 }
 
+class AppDynamicColors {
+  static const lightBg = CupertinoDynamicColor.withBrightness(
+    color: Color.fromRGBO(244, 244, 245, 1), // светлая тема
+    darkColor: AppColors.generalBlack,
+  );
+}
 class AppColors {
+
+  static const generalBlack2222 = Color.fromARGB(255, 31, 31, 31);
+
+  // font
   static const generalBlack = Color(0xFF1B1D1E);
+  static const generalWhite = Color(0xFFFFFFFF);
+  static const mainGrey = Color(0xFF494a4b);
+  // background
   static const mainBlack = Color(0xFF24292f); // Dark theme color
-  static const lightBg = Color.fromRGBO(244, 244, 245, 1);
+  // static const lightBg = Color.fromRGBO(244, 244, 245, 1);
+  static const lightBg = AppDynamicColors.lightBg;
+  
   static const lightSecondary = Color.fromRGBO(27, 29, 30, 0.35);
   static const lightDivider = Color.fromRGBO(5, 25, 35, 0.08);
   static const generalGreen = Color.fromRGBO(0, 165, 36, 1);
   static const generalGreenBg = Color.fromRGBO(0, 165, 36, 0.08);
-  static const generalRed = Color.fromRGBO(218, 21, 0, 1);
+  static const generalRed = Color(0xFFC14953);
   static const generalRedBg = Color.fromRGBO(218, 21, 0, 0.08);
+  static const darkSecondary = Color(0xFF8d8e8e);
 }
 
 class Typography {

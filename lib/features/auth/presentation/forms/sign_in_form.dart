@@ -91,6 +91,7 @@ class _SignInFormState extends State<SignInForm> {
             CupertinoTextField(
               controller: _emailController,
               placeholder: 'Email',
+              // placeholderStyle: TextStyle(color: AppColors.lightSecondary),
               autofocus: true,
               keyboardType: TextInputType.emailAddress,
               cursorColor: DarkTheme.lightSecondary,
@@ -115,6 +116,7 @@ class _SignInFormState extends State<SignInForm> {
             CupertinoTextField(
               controller: _passwordController,
               placeholder: 'Пароль',
+              // placeholderStyle: TextStyle(color: AppColors.lightSecondary),
               obscureText: true,
               cursorColor: DarkTheme.lightSecondary,
               padding: const EdgeInsets.all(16),
@@ -146,8 +148,8 @@ class _SignInFormState extends State<SignInForm> {
                 ),
               ),
             const SizedBox(height: 24),
-            CupertinoButton(
-              color: DarkTheme.generalBlack,
+            CupertinoButton.filled(
+              // color: DarkTheme.generalBlack,
               onPressed: _validateAndSubmit,
               child: const Text('Войти'),
             ),

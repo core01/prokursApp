@@ -181,8 +181,13 @@ class PointCardState extends State<PointCard> {
     bool hasMapCoordinates =
         widget.point.latitude != null && widget.point.latitude != null;
 
+final theme = CupertinoTheme.of(context);
+    final Color themePrimaryContrastingColor = CupertinoDynamicColor.resolve(theme.primaryContrastingColor, context);
+    final Color themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
+    final Color themeScaffoldBackgroundColor = CupertinoDynamicColor.resolve(theme.scaffoldBackgroundColor, context);
+    final Color themeBarBackgroundColor = CupertinoDynamicColor.resolve(theme.barBackgroundColor, context);
     if (_isLoading) {
-      return const Center(
+      return Center(
         child: Stack(
           children: [
             Positioned(
@@ -191,7 +196,7 @@ class PointCardState extends State<PointCard> {
               left: 0.0,
               right: 0.0,
               child: CupertinoActivityIndicator(
-                color: DarkTheme.mainBlack,
+                color: themePrimaryColor,
                 radius: 14.0,
               ),
             )
@@ -251,7 +256,7 @@ class PointCardState extends State<PointCard> {
               )
             ],
             Container(
-              color: DarkTheme.lightBg,
+              color: themeScaffoldBackgroundColor,
               padding: const EdgeInsets.only(bottom: 16),
               child: SafeArea(
                 top: false,
@@ -274,7 +279,7 @@ class PointCardState extends State<PointCard> {
                       child: Text(
                         "Телефоны:",
                         style: Typography.body2.merge(const TextStyle(
-                          color: DarkTheme.lightSecondary,
+                          color: AppColors.darkSecondary,
                         )),
                         textAlign: TextAlign.left,
                       ),

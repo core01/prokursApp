@@ -2,19 +2,22 @@ import 'package:flutter/cupertino.dart';
 import 'package:prokurs/core/constants/app_constants.dart';
 
 class MyPointsNavigationBar extends CupertinoNavigationBar {
+  
   MyPointsNavigationBar({
     super.key,
     required String? userEmail,
     required Future<void> Function() onSignOut,
     required VoidCallback onAdd,
+    required Color themePrimaryColor,
   }) : super(
          automaticallyImplyLeading: false,
-         backgroundColor: DarkTheme.lightBg,
+         backgroundColor: AppDynamicColors.lightBg,
          leading: Builder(
-           builder: (context) => GestureDetector(
-             child: const Icon(
+           builder: (context) {
+             return GestureDetector(
+               child: Icon(
                CupertinoIcons.square_arrow_right,
-               color: DarkTheme.generalBlack,
+                  color: themePrimaryColor,
                size: 24.0,
              ),
              onTap: () {
@@ -36,7 +39,6 @@ class MyPointsNavigationBar extends CupertinoNavigationBar {
                    cancelButton: CupertinoActionSheetAction(
                      child: Text(
                        'Отмена',
-                       style: TextStyle(color: DarkTheme.generalBlack),
                      ),
                      onPressed: () {
                        Navigator.pop(context);
@@ -45,7 +47,8 @@ class MyPointsNavigationBar extends CupertinoNavigationBar {
                  ),
                );
              },
-           ),
+             );
+           },
          ),
          middle: Column(
            mainAxisAlignment: MainAxisAlignment.center,
@@ -58,13 +61,17 @@ class MyPointsNavigationBar extends CupertinoNavigationBar {
                ),
            ],
          ),
-         trailing: GestureDetector(
+         trailing: Builder(
+           builder: (context) {
+             return GestureDetector(
            onTap: onAdd,
-           child: const Icon(
+               child: Icon(
              CupertinoIcons.add_circled,
-             color: DarkTheme.generalBlack,
+             color: themePrimaryColor,
              size: 24.0,
            ),
+             );
+           },
          ),
        );
 }

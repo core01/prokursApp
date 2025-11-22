@@ -78,8 +78,11 @@ class _SignInState extends State<SignInPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = CupertinoTheme.of(context);
+    final Color themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
+
     return CupertinoPageScaffold(
-        backgroundColor: DarkTheme.generalWhite,
+      // backgroundColor: AppColors.lightBg,
         navigationBar: CupertinoNavigationBar(
           backgroundColor: DarkTheme.mainBlack,
           // padding: const EdgeInsetsDirectional.fromSTEB(10, 5, 5, 5),
@@ -89,10 +92,10 @@ class _SignInState extends State<SignInPage> {
             },
             child: Container(
               padding: const EdgeInsets.all(8),
-              child: const Icon(
+            child: Icon(
                 CupertinoIcons.arrow_left,
                 size: 24,
-                color: DarkTheme.generalWhite,
+              color: themePrimaryColor,
               ),
             ),
           ),
@@ -139,7 +142,7 @@ class _SignInState extends State<SignInPage> {
                       children: [
                         Text(
                           "Вход в личный кабинет обменного пункта",
-                          style: Typography.heading,
+                        style: Typography.heading,
                           textAlign: TextAlign.center,
                         ),
                       ],

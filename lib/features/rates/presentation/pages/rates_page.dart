@@ -213,6 +213,12 @@ class _RatesPageState extends State<RatesPage> {
     final ratesUpdateTime = context.watch<ExchangeRatesProvider>().ratesUpdateTime;
     final selectedCurrency = context.watch<ExchangeRatesProvider>().selectedCurrency;
 
+final theme = CupertinoTheme.of(context);
+    final Color themePrimaryContrastingColor = CupertinoDynamicColor.resolve(theme.primaryContrastingColor, context);
+    final Color themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
+    final Color themeScaffoldBackgroundColor = CupertinoDynamicColor.resolve(theme.scaffoldBackgroundColor, context);
+    final Color themeBarBackgroundColor = CupertinoDynamicColor.resolve(theme.barBackgroundColor, context);
+    
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -220,12 +226,12 @@ class _RatesPageState extends State<RatesPage> {
         statusBarIconBrightness: Brightness.light,
       ),
       child: CupertinoPageScaffold(
-        backgroundColor: DarkTheme.mainGrey,
+        backgroundColor: themeScaffoldBackgroundColor,
         child: Column(
           children: [
             Expanded(
               child: Container(
-                color: DarkTheme.generalWhite,
+                color: themePrimaryContrastingColor,
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
@@ -239,7 +245,7 @@ class _RatesPageState extends State<RatesPage> {
                           SliverPinnedPersistentHeader(
                             delegate: MySliverPinnedPersistentHeaderDelegate(
                               maxExtentProtoType: Container(
-                                color: DarkTheme.mainBlack,
+                                color: themeBarBackgroundColor,
                                 child: SafeArea(
                                   bottom: false,
                                   child: SingleChildScrollView(
@@ -271,10 +277,9 @@ class _RatesPageState extends State<RatesPage> {
                                                   children: [
                                                     GestureDetector(
                                                       onTap: () {
-                                                        showCupertinoModalBottomSheet(
-                                                          backgroundColor:
-                                                              DarkTheme
-                                                                  .generalWhite,
+                                                          showCupertinoModalBottomSheet(
+                                                            backgroundColor:
+                                                                themeScaffoldBackgroundColor,
                                                           context: context,
                                                           builder: (context) =>
                                                               Container(
@@ -283,8 +288,7 @@ class _RatesPageState extends State<RatesPage> {
                                                                     .fromLTRB(0,
                                                                     32, 0, 32),
                                                             // height: 400,
-                                                            color: DarkTheme
-                                                                .lightBg,
+                                                              color: themeScaffoldBackgroundColor,
                                                             child:
                                                                 SingleChildScrollView(
                                                               child: Column(
@@ -316,8 +320,7 @@ class _RatesPageState extends State<RatesPage> {
                                                                               15),
                                                                       decoration:
                                                                           BoxDecoration(
-                                                                        color: DarkTheme
-                                                                            .generalWhite,
+                                                                          color: themePrimaryContrastingColor,
                                                                         borderRadius:
                                                                             BorderRadius.circular(15),
                                                                       ),
@@ -339,8 +342,7 @@ class _RatesPageState extends State<RatesPage> {
                                                                               15),
                                                                       decoration:
                                                                           BoxDecoration(
-                                                                        color: DarkTheme
-                                                                            .generalWhite,
+                                                                          color: themePrimaryContrastingColor,
                                                                         borderRadius:
                                                                             BorderRadius.circular(15),
                                                                       ),
@@ -372,8 +374,10 @@ class _RatesPageState extends State<RatesPage> {
                                                                 const EdgeInsets
                                                                     .only(
                                                                     left: 4),
-                                                            child: const Icon(Icons
-                                                                .keyboard_arrow_down),
+                                                              child: Icon(
+                                                                Icons.keyboard_arrow_down,
+                                                                color: AppColors.generalWhite,
+                                                              ),
                                                           )
                                                         ],
                                                       ),
@@ -381,7 +385,9 @@ class _RatesPageState extends State<RatesPage> {
                                                     GestureDetector(
                                                       child: const Icon(
                                                           CupertinoIcons
-                                                              .info_circle),
+                                                              .info_circle,
+                                                          color: AppColors.generalWhite,
+                                                        ),
                                                       onTap: () {
                                                         Navigator.of(context)
                                                             .pushNamed(AboutPage
@@ -511,7 +517,7 @@ class _RatesPageState extends State<RatesPage> {
                               ),
                             ),
                             minExtentProtoType: Container(
-                              color: DarkTheme.mainBlack,
+                                color: themeBarBackgroundColor,
                               child: SafeArea(
                                 bottom: false,
                                 child: Container(
@@ -543,9 +549,9 @@ class _RatesPageState extends State<RatesPage> {
                                             ),
                                             GestureDetector(
                                               onTap: () {
-                                                showCupertinoModalBottomSheet(
-                                                  backgroundColor:
-                                                      DarkTheme.generalWhite,
+                                                  showCupertinoModalBottomSheet(
+                                                    backgroundColor:
+                                                        themeScaffoldBackgroundColor,
                                                   context: context,
                                                   builder: (context) =>
                                                       Container(
@@ -592,9 +598,8 @@ class _RatesPageState extends State<RatesPage> {
                                                                             vertical:
                                                                                 8,
                                                                             horizontal:
-                                                                                16),
-
-                                                                        // @todo rethink logic to add padding to all items but last
+                                                                                16,
+                                                                    ),
                                                                         child:
                                                                             Text(
                                                                           currency
@@ -630,11 +635,13 @@ class _RatesPageState extends State<RatesPage> {
                                                     style: Typography.body2,
                                                     textAlign: TextAlign.center,
                                                   ),
-                                                  const SizedBox(
+                                                    SizedBox(
                                                     height: 24,
                                                     width: 24,
                                                     child: Icon(Icons
-                                                        .keyboard_arrow_down),
+                                                        .keyboard_arrow_down,
+                                                        color: AppColors.generalWhite,
+                                                      ),
                                                   )
                                                 ],
                                               ),
@@ -668,7 +675,7 @@ class _RatesPageState extends State<RatesPage> {
                             double refreshTriggerPullDistance,
                             double refreshIndicatorExtent,
                           ) {
-                            return const Center(
+                                  return Center(
                                 child: Stack(
                               children: [
                                 Positioned(
@@ -677,7 +684,7 @@ class _RatesPageState extends State<RatesPage> {
                                   left: 0.0,
                                   right: 0.0,
                                   child: CupertinoActivityIndicator(
-                                    color: DarkTheme.mainBlack,
+                                            color: themePrimaryColor,
                                     radius: 14.0,
                                   ),
                                 )
@@ -690,7 +697,7 @@ class _RatesPageState extends State<RatesPage> {
                             child: Container(
                               alignment: Alignment.center,
                               padding: const EdgeInsets.all(16),
-                              color: DarkTheme.generalWhite,
+                                color: themeScaffoldBackgroundColor,
                               child: Center(
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,

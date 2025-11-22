@@ -14,11 +14,16 @@ class CurrencyRatesTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = CupertinoTheme.of(context);
+    final themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
+    final themePrimaryContrastingColor = CupertinoDynamicColor.resolve(theme.primaryContrastingColor, context);
+    final themeScaffoldBackgroundColor = CupertinoDynamicColor.resolve(theme.scaffoldBackgroundColor, context);
+    final themeBarBackgroundColor = CupertinoDynamicColor.resolve(theme.barBackgroundColor, context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
       decoration: BoxDecoration(
-        color: CupertinoColors.systemBackground,
+        color: themePrimaryContrastingColor,
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
@@ -133,7 +138,7 @@ class CurrencyRateRow extends StatelessWidget {
               currency,
               style: Typography.body3.copyWith(
                 fontWeight: FontWeight.w500,
-                color: DarkTheme.generalBlack,
+                // color: DarkTheme.generalBlack,
               ),
             ),
           ),

@@ -17,9 +17,8 @@ class MyPointsEmptyState extends StatelessWidget {
             style: TextStyle(fontSize: 16),
           ),
           const SizedBox(height: 16),
-          CupertinoButton(
+          CupertinoButton.filled(
             onPressed: onAdd,
-            color: DarkTheme.generalBlack,
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
             child: const Text("Добавить"),
           ),

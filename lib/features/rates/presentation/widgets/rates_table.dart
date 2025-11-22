@@ -51,7 +51,7 @@ class _RatesTable extends State<RatesTable> {
       color = isBuy ? bestColors[0] : bestColors[1];
       // bgColor = isBuy ? bestBgColors[0] : bestBgColors[1];
     } else {
-      color = CupertinoTheme.of(context).textTheme.textStyle.color;
+      color = CupertinoTheme.of(context).primaryColor;
       // bgColor = null;
     }
 
@@ -88,10 +88,14 @@ class _RatesTable extends State<RatesTable> {
     final List<ExchangePoint> exchangeRates = widget.exchangeRates;
     final String selectedCurrency = widget.selectedCurrency;
 
+    final theme = CupertinoTheme.of(context);
+    final Color themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
+    final Color themePrimaryContrastingColor = CupertinoDynamicColor.resolve(theme.primaryContrastingColor, context);
+    final Color themeScaffoldBackgroundColor = CupertinoDynamicColor.resolve(theme.scaffoldBackgroundColor, context);
     return SliverStickyHeader(
       header: Container(
         padding: const EdgeInsets.all(16),
-        color: DarkTheme.lightBg,
+        color: CupertinoDynamicColor.resolve(AppColors.lightBg, context),
         child: SafeArea(
             bottom: false,
             top: false,
@@ -104,9 +108,7 @@ class _RatesTable extends State<RatesTable> {
                     alignment: Alignment.centerLeft,
                     child: Text(
                       'Обменный пункт',
-                      style: Typography.body3.merge(const TextStyle(
-                        color: DarkTheme.generalBlack,
-                      )),
+                      style: Typography.body3,
                     ),
                   ),
                 ),
@@ -122,18 +124,14 @@ class _RatesTable extends State<RatesTable> {
                           child: Text(
                             'Покупка',
                             textAlign: TextAlign.center,
-                            style: Typography.body3.merge(const TextStyle(
-                              color: DarkTheme.generalBlack,
-                            )),
+                            style: Typography.body3,
                           ),
                         ),
                         Expanded(
                           child: Text(
                             'Продажа',
                             textAlign: TextAlign.center,
-                            style: Typography.body3.merge(const TextStyle(
-                              color: DarkTheme.generalBlack,
-                            )),
+                            style: Typography.body3,
                           ),
                         ),
                       ],
@@ -155,7 +153,7 @@ class _RatesTable extends State<RatesTable> {
                 padding:
                     const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                 decoration: const BoxDecoration(
-                  color: CupertinoColors.white,
+                  // color: CupertinoColors.white,
                   border: Border(
                     top: BorderSide(
                       width: 1,

@@ -121,12 +121,19 @@ class _MyPointsState extends State<MyPointsPage> {
     final userEmail = context.watch<AuthProvider>().userEmail;
     final authProvider = context.read<AuthProvider>();
 
+final theme = CupertinoTheme.of(context);
+    final Color themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
+    final Color themePrimaryContrastingColor = CupertinoDynamicColor.resolve(theme.primaryContrastingColor, context);
+    final Color themeScaffoldBackgroundColor = CupertinoDynamicColor.resolve(theme.scaffoldBackgroundColor, context);
+    final Color themeBarBackgroundColor = CupertinoDynamicColor.resolve(theme.barBackgroundColor, context);
+
     return CupertinoPageScaffold(
-      backgroundColor: DarkTheme.lightBg,
+      backgroundColor: themeScaffoldBackgroundColor,
       navigationBar: MyPointsNavigationBar(
         userEmail: userEmail,
         onSignOut: () => authProvider.signOut(),
         onAdd: _showAddPointForm,
+        themePrimaryColor: themePrimaryColor,
       ),
       child: SafeArea(
         child: _points.isEmpty

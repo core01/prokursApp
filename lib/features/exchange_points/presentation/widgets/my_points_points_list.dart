@@ -27,6 +27,10 @@ class MyPointsPointsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = CupertinoTheme.of(context);
+    final themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
+    final themePrimaryContrastingColor = CupertinoDynamicColor.resolve(theme.primaryContrastingColor, context);
+    final themeScaffoldBackgroundColor = CupertinoDynamicColor.resolve(theme.scaffoldBackgroundColor, context);
     return CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
@@ -40,7 +44,7 @@ class MyPointsPointsList extends StatelessWidget {
                 refreshTriggerPullDistance,
                 refreshIndicatorExtent,
               ) {
-                return const Center(
+            return Center(
                   child: Stack(
                     children: [
                       Positioned(
@@ -49,7 +53,7 @@ class MyPointsPointsList extends StatelessWidget {
                         left: 0.0,
                         right: 0.0,
                         child: CupertinoActivityIndicator(
-                          color: DarkTheme.mainBlack,
+                          color: themePrimaryColor,
                           radius: 14.0,
                         ),
                       ),
@@ -177,7 +181,7 @@ class ExchangePointListItem extends StatelessWidget {
                   CupertinoDialogAction(
                     child: const Text(
                       'Отмена',
-                      style: TextStyle(color: DarkTheme.generalBlack),
+                      // style: TextStyle(color: DarkTheme.generalBlack),
                     ),
                     onPressed: () => Navigator.of(context).pop(false),
                   ),
@@ -211,10 +215,15 @@ class ExchangePointCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = CupertinoTheme.of(context);
+    final themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
+    final themePrimaryContrastingColor = CupertinoDynamicColor.resolve(theme.primaryContrastingColor, context);
+    final themeScaffoldBackgroundColor = CupertinoDynamicColor.resolve(theme.scaffoldBackgroundColor, context);
+    final themeBarBackgroundColor = CupertinoDynamicColor.resolve(theme.barBackgroundColor, context);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: DarkTheme.generalWhite,
+        color: themePrimaryContrastingColor,
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(

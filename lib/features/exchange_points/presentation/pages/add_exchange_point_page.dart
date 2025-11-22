@@ -317,9 +317,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                   child: Center(
                     child: Text(
                       city.title,
-                      style: const TextStyle(
-                        fontSize: 18,
-                      ),
+                      style: Typography.body2.merge(const TextStyle(color: AppColors.generalBlack)),
                     ),
                   ),
                 );
@@ -344,20 +342,24 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
         cityTitle = _cities[cityIndex].title;
       }
     }
-
+final theme = CupertinoTheme.of(context);
+    final Color themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
+    final Color themePrimaryContrastingColor = CupertinoDynamicColor.resolve(theme.primaryContrastingColor, context);
+    final Color themeScaffoldBackgroundColor = CupertinoDynamicColor.resolve(theme.scaffoldBackgroundColor, context);
+    final Color themeBarBackgroundColor = CupertinoDynamicColor.resolve(theme.barBackgroundColor, context);
     return CupertinoPageScaffold(
-      backgroundColor: DarkTheme.lightBg,
       navigationBar: CupertinoNavigationBar(
+        backgroundColor: themeScaffoldBackgroundColor,
         middle: Text(
           isEditing
-              ? "Редактировать обменный пункт"
+              ? "Редактирование обменного пункта"
               : "Добавить обменный пункт",
           style: Typography.heading2,
         ),
         leading: GestureDetector(
-          child: const Icon(
+          child: Icon(
             CupertinoIcons.back,
-            color: DarkTheme.generalBlack,
+            color: themePrimaryColor,
             size: 24.0,
           ),
           onTap: () => Navigator.of(context).pop(),
@@ -374,7 +376,11 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                     const SizedBox(height: 16),
                     // Basic Info Section
                     CupertinoFormSection.insetGrouped(
-                      backgroundColor: DarkTheme.lightBg,
+                      backgroundColor: themeScaffoldBackgroundColor,
+                      decoration: BoxDecoration(
+                        color: themePrimaryContrastingColor,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                       header: const Text('ОСНОВНАЯ ИНФОРМАЦИЯ', style: Typography.heading2),
                       children: [
                         // City Selection
@@ -423,12 +429,12 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                               ]),
                           placeholder: "Введите название",
                           placeholderStyle: Typography.body2.copyWith(
-                            color: DarkTheme.lightSecondary,
+                            color: AppColors.darkSecondary,
                           ),
                           style: Typography.body2,
                           onChanged: _onNameChanged,
                           initialValue: _form.name.value,
-                          cursorColor: DarkTheme.darkSecondary,
+                          cursorColor: AppColors.darkSecondary,
                           maxLines: null,
                         ),
 
@@ -445,13 +451,13 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                           ),
                           placeholder: "Введите адрес",
                           placeholderStyle: Typography.body2.copyWith(
-                            color: DarkTheme.lightSecondary,
+                            color: AppColors.darkSecondary,
                           ),
                           style: Typography.body2,
                           maxLines: null,
                           onChanged: _onAddressChanged,
                           initialValue: _form.info.value,
-                          cursorColor: DarkTheme.darkSecondary,
+                          cursorColor: AppColors.darkSecondary,
                         ),
 
                         // Phone Field
@@ -467,25 +473,29 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                           ),
                           placeholder: "Номера телефонов через запятую",
                           placeholderStyle: Typography.body2.copyWith(
-                            color: DarkTheme.lightSecondary,
+                            color: AppColors.darkSecondary,
                           ),
                           maxLines: null,
                           style: Typography.body2,
                           onChanged: _onPhoneChanged,
                           initialValue: _form.phones.value,
-                          cursorColor: DarkTheme.darkSecondary,
+                          cursorColor: AppColors.darkSecondary,
                         ),
                       ],
                     ),
                     CupertinoFormSection.insetGrouped(
-                        backgroundColor: DarkTheme.lightBg,
+                      decoration: BoxDecoration(
+                        color: themePrimaryContrastingColor,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      backgroundColor: themeScaffoldBackgroundColor,
                       header: Text('ТИП ОБМЕНА', style: Typography.heading2),
                         children: [
                           Row(children: [
                             Expanded(
                               child: CupertinoSlidingSegmentedControl<bool>(
                                 // backgroundColor: CupertinoColors.black,
-                                thumbColor: DarkTheme.generalWhite,
+                                thumbColor: themePrimaryContrastingColor,
                                 groupValue: _form.gross > 0,
                                 onValueChanged: (bool? value) {
                                   if (value != null) {
@@ -510,19 +520,43 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                         ]),
                     // Currency Rates Section
                     CupertinoFormSection.insetGrouped(
-                      backgroundColor: DarkTheme.lightBg,
+                      decoration: BoxDecoration(
+                        color: themePrimaryContrastingColor,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      backgroundColor: themeScaffoldBackgroundColor,
                       header: const Text('КУРСЫ ВАЛЮТ', style: Typography.heading2),
                       children: [
                         _buildStyledCurrencyRow(
-                            USD, _form.buyUSD, _form.sellUSD),
+                          USD,
+                          _form.buyUSD,
+                          _form.sellUSD,
+                          backgroundColor: themeScaffoldBackgroundColor,
+                        ),
                         _buildStyledCurrencyRow(
-                            EUR, _form.buyEUR, _form.sellEUR),
+                          EUR,
+                          _form.buyEUR,
+                          _form.sellEUR,
+                          backgroundColor: themeScaffoldBackgroundColor,
+                        ),
                         _buildStyledCurrencyRow(
-                            RUR, _form.buyRUB, _form.sellRUB),
+                          RUR,
+                          _form.buyRUB,
+                          _form.sellRUB,
+                          backgroundColor: themeScaffoldBackgroundColor,
+                        ),
                         _buildStyledCurrencyRow(
-                            CNY, _form.buyCNY, _form.sellCNY),
+                          CNY,
+                          _form.buyCNY,
+                          _form.sellCNY,
+                          backgroundColor: themeScaffoldBackgroundColor,
+                        ),
                         _buildStyledCurrencyRow(
-                            GBP, _form.buyGBP, _form.sellGBP),
+                          GBP,
+                          _form.buyGBP,
+                          _form.sellGBP,
+                          backgroundColor: themeScaffoldBackgroundColor,
+                        ),
                       ],
                     ),
 
@@ -531,9 +565,8 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                     // Save button
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: CupertinoButton(
+                      child: CupertinoButton.filled(
                         onPressed: _submitForm,
-                        color: DarkTheme.generalBlack,
                         child: Text(
                           isEditing ? "Сохранить" : "Добавить",
                         ),
@@ -550,7 +583,11 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
 
   // Enhanced currency row with modern styling
   Widget _buildStyledCurrencyRow(
-      CurrencyItem currency, String buyValue, String sellValue) {
+    CurrencyItem currency,
+    String buyValue,
+    String sellValue, {
+    required Color backgroundColor,
+  }) {
     // Get the appropriate controllers based on currency
     TextEditingController buyController;
     TextEditingController sellController;
@@ -618,7 +655,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                   width: 0.8,
                 ),
                 borderRadius: BorderRadius.circular(8),
-                color: CupertinoColors.systemBackground,
+                color: backgroundColor,
               ),
               child: Row(
                 children: [
@@ -636,6 +673,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                   Expanded(
                     child: CupertinoTextField(
                       placeholder: "Покупка",
+                      placeholderStyle: Typography.body2.copyWith(color: AppColors.darkSecondary),
                       keyboardType:
                           const TextInputType.numberWithOptions(decimal: true),
                       textAlign: TextAlign.center,
@@ -645,7 +683,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                           currency: currency.id, isBuy: true),
                       decoration:
                           null, // No decoration as we're using the parent container
-                      cursorColor: DarkTheme.darkSecondary,
+                      cursorColor: AppColors.darkSecondary,
                       controller: buyController,
                     ),
                   ),
@@ -666,7 +704,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                   width: 0.8,
                 ),
                 borderRadius: BorderRadius.circular(8),
-                color: CupertinoColors.systemBackground,
+                color: backgroundColor,
               ),
               child: Row(
                 children: [
@@ -684,6 +722,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                   Expanded(
                     child: CupertinoTextField(
                       placeholder: "Продажа",
+                      placeholderStyle: Typography.body2.copyWith(color: AppColors.darkSecondary),
                       keyboardType:
                           const TextInputType.numberWithOptions(decimal: true),
                       textAlign: TextAlign.center,
@@ -693,7 +732,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                           currency: currency.id, isBuy: false),
                       decoration:
                           null, // No decoration as we're using the parent container
-                      cursorColor: DarkTheme.darkSecondary,
+                      cursorColor: AppColors.darkSecondary,
                       controller: sellController,
                     ),
                   ),

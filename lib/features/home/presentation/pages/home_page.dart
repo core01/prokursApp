@@ -21,15 +21,18 @@ class HomePage extends StatefulWidget {
 
 class _HomeState extends State<HomePage> {
   late TextEditingController textController;
-
-  buildCityList(List<City> cities) {
+  
+  buildCityList(List<City> cities, BuildContext context) {
+    final theme = CupertinoTheme.of(context);
+    final Color themePrimaryContrastingColor = CupertinoDynamicColor.resolve(theme.primaryContrastingColor, context);
+    final Color themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
+    final Color themeScaffoldBackgroundColor = CupertinoDynamicColor.resolve(theme.scaffoldBackgroundColor, context);
     return ListView.separated(
         scrollDirection: Axis.vertical,
         itemCount: cities.length,
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
-        separatorBuilder: (context, index) => const Divider(
-              color: DarkTheme.lightDivider,
+      separatorBuilder: (context, index) => const Divider(
               // height: 20,
               indent: 0,
             ),
@@ -38,8 +41,8 @@ class _HomeState extends State<HomePage> {
           City city = cities[index];
 
           return GestureDetector(
-            child: Container(
-              color: Colors.transparent,
+          child: Container(
+            color: Colors.transparent,
               child: Row(
                 children: [
                   Text(
@@ -47,9 +50,9 @@ class _HomeState extends State<HomePage> {
                     style: Typography.body,
                   ),
                   const Spacer(),
-                  const Icon(
+                Icon(
                     CupertinoIcons.chevron_forward,
-                    color: DarkTheme.lightSecondary,
+                    color: themePrimaryColor,
                     size: 24,
                   ),
                 ],
@@ -87,8 +90,13 @@ class _HomeState extends State<HomePage> {
     final popularCities = context.watch<CitiesProvider>().popularCities;
     final unpopularCities = context.watch<CitiesProvider>().unpopularCities;
 
+    final theme = CupertinoTheme.of(context);
+    final Color themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
+    final Color themePrimaryContrastingColor = CupertinoDynamicColor.resolve(theme.primaryContrastingColor, context);
+    final Color themeScaffoldBackgroundColor = CupertinoDynamicColor.resolve(theme.scaffoldBackgroundColor, context);
+    final Color themeBarBackgroundColor = CupertinoDynamicColor.resolve(theme.barBackgroundColor, context);
     return CupertinoPageScaffold(
-      backgroundColor: DarkTheme.lightBg,
+      // backgroundColor: DarkTheme.lightBg,
       // A ScrollView that creates custom scroll effects using slivers.
       child: Container(
         padding: const EdgeInsets.fromLTRB(0, 4, 0, 0),
@@ -106,7 +114,7 @@ class _HomeState extends State<HomePage> {
                   double refreshTriggerPullDistance,
                   double refreshIndicatorExtent,
                 ) {
-                  return const Center(
+                      return Center(
                       child: Stack(
                     children: [
                       Positioned(
@@ -115,7 +123,7 @@ class _HomeState extends State<HomePage> {
                         left: 0.0,
                         right: 0.0,
                         child: CupertinoActivityIndicator(
-                          color: DarkTheme.mainBlack,
+                          color: themePrimaryContrastingColor,
                           radius: 14.0,
                         ),
                       )
@@ -149,9 +157,6 @@ class _HomeState extends State<HomePage> {
               )
             ] else ...[
               CupertinoSliverNavigationBar(
-                // This title is visible in both collapsed and expanded states.
-                // When the "middle" parameter is omitted, the widget provided
-                // in the "largeTitle" parameter is used instead in the collapsed state.
                 largeTitle: Text('Выберите город'),
                 trailing: GestureDetector(
                   onTap: () {
@@ -162,11 +167,11 @@ class _HomeState extends State<HomePage> {
                   },
                   child: Icon(
                     CupertinoIcons.person_circle,
-                    color: DarkTheme.mainBlack,
+                    color: themePrimaryColor,
                     size: 24.0,
                   ),
                 ),
-                backgroundColor: DarkTheme.lightBg,
+                backgroundColor: themeScaffoldBackgroundColor,
                 border: Border(),
               ),
               SliverList(
@@ -178,11 +183,11 @@ class _HomeState extends State<HomePage> {
                     Container(
                       margin: const EdgeInsets.symmetric(horizontal: 15),
                       decoration: BoxDecoration(
-                        color: DarkTheme.generalWhite,
+                        color: themePrimaryContrastingColor,
                         borderRadius: BorderRadius.circular(15),
                       ),
                       //padding: EdgeInsets.symmetric(horizontal: 15),
-                      child: buildCityList(popularCities),
+                      child: buildCityList(popularCities, context),
                     ),
                   ],
                   if (unpopularCities.isNotEmpty) ...[
@@ -192,11 +197,11 @@ class _HomeState extends State<HomePage> {
                     Container(
                       margin: const EdgeInsets.symmetric(horizontal: 15),
                       decoration: BoxDecoration(
-                        color: DarkTheme.generalWhite,
+                        color: themePrimaryContrastingColor,
                         borderRadius: BorderRadius.circular(15),
                       ),
                       //padding: EdgeInsets.symmetric(horizontal: 15),
-                      child: buildCityList(unpopularCities),
+                      child: buildCityList(unpopularCities, context),
                     ),
                   ],
                 ]),

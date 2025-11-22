@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show SystemChrome, DeviceOrientation;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:prokurs/features/auth/presentation/pages/sign_in_page.dart';
 import 'package:prokurs/features/auth/presentation/pages/sign_up_page.dart';
@@ -93,10 +94,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // force device orientation to portrait only
-    // SystemChrome.setPreferredOrientations([
-    //   DeviceOrientation.portraitUp,
-    //   DeviceOrientation.portraitDown,
-    // ]);
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 
     return MultiProvider(
       providers: [
@@ -167,16 +165,32 @@ class MyApp extends StatelessWidget {
               );
           }
         },
-        theme: const CupertinoThemeData(
-            primaryColor: DarkTheme.generalWhite,
-            scaffoldBackgroundColor: DarkTheme.mainBlack,
-            textTheme: CupertinoTextThemeData(
-              textStyle: TextStyle(
-                fontFamily: 'Manrope',
-                color: DarkTheme.generalBlack,
-                fontFamilyFallback: ['Montserrat'],
+        theme: CupertinoThemeData(
+          primaryColor: CupertinoDynamicColor.withBrightness(
+            color: AppColors.generalBlack,
+            darkColor: AppColors.generalWhite,
+          ),
+          primaryContrastingColor: CupertinoDynamicColor.withBrightness(
+            color: AppColors.generalWhite,
+            darkColor: AppColors.generalBlack,
+          ),
+          scaffoldBackgroundColor: CupertinoDynamicColor.withBrightness(
+            color: AppColors.lightBg,
+            darkColor: AppColors.mainBlack,
+          ),
+          barBackgroundColor: CupertinoDynamicColor.withBrightness(
+            color: AppColors.mainBlack,
+            darkColor: AppColors.mainBlack,
+          ),
+          textTheme: CupertinoTextThemeData(
+            textStyle: const TextStyle(fontFamily: 'Manrope', fontFamilyFallback: ['Montserrat']).copyWith(
+              color: CupertinoDynamicColor.withBrightness(
+                color: AppColors.mainBlack,
+                darkColor: AppColors.generalWhite,
               ),
-            )),
+            ),
+          ),
+        ),
       ),
     );
   }

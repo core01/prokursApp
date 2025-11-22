@@ -112,6 +112,7 @@ class _SignUpFormState extends State<SignUpForm> {
           CupertinoTextField(
             controller: _nameController,
             placeholder: 'Как вас зовут?',
+            // placeholderStyle: TextStyle(color: AppColors.lightSecondary),
             autofocus: true,
             keyboardType: TextInputType.text,
             cursorColor: DarkTheme.lightSecondary,
@@ -138,6 +139,7 @@ class _SignUpFormState extends State<SignUpForm> {
             controller: _emailController,
             placeholder: 'Email',
             autofocus: true,
+            // placeholderStyle: TextStyle(color: AppColors.lightSecondary),
             keyboardType: TextInputType.emailAddress,
             cursorColor: DarkTheme.lightSecondary,
             padding: const EdgeInsets.all(16),
@@ -162,6 +164,7 @@ class _SignUpFormState extends State<SignUpForm> {
           CupertinoTextField(
             controller: _passwordController,
             placeholder: 'Пароль',
+            // placeholderStyle: TextStyle(color: AppColors.lightSecondary),
             obscureText: true,
             cursorColor: DarkTheme.lightSecondary,
             padding: const EdgeInsets.all(16),
@@ -186,6 +189,7 @@ class _SignUpFormState extends State<SignUpForm> {
           CupertinoTextField(
             controller: _passwordConfirmationController,
             placeholder: 'Подтверждение пароля',
+            // placeholderStyle: TextStyle(color: AppColors.lightSecondary),
             obscureText: true,
             cursorColor: DarkTheme.lightSecondary,
             padding: const EdgeInsets.all(16),
@@ -216,8 +220,8 @@ class _SignUpFormState extends State<SignUpForm> {
               ),
             ),
           const SizedBox(height: 24),
-          CupertinoButton(
-            color: DarkTheme.generalBlack,
+          CupertinoButton.filled(
+            // color: DarkTheme.generalBlack,
             onPressed: widget.isLoading ? null : _validateAndSubmit,
             child: widget.isLoading
                 ? const CupertinoActivityIndicator()

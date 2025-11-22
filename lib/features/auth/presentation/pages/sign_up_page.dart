@@ -57,27 +57,29 @@ class _SignUpState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = CupertinoTheme.of(context);
+    final Color themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
     return CupertinoPageScaffold(
-        backgroundColor: DarkTheme.generalWhite,
+      // backgroundColor: AppColors.lightBg,
         navigationBar: CupertinoNavigationBar(
-          backgroundColor: DarkTheme.mainBlack,
+        // backgroundColor: DarkTheme.mainBlack,
           leading: GestureDetector(
             onTap: () {
               Navigator.pop(context);
             },
             child: Container(
               padding: const EdgeInsets.all(8),
-              child: const Icon(
+            child: Icon(
                 CupertinoIcons.arrow_left,
                 size: 24,
-                color: DarkTheme.generalWhite,
+              color: themePrimaryColor,
               ),
             ),
           ),
           middle: Text(
             "Регистрация",
             style: Typography.heading2
-                .merge(const TextStyle(color: DarkTheme.generalBlack)),
+                ,
             textAlign: TextAlign.center,
           ),
         ),
@@ -104,7 +106,7 @@ class _SignUpState extends State<SignUpPage> {
                         children: [
                           Icon(
                             CupertinoIcons.info_circle,
-                            color: DarkTheme.generalBlack,
+                            color: themePrimaryColor,
                             size: 24,
                           ),
                           const SizedBox(width: 12),
@@ -112,7 +114,7 @@ class _SignUpState extends State<SignUpPage> {
                             child: Text(
                               'Регистрация необходима для владельцев обменных пунктов. Если вы хотите добавить обменный пункт, заполните данные ниже.',
                               style: TextStyle(
-                                color: DarkTheme.generalBlack,
+                              // color: DarkTheme.generalBlack,
                                 fontSize: 14,
                               ),
                             ),

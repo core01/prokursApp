@@ -3,6 +3,10 @@ import 'package:flutter/gestures.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:prokurs/core/constants/app_constants.dart';
 import 'package:prokurs/core/utils/utils.dart';
+import 'package:prokurs/features/auth/presentation/pages/sign_in_page.dart' show SignInPage;
+import 'package:prokurs/features/auth/presentation/state/auth_provider.dart';
+import 'package:prokurs/features/exchange_points/presentation/pages/my_points_page.dart' show MyPointsPage;
+import 'package:provider/provider.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
@@ -40,7 +44,7 @@ class _AboutPage extends State<AboutPage> {
     return TextSpan(
       text: text,
       style: Typography.body3.merge(const TextStyle(
-        color: DarkTheme.mainRed,
+        color: AppColors.generalRed,
       )),
       recognizer: TapGestureRecognizer()
         ..onTap = () {
@@ -51,10 +55,18 @@ class _AboutPage extends State<AboutPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isAuthenticated = context.watch<AuthProvider>().isAuthenticated;
+
+    final theme = CupertinoTheme.of(context);
+    final Color themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
+    final Color themePrimaryContrastingColor = CupertinoDynamicColor.resolve(theme.primaryContrastingColor, context);
+    final Color themeScaffoldBackgroundColor = CupertinoDynamicColor.resolve(theme.scaffoldBackgroundColor, context);
+    final Color themeBarBackgroundColor = CupertinoDynamicColor.resolve(theme.barBackgroundColor, context);
+    
     return CupertinoPageScaffold(
-      backgroundColor: DarkTheme.generalWhite,
+      backgroundColor: themeScaffoldBackgroundColor,
       navigationBar: CupertinoNavigationBar(
-        backgroundColor: DarkTheme.mainBlack,
+        backgroundColor: themeBarBackgroundColor,
         // padding: const EdgeInsetsDirectional.fromSTEB(10, 5, 5, 5),
         leading: GestureDetector(
           onTap: () {
@@ -62,18 +74,26 @@ class _AboutPage extends State<AboutPage> {
           },
           child: Container(
             padding: const EdgeInsets.all(8),
-            child: const Icon(
+            child: Icon(
               CupertinoIcons.arrow_left,
               size: 24,
-              color: DarkTheme.generalWhite,
+              color: themePrimaryColor,
             ),
           ),
         ),
         middle: Text(
           "О приложении",
-          style: Typography.heading2
-              .merge(const TextStyle(color: DarkTheme.generalWhite)),
+          style: Typography.heading2,
           textAlign: TextAlign.center,
+        ),
+        trailing: GestureDetector(
+          onTap: () {
+            debugPrint('isAuthenticated: $isAuthenticated');
+            isAuthenticated
+                ? Navigator.pushNamed(context, MyPointsPage.routeName)
+                : Navigator.pushNamed(context, SignInPage.routeName);
+          },
+          child: Icon(CupertinoIcons.person_circle, color: themePrimaryColor, size: 24.0),
         ),
       ),
       child: Container(
@@ -99,11 +119,7 @@ class _AboutPage extends State<AboutPage> {
                     child: Text(
                       'Мониторинг обменных пунктов в Казахстане',
                       textAlign: TextAlign.center,
-                      style: Typography.body2.merge(
-                        const TextStyle(
-                          color: DarkTheme.mainGrey,
-                        ),
-                      ),
+                      style: Typography.body2,
                     ),
                   ),
                   Container(
@@ -116,8 +132,7 @@ class _AboutPage extends State<AboutPage> {
                           TextSpan(
                             text:
                                 'Информация по курсам валют в обменных пунктах предоставляется ',
-                            style: Typography.body3.merge(
-                                const TextStyle(color: DarkTheme.mainGrey)),
+                            style: Typography.body3.merge(TextStyle(color: themePrimaryColor)),
                           ),
                           _buildClickableTextSpan(
                             text: '«TOO Cityinfo.kz»',
@@ -130,7 +145,7 @@ class _AboutPage extends State<AboutPage> {
                   Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      color: DarkTheme.lightBg,
+                      color: themePrimaryContrastingColor,
                     ),
                     alignment: Alignment.centerLeft,
                     padding:
@@ -144,11 +159,7 @@ class _AboutPage extends State<AboutPage> {
                           margin: const EdgeInsets.only(bottom: 4),
                           child: Text(
                             'Версия приложения',
-                            style: Typography.body3.merge(
-                              const TextStyle(
-                                color: DarkTheme.lightSecondary,
-                              ),
-                            ),
+                            style: Typography.body3.merge(TextStyle(color: themePrimaryColor)),
                           ),
                         ),
                         Text(
