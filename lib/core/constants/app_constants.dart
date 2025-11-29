@@ -42,30 +42,6 @@ const List<CurrencyItem> CURRENCY_LIST = [
 const BUY_KEY = 'buy';
 const SELL_KEY = 'sell';
 
-class DarkTheme {
-  const DarkTheme();
-
-  static const mainBlack = Color(0xFF24292f);
-
-  static const darkSecondary = Color(0xFF8d8e8e);
-
-  static const generalBlack = Color(0xFF1b1d1e);
-
-  static const generalWhite = Color(0xFFFFFFFF);
-
-  static const lightBg = Color(0xFFf4f4f5);
-
-  static const lightSecondary = Color(0xFF9b9ca3);
-
-  static const lightDivider = Color(0xFFebeded);
-
-  static const mainGrey = Color(0xFF494a4b);
-
-  static const mainBlue = Color(0xFF00A6FB);
-
-  static const mainRed = Color(0xFFC14953);
-}
-
 class AppDynamicColors {
   static const lightBg = CupertinoDynamicColor.withBrightness(
     color: Color.fromRGBO(244, 244, 245, 1), // светлая тема
@@ -86,7 +62,10 @@ class AppColors {
   static const lightBg = AppDynamicColors.lightBg;
   
   static const lightSecondary = Color.fromRGBO(27, 29, 30, 0.35);
-  static const lightDivider = Color.fromRGBO(5, 25, 35, 0.08);
+  static const divider = CupertinoDynamicColor.withBrightness(
+    color: Color.fromRGBO(5, 25, 35, 0.08),
+    darkColor: Color.fromRGBO(255, 255, 255, 0.12),
+  );
   static const generalGreen = Color.fromRGBO(0, 165, 36, 1);
   static const generalGreenBg = Color.fromRGBO(0, 165, 36, 0.08);
   static const generalRed = Color(0xFFC14953);

@@ -43,7 +43,7 @@ class _AboutPage extends State<AboutPage> {
       {required String text, required String url}) {
     return TextSpan(
       text: text,
-      style: Typography.body3.merge(const TextStyle(
+      style: Typography.body2.merge(const TextStyle(
         color: AppColors.generalRed,
       )),
       recognizer: TapGestureRecognizer()
@@ -132,7 +132,7 @@ class _AboutPage extends State<AboutPage> {
                           TextSpan(
                             text:
                                 'Информация по курсам валют в обменных пунктах предоставляется ',
-                            style: Typography.body3.merge(TextStyle(color: themePrimaryColor)),
+                            style: Typography.body2.merge(TextStyle(color: themePrimaryColor)),
                           ),
                           _buildClickableTextSpan(
                             text: '«TOO Cityinfo.kz»',
@@ -159,11 +159,13 @@ class _AboutPage extends State<AboutPage> {
                           margin: const EdgeInsets.only(bottom: 4),
                           child: Text(
                             'Версия приложения',
-                            style: Typography.body3.merge(TextStyle(color: themePrimaryColor)),
+                            style: Typography.body2.merge(TextStyle(color: themePrimaryColor)),
                           ),
                         ),
                         Text(
-                            "v${_packageInfo.version} (${_packageInfo.buildNumber})"),
+                          "v${_packageInfo.version} (${_packageInfo.buildNumber})",
+                          style: Typography.body2.merge(TextStyle(color: themePrimaryColor)),
+                        ),
                       ],
                     ),
                   ),

@@ -115,11 +115,11 @@ class _SignUpFormState extends State<SignUpForm> {
             // placeholderStyle: TextStyle(color: AppColors.lightSecondary),
             autofocus: true,
             keyboardType: TextInputType.text,
-            cursorColor: DarkTheme.lightSecondary,
+            cursorColor: AppColors.darkSecondary,
             padding: const EdgeInsets.all(16),
             enabled: !widget.isLoading,
             decoration: BoxDecoration(
-              border: Border.all(color: DarkTheme.lightSecondary),
+              border: Border.all(color: AppColors.darkSecondary),
               borderRadius: BorderRadius.circular(8),
             ),
           ),
@@ -141,11 +141,11 @@ class _SignUpFormState extends State<SignUpForm> {
             autofocus: true,
             // placeholderStyle: TextStyle(color: AppColors.lightSecondary),
             keyboardType: TextInputType.emailAddress,
-            cursorColor: DarkTheme.lightSecondary,
+            cursorColor: AppColors.darkSecondary,
             padding: const EdgeInsets.all(16),
             enabled: !widget.isLoading,
             decoration: BoxDecoration(
-              border: Border.all(color: DarkTheme.lightSecondary),
+              border: Border.all(color: AppColors.darkSecondary),
               borderRadius: BorderRadius.circular(8),
             ),
           ),
@@ -166,11 +166,11 @@ class _SignUpFormState extends State<SignUpForm> {
             placeholder: 'Пароль',
             // placeholderStyle: TextStyle(color: AppColors.lightSecondary),
             obscureText: true,
-            cursorColor: DarkTheme.lightSecondary,
+            cursorColor: AppColors.darkSecondary,
             padding: const EdgeInsets.all(16),
             enabled: !widget.isLoading,
             decoration: BoxDecoration(
-              border: Border.all(color: DarkTheme.lightSecondary),
+              border: Border.all(color: AppColors.darkSecondary),
               borderRadius: BorderRadius.circular(8),
             ),
           ),
@@ -191,11 +191,11 @@ class _SignUpFormState extends State<SignUpForm> {
             placeholder: 'Подтверждение пароля',
             // placeholderStyle: TextStyle(color: AppColors.lightSecondary),
             obscureText: true,
-            cursorColor: DarkTheme.lightSecondary,
+            cursorColor: AppColors.darkSecondary,
             padding: const EdgeInsets.all(16),
             enabled: !widget.isLoading,
             decoration: BoxDecoration(
-              border: Border.all(color: DarkTheme.lightSecondary),
+              border: Border.all(color: AppColors.darkSecondary),
               borderRadius: BorderRadius.circular(8),
             ),
           ),
@@ -221,7 +221,6 @@ class _SignUpFormState extends State<SignUpForm> {
             ),
           const SizedBox(height: 24),
           CupertinoButton.filled(
-            // color: DarkTheme.generalBlack,
             onPressed: widget.isLoading ? null : _validateAndSubmit,
             child: widget.isLoading
                 ? const CupertinoActivityIndicator()

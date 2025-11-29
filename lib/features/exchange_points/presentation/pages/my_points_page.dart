@@ -136,6 +136,7 @@ final theme = CupertinoTheme.of(context);
         themePrimaryColor: themePrimaryColor,
       ),
       child: SafeArea(
+        bottom: false,
         child: _points.isEmpty
             ? MyPointsEmptyState(onAdd: _showAddPointForm)
             : MyPointsPointsList(

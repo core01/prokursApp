@@ -50,21 +50,17 @@ final theme = CupertinoTheme.of(context);
           ),
           middle: Column(
             children: [
-              Container(
-                child: Text(
+              Text(
                   exchangePoint.name,
                   overflow: TextOverflow.ellipsis,
                   style: Typography.body2.merge(TextStyle(color: AppColors.generalWhite,
                   )),
-                ),
               ),
-              Container(
-                child: Text(
-                  "Обновлено в $updateTime",
+              Text(
+                "Обновлено в $updateTime",
                   style: Typography.body3
                       .merge(const TextStyle(color: AppColors.darkSecondary)),
-                  textAlign: TextAlign.center,
-                ),
+                textAlign: TextAlign.center,
               ),
             ],
           ),

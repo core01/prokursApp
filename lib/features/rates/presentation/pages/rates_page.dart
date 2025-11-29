@@ -163,8 +163,8 @@ class _RatesPageState extends State<RatesPage> {
         itemCount: cities.length,
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
-        separatorBuilder: (context, index) => const Divider(
-              color: DarkTheme.lightDivider,
+      separatorBuilder: (context, index) =>
+          Divider(color: CupertinoDynamicColor.resolve(AppColors.divider, context),
               height: 20,
               indent: 0,
             ),
@@ -179,12 +179,12 @@ class _RatesPageState extends State<RatesPage> {
                 children: [
                   Text(
                     city.title,
-                    style: Typography.body,
+                    style: Typography.body2,
                   ),
                   const Spacer(),
                   const Icon(
                     CupertinoIcons.chevron_forward,
-                    color: DarkTheme.lightSecondary,
+                    color: AppColors.lightSecondary,
                     size: 24,
                   ),
                 ],
@@ -236,7 +236,7 @@ final theme = CupertinoTheme.of(context);
                   alignment: Alignment.center,
                   children: [
                     if (_isLoading) ...[
-                      const Center(child: CupertinoActivityIndicator(color: DarkTheme.mainBlack, radius: 15)),
+                      const Center(child: CupertinoActivityIndicator(color: AppColors.mainBlack, radius: 15)),
                     ] else ...[
                       CustomScrollView(
                         controller: scrollController,
@@ -399,10 +399,10 @@ final theme = CupertinoTheme.of(context);
                                               ),
                                               Text(
                                                 "Обновлено в $ratesUpdateTime",
-                                                style: Typography.body2
+                                                  style: Typography.body2
                                                     .merge(const TextStyle(
                                                   color:
-                                                      DarkTheme.darkSecondary,
+                                                      AppColors.darkSecondary,
                                                 )),
                                                 textAlign: TextAlign.left,
                                               )
@@ -437,7 +437,7 @@ final theme = CupertinoTheme.of(context);
                                                                 vertical: 0,
                                                                 horizontal: 5),
                                                         side: const BorderSide(
-                                                          color: DarkTheme
+                                                            color: AppColors
                                                               .darkSecondary,
                                                           width: 0.5,
                                                         ),
@@ -461,32 +461,30 @@ final theme = CupertinoTheme.of(context);
                                                                     color: selectedCurrency ==
                                                                             CURRENCY_LIST[i]
                                                                                 .id
-                                                                        ? DarkTheme
+                                                                          ? AppColors
                                                                             .mainBlack
-                                                                        : DarkTheme
+                                                                          : AppColors
                                                                             .generalWhite)),
                                                                 textAlign:
                                                                     TextAlign
                                                                         .center,
                                                               ),
                                                             ),
-                                                            Container(
-                                                              child: Text(
+                                                              Text(
                                                                 CURRENCY_LIST[i]
                                                                     .label,
                                                                 style: Typography.body2.merge(TextStyle(
                                                                     color: selectedCurrency ==
                                                                             CURRENCY_LIST[i]
                                                                                 .id
-                                                                        ? DarkTheme
+                                                                        ? AppColors
                                                                             .mainBlack
-                                                                        : DarkTheme
+                                                                        : AppColors
                                                                             .generalWhite)),
                                                                 textAlign:
                                                                     TextAlign
                                                                         .center,
                                                               ),
-                                                            ),
                                                           ],
                                                         ),
                                                         backgroundColor:
@@ -494,9 +492,9 @@ final theme = CupertinoTheme.of(context);
                                                                     CURRENCY_LIST[
                                                                             i]
                                                                         .id
-                                                                ? DarkTheme
+                                                              ? AppColors
                                                                     .generalWhite
-                                                                : DarkTheme
+                                                              : AppColors
                                                                     .mainGrey,
                                                         onPressed: () {
                                                           onCurrencySelect(
@@ -553,79 +551,79 @@ final theme = CupertinoTheme.of(context);
                                                     backgroundColor:
                                                         themeScaffoldBackgroundColor,
                                                   context: context,
-                                                  builder: (context) =>
-                                                      Container(
-                                                    padding: const EdgeInsets
-                                                        .fromLTRB(
-                                                        16, 32, 16, 16),
-                                                    // height: 256,
-                                                    child: Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [
-                                                        Container(
+                                                    builder: (context) {
+                                                      final bool isDarkTheme =
+                                                          CupertinoTheme.of(context).brightness == Brightness.dark;
+                                                      return Container(
+                                                        padding: const EdgeInsets.fromLTRB(16, 32, 16, 16),
+                                                        // height: 256,
+                                                        child: Column(
+                                                          mainAxisSize: MainAxisSize.min,
+                                                          children: [
+                                                            Container(
                                                           margin:
                                                               const EdgeInsets
                                                                   .only(
                                                                   bottom: 24),
                                                           child: const Text(
-                                                            "Выберите валюту",
+                                                                "Выберите валюту",
                                                             style: Typography
                                                                 .heading,
                                                             textAlign: TextAlign
                                                                 .center,
                                                           ),
                                                         ),
-                                                        Wrap(
-                                                          direction:
-                                                              Axis.horizontal,
-                                                          spacing: 8,
-                                                          runSpacing: 8,
-                                                          children: [
+                                                            Wrap(
+                                                              direction: Axis.horizontal,
+                                                              spacing: 8,
+                                                              runSpacing: 8,
+                                                              children: [
                                                             ...CURRENCY_LIST.map(
-                                                                (currency) =>
-                                                                    SizedBox(
-                                                                      width:
-                                                                          160,
-                                                                      child:
-                                                                          CupertinoButton(
-                                                                        color: selectedCurrency ==
-                                                                                currency.id
-                                                                            ? DarkTheme.generalBlack
-                                                                            : DarkTheme.lightBg,
-                                                                        padding: const EdgeInsets
-                                                                            .symmetric(
-                                                                            vertical:
-                                                                                8,
-                                                                            horizontal:
-                                                                                16,
-                                                                    ),
-                                                                        child:
-                                                                            Text(
-                                                                          currency
-                                                                              .label,
-                                                                          style: Typography
-                                                                              .body
-                                                                              .merge(TextStyle(
-                                                                            color: selectedCurrency == currency.id
-                                                                                ? DarkTheme.generalWhite
-                                                                                : DarkTheme.generalBlack,
-                                                                          )),
-                                                                        ),
-                                                                        onPressed:
-                                                                            () {
-                                                                          onCurrencySelect(
-                                                                              currency);
-                                                                          Navigator.of(context)
-                                                                              .pop();
-                                                                        },
+                                                                (currency) {
+                                                                  final bool isSelected =
+                                                                      selectedCurrency == currency.id;
+                                                                  final Color buttonColor = isSelected
+                                                                      ? (isDarkTheme
+                                                                            ? AppColors.generalWhite
+                                                                            : AppColors.generalBlack)
+                                                                      : (isDarkTheme
+                                                                            ? AppColors.generalBlack
+                                                                            : AppColors.generalWhite);
+                                                                  final Color textColor = isSelected
+                                                                      ? (isDarkTheme
+                                                                            ? AppColors.generalBlack
+                                                                            : AppColors.generalWhite)
+                                                                      : (isDarkTheme
+                                                                            ? AppColors.generalWhite
+                                                                            : AppColors.generalBlack);
+
+                                                                  return SizedBox(
+                                                                    width: 160,
+                                                                    child: CupertinoButton(
+                                                                      color: buttonColor,
+                                                                      padding: const EdgeInsets.symmetric(
+                                                                        vertical: 8,
+                                                                        horizontal: 16,
                                                                       ),
-                                                                    )),
+                                                                      child: Text(
+                                                                        currency.label,
+                                                                        style: Typography.body.merge(
+                                                                          TextStyle(color: textColor),
+                                                                        ),
+                                                                      ),
+                                                                      onPressed: () {
+                                                                        onCurrencySelect(currency);
+                                                                        Navigator.of(context).pop();
+                                                                      },
+                                                                    ),
+                                                                  );
+                                                                }),
                                                           ],
                                                         ),
                                                       ],
                                                     ),
-                                                  ),
+                                                      );
+                                                    },
                                                 );
                                               },
                                               child: Row(
@@ -653,7 +651,7 @@ final theme = CupertinoTheme.of(context);
                                         "Обновлено в $ratesUpdateTime",
                                         style: Typography.body3
                                             .merge(const TextStyle(
-                                          color: DarkTheme.darkSecondary,
+                                          color: AppColors.darkSecondary,
                                         )),
                                         textAlign: TextAlign.left,
                                       )
@@ -736,8 +734,8 @@ final theme = CupertinoTheme.of(context);
                               margin: const EdgeInsets.only(bottom: 12),
                               child: CupertinoSlidingSegmentedControl(
                                 padding: const EdgeInsets.all(4),
-                                backgroundColor: DarkTheme.mainGrey,
-                                thumbColor: DarkTheme.mainBlack,
+                                  backgroundColor: AppColors.mainBlack,
+                                  thumbColor: AppColors.mainGrey,
                                 // This represents the currently selected segmented control.
                                 groupValue: _sorting,
                                 // Callback that sets the selected segmented control.

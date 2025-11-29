@@ -57,7 +57,7 @@ class MyPointsNavigationBar extends CupertinoNavigationBar {
              if (userEmail != null)
                Text(
                  userEmail,
-                 style: TextStyle(fontSize: 12, color: DarkTheme.darkSecondary),
+                 style: Typography.body3.merge(TextStyle(color: AppColors.darkSecondary)),
                ),
            ],
          ),

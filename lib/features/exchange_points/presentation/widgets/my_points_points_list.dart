@@ -125,13 +125,13 @@ class MyPointsErrorSection extends StatelessWidget {
         const SizedBox(height: 16),
         CupertinoButton(
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-          color: DarkTheme.generalBlack,
+          color: AppColors.generalBlack,
           onPressed: () {
             onRetry();
           },
           child: isLoading
               ? const CupertinoActivityIndicator(
-                  color: DarkTheme.generalWhite,
+                  color: AppColors.generalWhite,
                   radius: 14.0,
                 )
               : const Text("Повторить"),
@@ -181,7 +181,6 @@ class ExchangePointListItem extends StatelessWidget {
                   CupertinoDialogAction(
                     child: const Text(
                       'Отмена',
-                      // style: TextStyle(color: DarkTheme.generalBlack),
                     ),
                     onPressed: () => Navigator.of(context).pop(false),
                   ),

@@ -72,7 +72,7 @@ class _RatesTable extends State<RatesTable> {
           Text(
             '\u{20B8}',
             textAlign: TextAlign.center,
-            style: Typography.body3.merge(
+            style: Typography.body2.merge(
               TextStyle(
                 color: color,
               ),
@@ -87,11 +87,7 @@ class _RatesTable extends State<RatesTable> {
   Widget build(BuildContext context) {
     final List<ExchangePoint> exchangeRates = widget.exchangeRates;
     final String selectedCurrency = widget.selectedCurrency;
-
-    final theme = CupertinoTheme.of(context);
-    final Color themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
-    final Color themePrimaryContrastingColor = CupertinoDynamicColor.resolve(theme.primaryContrastingColor, context);
-    final Color themeScaffoldBackgroundColor = CupertinoDynamicColor.resolve(theme.scaffoldBackgroundColor, context);
+    
     return SliverStickyHeader(
       header: Container(
         padding: const EdgeInsets.all(16),
@@ -152,12 +148,12 @@ class _RatesTable extends State<RatesTable> {
               child: Container(
                 padding:
                     const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   // color: CupertinoColors.white,
                   border: Border(
                     top: BorderSide(
                       width: 1,
-                      color: DarkTheme.lightDivider,
+                      color: CupertinoDynamicColor.resolve(AppColors.divider, context),
                     ),
                   ),
                 ),
@@ -238,7 +234,7 @@ class _RatesTable extends State<RatesTable> {
                               Text(
                                 'Обновлено в ',
                                 style: Typography.body3.merge(const TextStyle(
-                                  color: DarkTheme.lightSecondary,
+                                  color: AppColors.darkSecondary,
                                 )),
                               ),
                               Text(
@@ -248,7 +244,7 @@ class _RatesTable extends State<RatesTable> {
                                   ),
                                 ),
                                 style: Typography.body3.merge(const TextStyle(
-                                  color: DarkTheme.lightSecondary,
+                                  color: AppColors.darkSecondary,
                                 )),
                               ),
                             ],
@@ -258,7 +254,7 @@ class _RatesTable extends State<RatesTable> {
                           rate.info ?? '-',
                           textAlign: TextAlign.left,
                           style: Typography.body3.merge(const TextStyle(
-                            color: DarkTheme.lightSecondary,
+                            color: AppColors.darkSecondary,
                           )),
                         ),
                         if (rate.gross > 0)

@@ -57,5 +57,7 @@
 		</array>
 		<key>NSMotionUsageDescription</key>
 		<string>Motion can be used for a map</string>
+		<key>NSLocationWhenInUseUsageDescription</key>
+		<string>Location can be used for a map</string>
 	</dict>
 </plist>

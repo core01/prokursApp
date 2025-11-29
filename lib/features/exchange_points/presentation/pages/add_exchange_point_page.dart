@@ -278,6 +278,12 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
   }
 
   void _showCityPicker(BuildContext context) {
+    final theme = CupertinoTheme.of(context);
+    final Color themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
+    final Color themePrimaryContrastingColor = CupertinoDynamicColor.resolve(theme.primaryContrastingColor, context);
+    final Color themeScaffoldBackgroundColor = CupertinoDynamicColor.resolve(theme.scaffoldBackgroundColor, context);
+    final Color themeBarBackgroundColor = CupertinoDynamicColor.resolve(theme.barBackgroundColor, context);
+    
     int selectedIndex = 0;
     if (_form.city.value != null) {
       selectedIndex = _cities.indexWhere((city) => city.id == _form.city.value);
@@ -293,7 +299,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
           margin: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
-          color: DarkTheme.lightBg,
+          color: CupertinoDynamicColor.resolve(AppDynamicColors.lightBg, context),
           child: SafeArea(
             top: false,
             child: CupertinoPicker(
@@ -317,7 +323,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                   child: Center(
                     child: Text(
                       city.title,
-                      style: Typography.body2.merge(const TextStyle(color: AppColors.generalBlack)),
+                      style: Typography.body2.merge(TextStyle(color: themePrimaryColor)),
                     ),
                   ),
                 );
@@ -346,7 +352,7 @@ final theme = CupertinoTheme.of(context);
     final Color themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
     final Color themePrimaryContrastingColor = CupertinoDynamicColor.resolve(theme.primaryContrastingColor, context);
     final Color themeScaffoldBackgroundColor = CupertinoDynamicColor.resolve(theme.scaffoldBackgroundColor, context);
-    final Color themeBarBackgroundColor = CupertinoDynamicColor.resolve(theme.barBackgroundColor, context);
+    
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         backgroundColor: themeScaffoldBackgroundColor,
@@ -400,11 +406,11 @@ final theme = CupertinoTheme.of(context);
                                     Text(
                                       cityTitle,
                                       style: _form.city.value == null
-                                          ? Typography.body2.copyWith(color: DarkTheme.darkSecondary)
+                                          ? Typography.body2.copyWith(color: AppColors.darkSecondary)
                                           : Typography.body2,
                                     ),
                                     const SizedBox(width: 8),
-                                    const Icon(CupertinoIcons.chevron_right, color: DarkTheme.darkSecondary, size: 18),
+                                    const Icon(CupertinoIcons.chevron_right, color: AppColors.darkSecondary, size: 18),
                                   ],
                                 ),
                               ),

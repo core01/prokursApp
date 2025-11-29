@@ -82,9 +82,8 @@ class _SignInState extends State<SignInPage> {
     final Color themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
 
     return CupertinoPageScaffold(
-      // backgroundColor: AppColors.lightBg,
         navigationBar: CupertinoNavigationBar(
-          backgroundColor: DarkTheme.mainBlack,
+        backgroundColor: AppColors.mainBlack,
           // padding: const EdgeInsetsDirectional.fromSTEB(10, 5, 5, 5),
           leading: GestureDetector(
             onTap: () {

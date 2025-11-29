@@ -47,7 +47,7 @@ class _HomeState extends State<HomePage> {
                 children: [
                   Text(
                     city.title,
-                    style: Typography.body,
+                    style: Typography.body2,
                   ),
                   const Spacer(),
                 Icon(
@@ -94,10 +94,8 @@ class _HomeState extends State<HomePage> {
     final Color themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
     final Color themePrimaryContrastingColor = CupertinoDynamicColor.resolve(theme.primaryContrastingColor, context);
     final Color themeScaffoldBackgroundColor = CupertinoDynamicColor.resolve(theme.scaffoldBackgroundColor, context);
-    final Color themeBarBackgroundColor = CupertinoDynamicColor.resolve(theme.barBackgroundColor, context);
+    
     return CupertinoPageScaffold(
-      // backgroundColor: DarkTheme.lightBg,
-      // A ScrollView that creates custom scroll effects using slivers.
       child: Container(
         padding: const EdgeInsets.fromLTRB(0, 4, 0, 0),
         child: CustomScrollView(
@@ -115,20 +113,10 @@ class _HomeState extends State<HomePage> {
                   double refreshIndicatorExtent,
                 ) {
                       return Center(
-                      child: Stack(
-                    children: [
-                      Positioned(
-                        top: 15.0,
-                        bottom: 15.0,
-                        left: 0.0,
-                        right: 0.0,
-                        child: CupertinoActivityIndicator(
-                          color: themePrimaryContrastingColor,
+                      child: CupertinoActivityIndicator(color: themePrimaryColor,
                           radius: 14.0,
                         ),
-                      )
-                    ],
-                  ));
+                   );
                 },
               ),
               SliverFillRemaining(
@@ -141,15 +129,13 @@ class _HomeState extends State<HomePage> {
                       margin: EdgeInsets.only(bottom: 12),
                       child: Text(
                         'Список городов получить не удалось',
-                        style: Typography.body.merge(const TextStyle(
-                          color: DarkTheme.mainBlack,
+                        style: Typography.body.merge(TextStyle(color: themePrimaryColor,
                         )),
                       ),
                     ),
                     Text(
                       'Потяните вниз, что бы попробовать снова',
-                      style: Typography.body3.merge(const TextStyle(
-                        color: DarkTheme.mainBlack,
+                      style: Typography.body3.merge(TextStyle(color: themePrimaryColor,
                       )),
                     ),
                   ],

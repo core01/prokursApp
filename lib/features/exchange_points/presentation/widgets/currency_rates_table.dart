@@ -45,7 +45,7 @@ class CurrencyRatesTable extends StatelessWidget {
                     'Валюта',
                     style: Typography.body3.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: DarkTheme.darkSecondary,
+                      color: AppColors.darkSecondary,
                     ),
                   ),
                 ),
@@ -55,7 +55,7 @@ class CurrencyRatesTable extends StatelessWidget {
                     'Покупка / Продажа',
                     style: Typography.body3.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: DarkTheme.darkSecondary,
+                      color: AppColors.darkSecondary,
                     ),
                     textAlign: TextAlign.right,
                   ),
@@ -100,7 +100,7 @@ class CurrencyRatesTable extends StatelessWidget {
               child: Text(
                 'Обновлено: ${formatDateTime(point.date_update)}',
                 style: Typography.body3.copyWith(
-                  color: DarkTheme.darkSecondary,
+                  color: AppColors.darkSecondary,
                   fontSize: 12,
                 ),
               ),
@@ -138,7 +138,6 @@ class CurrencyRateRow extends StatelessWidget {
               currency,
               style: Typography.body3.copyWith(
                 fontWeight: FontWeight.w500,
-                // color: DarkTheme.generalBlack,
               ),
             ),
           ),
@@ -158,7 +157,7 @@ class CurrencyRateRow extends StatelessWidget {
                       Text(
                         ' / ',
                         style: Typography.body3.copyWith(
-                          color: DarkTheme.darkSecondary,
+                          color: AppColors.darkSecondary,
                         ),
                       ),
                       Text(
@@ -173,7 +172,7 @@ class CurrencyRateRow extends StatelessWidget {
                 : Text(
                     'Не указано',
                     style: Typography.body3.copyWith(
-                      color: DarkTheme.darkSecondary,
+                      color: AppColors.darkSecondary,
                     ),
                     textAlign: TextAlign.right,
                   ),

@@ -94,10 +94,10 @@ class _SignInFormState extends State<SignInForm> {
               // placeholderStyle: TextStyle(color: AppColors.lightSecondary),
               autofocus: true,
               keyboardType: TextInputType.emailAddress,
-              cursorColor: DarkTheme.lightSecondary,
+              cursorColor: AppColors.darkSecondary,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                border: Border.all(color: DarkTheme.lightSecondary),
+                border: Border.all(color: AppColors.darkSecondary),
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
@@ -118,10 +118,10 @@ class _SignInFormState extends State<SignInForm> {
               placeholder: 'Пароль',
               // placeholderStyle: TextStyle(color: AppColors.lightSecondary),
               obscureText: true,
-              cursorColor: DarkTheme.lightSecondary,
+              cursorColor: AppColors.darkSecondary,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                border: Border.all(color: DarkTheme.lightSecondary),
+                border: Border.all(color: AppColors.darkSecondary),
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
@@ -149,7 +149,6 @@ class _SignInFormState extends State<SignInForm> {
               ),
             const SizedBox(height: 24),
             CupertinoButton.filled(
-              // color: DarkTheme.generalBlack,
               onPressed: _validateAndSubmit,
               child: const Text('Войти'),
             ),

@@ -60,9 +60,7 @@ class _SignUpState extends State<SignUpPage> {
     final theme = CupertinoTheme.of(context);
     final Color themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
     return CupertinoPageScaffold(
-      // backgroundColor: AppColors.lightBg,
-        navigationBar: CupertinoNavigationBar(
-        // backgroundColor: DarkTheme.mainBlack,
+      navigationBar: CupertinoNavigationBar(
           leading: GestureDetector(
             onTap: () {
               Navigator.pop(context);
@@ -78,8 +76,7 @@ class _SignUpState extends State<SignUpPage> {
           ),
           middle: Text(
             "Регистрация",
-            style: Typography.heading2
-                ,
+            style: Typography.heading2,
             textAlign: TextAlign.center,
           ),
         ),
@@ -98,9 +95,9 @@ class _SignUpState extends State<SignUpPage> {
                       padding: const EdgeInsets.all(12),
                       margin: const EdgeInsets.only(bottom: 20),
                       decoration: BoxDecoration(
-                        color: DarkTheme.lightSecondary.withAlpha(51),
+                      color: AppColors.darkSecondary.withAlpha(51),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: DarkTheme.lightSecondary),
+                      border: Border.all(color: AppColors.darkSecondary),
                       ),
                       child: Row(
                         children: [
@@ -113,8 +110,7 @@ class _SignUpState extends State<SignUpPage> {
                           Expanded(
                             child: Text(
                               'Регистрация необходима для владельцев обменных пунктов. Если вы хотите добавить обменный пункт, заполните данные ниже.',
-                              style: TextStyle(
-                              // color: DarkTheme.generalBlack,
+                            style: TextStyle(
                                 fontSize: 14,
                               ),
                             ),
