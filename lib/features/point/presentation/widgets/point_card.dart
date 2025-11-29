@@ -178,6 +178,7 @@ class PointCardState extends State<PointCard> {
     );
   }
 
+  getCurrencyRows(BuildContext context) {
     List<Widget> rows = [];
 
     for (var i = 0; i < CURRENCY_LIST.length; i++) {
@@ -187,19 +188,18 @@ class PointCardState extends State<PointCard> {
         rows.add(Container(
           decoration: BoxDecoration(
             border: i != CURRENCY_LIST.length - 1
-                ? const Border(
-                    bottom: BorderSide(
+                  ? Border(top: BorderSide(
                       width: 1,
-                      color: DarkTheme.lightDivider,
+                      color: CupertinoDynamicColor.resolve(AppColors.divider, context),
                     ),
                   )
-                : const Border(),
+                  : Border(),
           ),
           padding: const EdgeInsets.symmetric(vertical: 12),
           child: Row(
             children: [
               Flexible(
-                flex: 1,
+                  flex: 4,
                 child: Container(
                   alignment: Alignment.centerLeft,
                   margin: const EdgeInsets.only(right: 8),
@@ -210,7 +210,7 @@ class PointCardState extends State<PointCard> {
                 ),
               ),
               Expanded(
-                flex: 1,
+                  flex: 6,
                 child: Row(
                   children: [
                     Expanded(
@@ -232,7 +232,7 @@ class PointCardState extends State<PointCard> {
                                 // Tenge sign
                                 const Text('\u{20B8}',
                                     textAlign: TextAlign.center,
-                                    style: Typography.body3),
+                                    style: Typography.body2),
                               ]
                             ]),
                       ),
@@ -256,7 +256,7 @@ class PointCardState extends State<PointCard> {
                                 // Tenge sign
                                 const Text('\u{20B8}',
                                     textAlign: TextAlign.center,
-                                    style: Typography.body3),
+                                    style: Typography.body2),
                               ]
                             ]),
                       ),
@@ -398,7 +398,7 @@ final theme = CupertinoTheme.of(context);
                               child: Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(40),
-                                  color: DarkTheme.generalWhite,
+                                  color: AppColors.generalWhite,
                                 ),
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 3,
@@ -410,7 +410,7 @@ final theme = CupertinoTheme.of(context);
                                 child: Text(
                                   phoneNumbers[i],
                                   style: Typography.body2.merge(const TextStyle(
-                                    color: DarkTheme.generalBlack,
+                                    color: AppColors.generalBlack,
                                   )),
                                   textAlign: TextAlign.center,
                                 ),
@@ -435,17 +435,17 @@ final theme = CupertinoTheme.of(context);
                     child: Row(
                       children: [
                         Flexible(
-                          flex: 5,
+                          flex: 4,
                           child: Container(
                             alignment: Alignment.centerLeft,
                             child: const Text(
                               'Валюта',
-                              style: Typography.body3,
+                              style: Typography.body2,
                             ),
                           ),
                         ),
                         Expanded(
-                          flex: 5,
+                          flex: 6,
                           child: Row(
                             children: [
                               Expanded(
@@ -454,7 +454,7 @@ final theme = CupertinoTheme.of(context);
                                   margin: const EdgeInsets.only(right: 8),
                                   child: const Text(
                                     'Покупка',
-                                    style: Typography.body3,
+                                    style: Typography.body2,
                                   ),
                                 ),
                               ),
@@ -463,7 +463,7 @@ final theme = CupertinoTheme.of(context);
                                   alignment: Alignment.centerRight,
                                   child: const Text(
                                     'Продажа',
-                                    style: Typography.body3,
+                                    style: Typography.body2,
                                   ),
                                 ),
                               ),
@@ -477,7 +477,7 @@ final theme = CupertinoTheme.of(context);
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Column(
                       children: [
-                        ...getCurrencyRows(),
+                        ...getCurrencyRows(context),
                       ],
                     ),
                   ),
