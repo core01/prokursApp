@@ -2,11 +2,12 @@ import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import 'package:map_launcher/map_launcher.dart';
 import 'package:prokurs/core/constants/app_constants.dart';
 import 'package:prokurs/core/utils/utils.dart';
 import 'package:prokurs/features/exchange_points/domain/models/exchange_point.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:yandex_mapkit/yandex_mapkit.dart';
+import 'package:yandex_mapkit/yandex_mapkit.dart' hide MapType;
 
 Future<BitmapDescriptor> getBitmapDescriptorFromUrl(String imageUrl) async {
   final http.Response response = await http.get(Uri.parse(imageUrl));
@@ -78,7 +79,105 @@ class PointCardState extends State<PointCard> {
     }
   }
 
-  getCurrencyRows() {
+  Future<void> _openInMaps() async {
+    final double? latitude = widget.point.latitude?.toDouble();
+    final double? longitude = widget.point.longitude?.toDouble();
+
+    if (latitude == null || longitude == null) {
+      debugPrint('Missing coordinates for map preview');
+      return;
+    }
+
+    final Coords coords = Coords(latitude, longitude);
+    List<AvailableMap> installedMaps = [];
+
+    try {
+      installedMaps = await MapLauncher.installedMaps;
+    } catch (error) {
+      debugPrint('Error fetching installed maps: $error');
+    }
+
+    final Set<MapType> handledTypes = installedMaps.map((map) => map.mapType).toSet();
+    final List<({String name, Future<void> Function() open})> mapOptions = [
+      for (final map in installedMaps)
+        (
+          name: map.mapName,
+          open: () async {
+            try {
+              await map.showMarker(coords: coords, title: widget.point.name, description: widget.point.info);
+            } catch (error) {
+              debugPrint('Failed to open ${map.mapName}: $error');
+            }
+          },
+        ),
+    ];
+
+    Future<void> addMapType(MapType type, String displayName) async {
+      if (handledTypes.contains(type)) return;
+      final bool isAvailable = (await MapLauncher.isMapAvailable(type)) ?? false;
+      if (!isAvailable) return;
+      handledTypes.add(type);
+      mapOptions.add((
+        name: displayName,
+        open: () async {
+          try {
+            await MapLauncher.showMarker(
+              mapType: type,
+              coords: coords,
+              title: widget.point.name,
+              description: widget.point.info,
+            );
+          } catch (error) {
+            debugPrint('Failed to open $displayName: $error');
+          }
+        },
+      ));
+    }
+
+    await addMapType(MapType.apple, 'Apple Maps');
+    await addMapType(MapType.google, 'Google Maps');
+    await addMapType(MapType.yandexMaps, 'Яндекс.Карты');
+
+    if (mapOptions.isEmpty) {
+      final String lonLatPair = '$longitude,$latitude';
+      final Uri fallbackUri = Uri.parse('https://yandex.ru/maps/?ll=$lonLatPair&z=16&pt=$lonLatPair');
+
+      if (await canLaunchUrl(fallbackUri)) {
+        await launchUrl(fallbackUri, mode: LaunchMode.externalApplication);
+      } else {
+        debugPrint('Unable to open any map application for point preview');
+      }
+      return;
+    }
+
+    if (!mounted) return;
+
+    await showCupertinoModalPopup<void>(
+      context: context,
+      builder: (BuildContext modalContext) {
+        return CupertinoActionSheet(
+          title: const Text('Открыть в приложении'),
+          actions: mapOptions
+              .map(
+                (option) => CupertinoActionSheetAction(
+                  onPressed: () async {
+                    Navigator.of(modalContext).pop();
+                    await option.open();
+                  },
+                  child: Text(option.name),
+                ),
+              )
+              .toList(),
+          cancelButton: CupertinoActionSheetAction(
+            onPressed: () => Navigator.of(modalContext).pop(),
+            isDefaultAction: true,
+            child: const Text('Отмена'),
+          ),
+        );
+      },
+    );
+  }
+
     List<Widget> rows = [];
 
     for (var i = 0; i < CURRENCY_LIST.length; i++) {
@@ -179,7 +278,7 @@ class PointCardState extends State<PointCard> {
     const MapObjectId mapObjectId = MapObjectId('normal_icon_placemark');
 
     bool hasMapCoordinates =
-        widget.point.latitude != null && widget.point.latitude != null;
+        widget.point.latitude != null && widget.point.longitude != null;
 
 final theme = CupertinoTheme.of(context);
     final Color themePrimaryContrastingColor = CupertinoDynamicColor.resolve(theme.primaryContrastingColor, context);
@@ -253,7 +352,13 @@ final theme = CupertinoTheme.of(context);
                     )
                   ],
                 ),
-              )
+              ),
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: CupertinoButton.filled(onPressed: _openInMaps, child: const Text('Открыть в картах')),
+              ),
+              const SizedBox(height: 16),
             ],
             Container(
               color: themeScaffoldBackgroundColor,
