@@ -170,7 +170,6 @@ class PointCardState extends State<PointCard> {
               .toList(),
           cancelButton: CupertinoActionSheetAction(
             onPressed: () => Navigator.of(modalContext).pop(),
-            isDefaultAction: true,
             child: const Text('Отмена'),
           ),
         );
@@ -311,54 +310,65 @@ final theme = CupertinoTheme.of(context);
               SizedBox(
                 height: 280,
                 width: MediaQuery.of(context).size.width,
-                child: YandexMap(
-                  scrollGesturesEnabled: false,
-                  rotateGesturesEnabled: false,
-                  zoomGesturesEnabled: false,
-                  onMapCreated:
-                      (YandexMapController yandexMapController) async {
-                    yandexMapController.moveCamera(
-                      CameraUpdate.newCameraPosition(
-                        CameraPosition(
-                          target: Point(
-                            latitude: widget.point.latitude as double,
-                            longitude: widget.point.longitude as double,
-                          ),
-                          zoom: 16,
-                        ),
-                      ),
-                    );
-                  },
-                  mapObjects: [
-                    PlacemarkMapObject(
-                      mapId: mapObjectId,
-                      point: Point(
-                        latitude: widget.point.latitude as double,
-                        longitude: widget.point.longitude as double,
-                      ),
-                      opacity: bitmapDescriptor != null ? 1 : 0.8,
-                      icon: PlacemarkIcon.single(
-                        PlacemarkIconStyle(
-                          anchor: const Offset(0.7, 1.0),
-                          // bitmapDescriptor has 250x250 size
-                          scale: bitmapDescriptor != null ? 0.4 : 1.2,
-                          image: bitmapDescriptor != null
-                              ? bitmapDescriptor!
-                              : BitmapDescriptor.fromAssetImage(
-                                  'assets/images/pin.png',
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: YandexMap(
+                        scrollGesturesEnabled: false,
+                        rotateGesturesEnabled: false,
+                        zoomGesturesEnabled: false,
+                        onMapCreated: (YandexMapController yandexMapController) async {
+                          yandexMapController.moveCamera(
+                            CameraUpdate.newCameraPosition(
+                              CameraPosition(
+                                target: Point(
+                                  latitude: widget.point.latitude as double,
+                                  longitude: widget.point.longitude as double,
                                 ),
+                                zoom: 16,
+                              ),
+                            ),
+                          );
+                        },
+                        mapObjects: [
+                          PlacemarkMapObject(
+                            mapId: mapObjectId,
+                            point: Point(
+                              latitude: widget.point.latitude as double,
+                              longitude: widget.point.longitude as double,
+                            ),
+                            opacity: bitmapDescriptor != null ? 1 : 0.8,
+                            icon: PlacemarkIcon.single(
+                              PlacemarkIconStyle(
+                                anchor: const Offset(0.7, 1.0),
+                                // bitmapDescriptor has 250x250 size
+                                scale: bitmapDescriptor != null ? 0.4 : 1.2,
+                                image: bitmapDescriptor != null
+                                    ? bitmapDescriptor!
+                                    : BitmapDescriptor.fromAssetImage('assets/images/pin.png'),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Positioned(
+                      right: 16,
+                      bottom: 16,
+                      child: CupertinoButton(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        borderRadius: BorderRadius.circular(16),
+                        color: themePrimaryColor,
+                        onPressed: _openInMaps,
+                        child: Text(
+                          'Открыть в картах',
+                          style: Typography.body3.copyWith(color: themePrimaryContrastingColor),
                         ),
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: CupertinoButton.filled(onPressed: _openInMaps, child: const Text('Открыть в картах')),
-              ),
-              const SizedBox(height: 16),
             ],
             Container(
               color: themeScaffoldBackgroundColor,
