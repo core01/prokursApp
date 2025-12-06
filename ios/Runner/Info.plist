@@ -54,6 +54,12 @@
 		<key>LSApplicationQueriesSchemes</key>
 		<array>
 			<string>tel</string>
+			<string>comgooglemaps</string>
+			<string>comgooglemaps-x-callback</string>
+			<string>yandexmaps</string>
+			<string>yandexnavi</string>
+			<string>yandexmaps-navigation</string>
+			<string>dgis</string>
 		</array>
 		<key>NSMotionUsageDescription</key>
 		<string>Motion can be used for a map</string>

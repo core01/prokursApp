@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:prokurs/core/constants/app_constants.dart';
+
 
 class MyPointsEmptyState extends StatelessWidget {
   const MyPointsEmptyState({super.key, required this.onAdd});

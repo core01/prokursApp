@@ -54,7 +54,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_native_splash: c32d145d68aeda5502d5f543ee38c192065986cf
-  map_launcher: b429f5dc548985f011d7c840f269cd2ee3b5d45e
+  map_launcher: 8051ad5783913cafce93f2414c6858f2904fd8df
   package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
   path_provider_foundation: bb55f6dbba17d0dccd6737fe6f7f34fbd0376880
   shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
@@ -62,6 +62,6 @@ SPEC CHECKSUMS:
   yandex_mapkit: bac34ca1bdf97e87252a8c6d09a95b1fe39ba103
   YandexMapsMobile: c73844c6096bbb240d1491adc511c2ef4a88d88d
 
-PODFILE CHECKSUM: 835c4a91f253fde4d593335bcc5ee8a2162155d6
+PODFILE CHECKSUM: 0d26c7e0aa833a233534bb5f739f03678f1f4b3b
 
 COCOAPODS: 1.16.2

@@ -277,7 +277,10 @@ class PointCardState extends State<PointCard> {
     const MapObjectId mapObjectId = MapObjectId('normal_icon_placemark');
 
     bool hasMapCoordinates =
-        widget.point.latitude != null && widget.point.longitude != null;
+        widget.point.latitude != null &&
+        widget.point.longitude != null &&
+        widget.point.latitude != 0 &&
+        widget.point.longitude != 0;
 
 final theme = CupertinoTheme.of(context);
     final Color themePrimaryContrastingColor = CupertinoDynamicColor.resolve(theme.primaryContrastingColor, context);
