@@ -221,13 +221,19 @@ final theme = CupertinoTheme.of(context);
     
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
+        // iOS: statusBarBrightness controls status bar appearance
+        // Brightness.dark = dark background → light icons (for dark header)
         statusBarBrightness: Brightness.dark,
+        // Android: statusBarIconBrightness controls icon colors
+        // Brightness.light = light icons (for dark background)
         statusBarIconBrightness: Brightness.light,
       ),
       child: CupertinoPageScaffold(
         backgroundColor: themeScaffoldBackgroundColor,
-        child: Column(
+        child: SafeArea(
+          bottom: false,
+          top: false,
+          child: Column(
           children: [
             Expanded(
               child: Container(
@@ -789,6 +795,7 @@ final theme = CupertinoTheme.of(context);
             ),
           ),
         ],
+      ),
       ),
       ),
     );
