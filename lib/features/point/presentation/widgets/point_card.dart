@@ -7,7 +7,7 @@ import 'package:prokurs/core/constants/app_constants.dart';
 import 'package:prokurs/core/utils/utils.dart';
 import 'package:prokurs/features/exchange_points/domain/models/exchange_point.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:yandex_mapkit/yandex_mapkit.dart' hide MapType;
+import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 Future<BitmapDescriptor> getBitmapDescriptorFromUrl(String imageUrl) async {
   final http.Response response = await http.get(Uri.parse(imageUrl));
@@ -29,6 +29,17 @@ class PointCard extends StatefulWidget {
 }
 
 class PointCardState extends State<PointCard> {
+  // Maps the app can hand a point over to. Keep in sync with
+  // LSApplicationQueriesSchemes (Info.plist) and <queries> (AndroidManifest.xml);
+  // only the maps listed here are compiled into the binary.
+  static const List<MapApp> _supportedMaps = [
+    MapApp.apple,
+    MapApp.google,
+    MapApp.yandexMaps,
+    MapApp.yandexNavi,
+    MapApp.doubleGis,
+  ];
+
   bool _isLoading = true;
   List phoneNumbers = [];
   BitmapDescriptor? bitmapDescriptor;
@@ -88,55 +99,31 @@ class PointCardState extends State<PointCard> {
       return;
     }
 
-    final Coords coords = Coords(latitude, longitude);
-    List<AvailableMap> installedMaps = [];
+    final MarkerRequest marker = MapLauncher.marker(
+      LocationCoords(latitude, longitude, title: widget.point.name),
+    );
+    List<SupportedMap> installedMaps = const [];
 
     try {
-      installedMaps = await MapLauncher.installedMaps;
+      final List<SupportedMap> supportedMaps = await marker.getSupportedMaps(_supportedMaps);
+      installedMaps = supportedMaps.where((map) => map.isInstalled).toList();
     } catch (error) {
       debugPrint('Error fetching installed maps: $error');
     }
 
-    final Set<MapType> handledTypes = installedMaps.map((map) => map.mapType).toSet();
     final List<({String name, Future<void> Function() open})> mapOptions = [
       for (final map in installedMaps)
         (
-          name: map.mapName,
+          name: map.name,
           open: () async {
             try {
-              await map.showMarker(coords: coords, title: widget.point.name, description: widget.point.info);
+              await map.show();
             } catch (error) {
-              debugPrint('Failed to open ${map.mapName}: $error');
+              debugPrint('Failed to open ${map.name}: $error');
             }
           },
         ),
     ];
-
-    Future<void> addMapType(MapType type, String displayName) async {
-      if (handledTypes.contains(type)) return;
-      final bool isAvailable = (await MapLauncher.isMapAvailable(type)) ?? false;
-      if (!isAvailable) return;
-      handledTypes.add(type);
-      mapOptions.add((
-        name: displayName,
-        open: () async {
-          try {
-            await MapLauncher.showMarker(
-              mapType: type,
-              coords: coords,
-              title: widget.point.name,
-              description: widget.point.info,
-            );
-          } catch (error) {
-            debugPrint('Failed to open $displayName: $error');
-          }
-        },
-      ));
-    }
-
-    await addMapType(MapType.apple, 'Apple Maps');
-    await addMapType(MapType.google, 'Google Maps');
-    await addMapType(MapType.yandexMaps, 'Яндекс.Карты');
 
     if (mapOptions.isEmpty) {
       final String lonLatPair = '$longitude,$latitude';

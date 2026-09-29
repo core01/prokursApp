@@ -226,7 +226,7 @@ class ExchangePointCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: CupertinoColors.systemGrey5.withOpacity(0.5),
+            color: CupertinoColors.systemGrey5.withValues(alpha: 0.5),
             blurRadius: 2,
             offset: const Offset(0, 1),
           ),

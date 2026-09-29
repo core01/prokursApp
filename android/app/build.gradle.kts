@@ -1,9 +1,10 @@
 import java.util.Properties
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+    // The Flutter Gradle Plugin must be applied after the Android Gradle plugin.
+    // Kotlin support is built into AGP 9 (android.builtInKotlin=true).
     id("dev.flutter.flutter-gradle-plugin")
 }
 
@@ -27,12 +28,9 @@ android {
         targetCompatibility = JavaVersion.VERSION_21
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_21.toString()
-    }
-
-    sourceSets {
-        getByName("main").java.srcDirs("src/main/kotlin")
+    buildFeatures {
+        // Needed for BuildConfig.YANDEX_API_KEY (disabled by default since AGP 9).
+        buildConfig = true
     }
 
     defaultConfig {
@@ -56,10 +54,17 @@ android {
     }
 }
 
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_21
+    }
+}
+
 flutter {
     source = "../.."
 }
 
 dependencies {
-    implementation("com.yandex.android:maps.mobile:4.22.0-lite")
+    // Must match the native MapKit version pinned by the yandex_mapkit plugin.
+    implementation("com.yandex.android:maps.mobile:4.39.1-lite")
 }

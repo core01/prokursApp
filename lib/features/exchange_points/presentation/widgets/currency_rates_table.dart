@@ -27,7 +27,7 @@ class CurrencyRatesTable extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: CupertinoColors.systemGrey6.withOpacity(0.5),
+            color: CupertinoColors.systemGrey6.withValues(alpha: 0.5),
             blurRadius: 3,
             offset: const Offset(0, 1),
           ),
@@ -191,7 +191,7 @@ class CurrencyRowDivider extends StatelessWidget {
     return Container(
       height: 0.5,
       width: double.infinity,
-      color: CupertinoColors.systemGrey5.withOpacity(0.5),
+      color: CupertinoColors.systemGrey5.withValues(alpha: 0.5),
     );
   }
 }
