@@ -35,6 +35,9 @@ migrate_working_dir/
 /build/
 /coverage/
 
+# Kotlin Gradle plugin (per-build session and error files)
+.kotlin/
+
 # Symbolication related
 app.*.symbols
 

@@ -3,20 +3,24 @@ import Flutter
 import YandexMapsMobile
 
 @main
-@objc class AppDelegate: FlutterAppDelegate {
+@objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+
+  // With the UIScene lifecycle, plugins and third-party SDKs are set up here
+  // instead of in `application(_:didFinishLaunchingWithOptions:)`.
+  func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     if let yandexApiKey = loadEnvValue(for: "YANDEX_API_KEY"), !yandexApiKey.isEmpty {
       YMKMapKit.setApiKey(yandexApiKey)
     } else {
       NSLog("AppDelegate: YANDEX_API_KEY not found in .env or is empty")
     }
 
-    GeneratedPluginRegistrant.register(with: self)
-
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
   }
 
   private func loadEnvValue(for key: String) -> String? {
