@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:http/http.dart' as http;
 import 'package:map_launcher/map_launcher.dart';
 import 'package:prokurs/core/constants/app_constants.dart';
 import 'package:prokurs/core/utils/utils.dart';
@@ -9,9 +9,16 @@ import 'package:prokurs/features/exchange_points/domain/models/exchange_point.da
 import 'package:url_launcher/url_launcher.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
+// Not the API client: the logo is on a foreign host and must not get the API's bearer token.
+final _logoDio = Dio(BaseOptions(
+  connectTimeout: const Duration(seconds: 10),
+  receiveTimeout: const Duration(seconds: 10),
+  responseType: ResponseType.bytes,
+));
+
 Future<BitmapDescriptor> getBitmapDescriptorFromUrl(String imageUrl) async {
-  final http.Response response = await http.get(Uri.parse(imageUrl));
-  final Uint8List bytes = response.bodyBytes;
+  final response = await _logoDio.get<List<int>>(imageUrl);
+  final Uint8List bytes = Uint8List.fromList(response.data!);
 
   // Create a BitmapDescriptor from the downloaded bytes
   BitmapDescriptor bitmapDescriptor = BitmapDescriptor.fromBytes(bytes);
@@ -49,7 +56,12 @@ class PointCardState extends State<PointCard> {
     super.didChangeDependencies();
 
     if (widget.point.hasLogo) {
-      bitmapDescriptor = await getBitmapDescriptorFromUrl(widget.point.logo!);
+      try {
+        bitmapDescriptor = await getBitmapDescriptorFromUrl(widget.point.logo!);
+      } catch (e) {
+        // The card is shown without the logo.
+        debugPrint('Error loading logo: $e');
+      }
     }
 
     for (var phone in widget.point.phones) {

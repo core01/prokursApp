@@ -1,3 +1,5 @@
+import 'package:prokurs/core/network/generated/export.dart';
+
 class City {
   final int id;
   final String title;
@@ -9,10 +11,7 @@ class City {
 
   const City({required this.id, required this.title});
 
-  factory City.fromJson(Map<String, dynamic> cityFromJSON) {
-    return City(
-      id: cityFromJSON['id'],
-      title: cityFromJSON['name'],
-    );
-  }
+  City.fromDto(PublicCityDto dto)
+      : id = dto.id,
+        title = dto.name;
 }

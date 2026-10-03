@@ -1,9 +1,5 @@
-import 'dart:convert';
-import 'dart:io' show Platform;
-
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
+import 'package:prokurs/core/network/api_client.dart';
 import 'package:prokurs/features/exchange_points/domain/models/city.dart';
 
 class CitiesProvider with ChangeNotifier {
@@ -11,8 +7,6 @@ class CitiesProvider with ChangeNotifier {
 
   List<City> get cities => _cities..sort((a, b) => a.title.compareTo(b.title));
 
-  String get baseUrl => Platform.isAndroid ? dotenv.get('API_URL_ANDROID') : dotenv.get('API_URL_IOS');
-  
   List<num> popularCityIds = [
     City.ASTANA_ID,
     City.ALMATY_ID,
@@ -32,24 +26,12 @@ class CitiesProvider with ChangeNotifier {
 
   Future<List<City>> fetchCities() async {
     try {
-      final url = Uri.parse('$baseUrl/cities');
-      debugPrint('CitiesProvider -> fetchCities: url: $url');
-      final response = await http.get(url);
-
-      if (response.statusCode != 200) {
-        return [];
-      }
-
-      final extractedData = json.decode(response.body) as dynamic;
-
-      List<City> cities = [];
-      extractedData.forEach((city) {
-        cities.add(City.fromJson(city));
-      });
-      _cities = cities;
+      final response =
+          await ApiClient.instance.api.cities.citiesControllerFindAllV2();
+      _cities = response.map(City.fromDto).toList();
 
       notifyListeners();
-      return cities;
+      return _cities;
     } catch (e) {
       debugPrint('CitiesProvider -> fetchCities: error: $e');
       return [];

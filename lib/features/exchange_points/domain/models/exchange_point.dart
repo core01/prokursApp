@@ -1,4 +1,5 @@
 import 'package:flutter/rendering.dart';
+import 'package:prokurs/core/network/generated/export.dart';
 
 class ExchangePoint {
   final num id;
@@ -14,28 +15,26 @@ class ExchangePoint {
   final num buyGBP;
   final num sellGBP;
   final String? info;
-  final dynamic phones;
+  final List<String> phones;
   final num date_update;
   final num day_and_night;
-  final num published;
   final num? longitude;
   final num? latitude;
-  final num? company_id;
   final num gross;
-  final num? atms;
   final String? logo;
   final num city_id;
+  final String? wholesaleNote;
+  final WorkModesDto? workModes;
+  final String? description;
 
   bool get hasLogo => logo != null && logo!.isNotEmpty;
 
   ExchangePoint({
-    required this.atms,
     required this.buyCNY,
     required this.buyEUR,
     required this.buyGBP,
     required this.buyRUB,
     required this.buyUSD,
-    required this.company_id,
     required this.date_update,
     required this.day_and_night,
     required this.gross,
@@ -45,7 +44,6 @@ class ExchangePoint {
     this.longitude,
     required this.name,
     required this.phones,
-    required this.published,
     required this.sellCNY,
     required this.sellEUR,
     required this.sellGBP,
@@ -53,6 +51,9 @@ class ExchangePoint {
     required this.sellUSD,
     this.logo,
     required this.city_id,
+    this.wholesaleNote,
+    this.workModes,
+    this.description,
   });
 
   Map<String, dynamic> _toMap() {
@@ -84,32 +85,60 @@ class ExchangePoint {
     throw ArgumentError('property not found');
   }
 
-  factory ExchangePoint.fromJson(Map<String, dynamic> exchangeRateFromJson) {
+  /// A point from the public rates list of a city.
+  factory ExchangePoint.fromRate(PointWithParsedPhonesDto dto) {
     return ExchangePoint(
-      atms: exchangeRateFromJson['atms'],
-      buyCNY: exchangeRateFromJson['buyCNY'],
-      buyEUR: exchangeRateFromJson['buyEUR'],
-      buyGBP: exchangeRateFromJson['buyGBP'],
-      buyRUB: exchangeRateFromJson['buyRUB'],
-      buyUSD: exchangeRateFromJson['buyUSD'],
-      company_id: exchangeRateFromJson['company_id'],
-      date_update: exchangeRateFromJson['date_update'],
-      day_and_night: exchangeRateFromJson['day_and_night'],
-      gross: exchangeRateFromJson['gross'],
-      id: exchangeRateFromJson['id'],
-      info: exchangeRateFromJson['info'],
-      latitude: exchangeRateFromJson['latitude'],
-      longitude: exchangeRateFromJson['longitude'],
-      name: exchangeRateFromJson['name'],
-      phones: exchangeRateFromJson['phones'],
-      published: exchangeRateFromJson['published'],
-      sellCNY: exchangeRateFromJson['sellCNY'],
-      sellEUR: exchangeRateFromJson['sellEUR'],
-      sellGBP: exchangeRateFromJson['sellGBP'],
-      sellRUB: exchangeRateFromJson['sellRUB'],
-      sellUSD: exchangeRateFromJson['sellUSD'],
-      logo: exchangeRateFromJson['logo'],
-      city_id: exchangeRateFromJson['city_id'],
+      buyCNY: dto.buyCny,
+      buyEUR: dto.buyEur,
+      buyGBP: dto.buyGbp,
+      buyRUB: dto.buyRub,
+      buyUSD: dto.buyUsd,
+      date_update: dto.dateUpdate,
+      day_and_night: dto.dayAndNight,
+      gross: dto.gross,
+      id: dto.id,
+      info: dto.info,
+      latitude: dto.latitude,
+      longitude: dto.longitude,
+      name: dto.name,
+      phones: dto.phones,
+      sellCNY: dto.sellCny,
+      sellEUR: dto.sellEur,
+      sellGBP: dto.sellGbp,
+      sellRUB: dto.sellRub,
+      sellUSD: dto.sellUsd,
+      logo: dto.logo,
+      city_id: dto.cityId,
+    );
+  }
+
+  /// A point owned by the signed-in user.
+  factory ExchangePoint.fromPersonal(PersonalPointV2Dto dto) {
+    return ExchangePoint(
+      buyCNY: dto.buyCny,
+      buyEUR: dto.buyEur,
+      buyGBP: dto.buyGbp,
+      buyRUB: dto.buyRub,
+      buyUSD: dto.buyUsd,
+      date_update: dto.dateUpdate,
+      day_and_night: dto.dayAndNight,
+      gross: dto.gross,
+      id: dto.id,
+      info: dto.info,
+      latitude: dto.latitude,
+      longitude: dto.longitude,
+      name: dto.name,
+      phones: dto.phoneNumbers,
+      sellCNY: dto.sellCny,
+      sellEUR: dto.sellEur,
+      sellGBP: dto.sellGbp,
+      sellRUB: dto.sellRub,
+      sellUSD: dto.sellUsd,
+      logo: dto.logo,
+      city_id: dto.cityId,
+      wholesaleNote: dto.wholesaleNote,
+      workModes: dto.workModes,
+      description: dto.description,
     );
   }
 }

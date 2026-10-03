@@ -1,16 +1,11 @@
-import 'dart:convert';
-import 'dart:io' show Platform;
-
 import 'package:flutter/foundation.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
 import 'package:prokurs/core/constants/app_constants.dart';
+import 'package:prokurs/core/network/api_client.dart';
 import 'package:prokurs/core/utils/utils.dart';
 import 'package:prokurs/features/exchange_points/domain/models/exchange_point.dart';
 import 'package:prokurs/features/rates/domain/models/best_rates.dart';
 
 class ExchangeRatesProvider with ChangeNotifier {
-  String get baseUrl => Platform.isAndroid ? dotenv.get('API_URL_ANDROID') : dotenv.get('API_URL_IOS');
   List<ExchangePoint> _exchangeRates = [];
 
   String _currency = 'USD';
@@ -109,17 +104,12 @@ class ExchangeRatesProvider with ChangeNotifier {
   }
 
   Future<void> fetchAndSetExchangeRates({required int cityId}) async {
-    final url = Uri.parse('$baseUrl/courses/$cityId');
     try {
-      final response = await http.get(url);
-      final extractedData = json.decode(response.body) as Map<String, dynamic>;
-      List<ExchangePoint> exchangeRates = [];
-      extractedData['rates'].forEach((exchangeData) {
-        exchangeRates.add(ExchangePoint.fromJson(exchangeData));
-      });
-      _bestRetailRates = BestRates.fromJson(extractedData['best']['retail']);
-      _bestGrossRates = BestRates.fromJson(extractedData['best']['gross']);
-      _exchangeRates = exchangeRates;
+      final response = await ApiClient.instance.api.cities
+          .citiesControllerGetPointsV2(id: cityId);
+      _exchangeRates = response.rates.map(ExchangePoint.fromRate).toList();
+      _bestRetailRates = BestRates.fromDto(response.best.retail);
+      _bestGrossRates = BestRates.fromDto(response.best.gross);
 
       notifyListeners();
     } catch (err) {

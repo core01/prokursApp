@@ -1,3 +1,5 @@
+import 'package:prokurs/core/network/generated/export.dart';
+
 class BestRates {
   final num buyUSD;
   final num sellUSD;
@@ -47,18 +49,18 @@ class BestRates {
     throw ArgumentError('property not found $propertyName');
   }
 
-  factory BestRates.fromJson(Map<String, dynamic> bestRatesFromJson) {
+  factory BestRates.fromDto(BestCoursesDto dto) {
     return BestRates(
-      buyCNY: bestRatesFromJson['buyCNY'],
-      buyEUR: bestRatesFromJson['buyEUR'],
-      buyGBP: bestRatesFromJson['buyGBP'],
-      buyRUB: bestRatesFromJson['buyRUB'],
-      buyUSD: bestRatesFromJson['buyUSD'],
-      sellCNY: bestRatesFromJson['sellCNY'],
-      sellEUR: bestRatesFromJson['sellEUR'],
-      sellGBP: bestRatesFromJson['sellGBP'],
-      sellRUB: bestRatesFromJson['sellRUB'],
-      sellUSD: bestRatesFromJson['sellUSD'],
+      buyCNY: dto.buyCny,
+      buyEUR: dto.buyEur,
+      buyGBP: dto.buyGbp,
+      buyRUB: dto.buyRub,
+      buyUSD: dto.buyUsd,
+      sellCNY: dto.sellCny,
+      sellEUR: dto.sellEur,
+      sellGBP: dto.sellGbp,
+      sellRUB: dto.sellRub,
+      sellUSD: dto.sellUsd,
     );
   }
 }
