@@ -1,0 +1,8 @@
+# Options for the API client generator. Don't run swagger_parser directly: tool/codegen.sh
+# fetches the spec, cleans the old client and passes the schema and output paths.
+swagger_parser:
+  # Optional nullable fields are left out of the JSON instead of being sent as null.
+  include_if_null: true
+  # /courses/* is the deprecated twin of /cities/{id}/points
+  exclude_tags:
+    - Courses
