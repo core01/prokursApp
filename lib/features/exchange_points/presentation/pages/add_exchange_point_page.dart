@@ -1,5 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:prokurs/core/constants/app_constants.dart';
+import 'package:prokurs/core/exceptions/api_exception.dart';
+import 'package:prokurs/core/exceptions/session_expired_exception.dart';
+import 'package:prokurs/core/widgets/inline_notice.dart';
 import 'package:prokurs/features/exchange_points/data/providers/cities_provider.dart';
 import 'package:prokurs/features/exchange_points/data/services/exchange_points_service.dart';
 import 'package:prokurs/features/exchange_points/domain/models/city.dart';
@@ -27,6 +30,12 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
   bool _isLoading = false;
   List<City> _cities = [];
   ExchangePointForm _form = ExchangePointForm();
+
+  /// The edited point as the server has it now; null when adding a new point.
+  ExchangePoint? _original;
+
+  /// Why the last save didn't go through, shown above the save button.
+  String? _saveError;
   final ExchangePointsService _exchangePointsService = ExchangePointsService();
 
   static const EdgeInsetsDirectional _formFieldPadding = EdgeInsetsDirectional.fromSTEB(28.0, 6.0, 6.0, 6.0);
@@ -42,6 +51,11 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
   final _sellCNYController = TextEditingController();
   final _buyGBPController = TextEditingController();
   final _sellGBPController = TextEditingController();
+
+  // One controller per phone field
+  final List<TextEditingController> _phoneControllers = [
+    TextEditingController()
+  ];
 
   @override
   void initState() {
@@ -62,6 +76,9 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
     _sellCNYController.dispose();
     _buyGBPController.dispose();
     _sellGBPController.dispose();
+    for (final controller in _phoneControllers) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -74,8 +91,16 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
       final citiesProvider = context.read<CitiesProvider>();
       final cities = await citiesProvider.fetchCities();
 
+      // PUT replaces every field, so editing must start from the server's current copy, not
+      // from the list loaded earlier: stale values would overwrite changes made on the website.
+      final editedPoint = widget.exchangePoint;
+      final original = editedPoint == null
+          ? null
+          : await _exchangePointsService.getMyExchangePoint(editedPoint.id);
+
       setState(() {
         _cities = cities;
+        _original = original;
 
         if (_cities.isNotEmpty) {
           // For a new exchange point, set the first city as default
@@ -85,37 +110,55 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
             );
           } else {
             // For editing, populate the form with exchange point data
-            _populateFormFields();
+            _populateFormFields(original!);
           }
         }
       });
+    } on SessionExpiredException {
+      // The app is on its way to the sign-in screen, which explains it.
     } catch (e) {
-      debugPrint("Error loading cities: $e");
+      debugPrint("Error loading exchange point form: $e");
+      if (widget.exchangePoint != null && mounted) {
+        await _showLoadErrorAndClose();
+      }
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
-  void _populateFormFields() {
-    final point = widget.exchangePoint!;
-    debugPrint('===== Exchange point data =====');
-    debugPrint('Name: ${point.name}');
-    debugPrint('City ID: ${point.city_id}');
-    debugPrint('Info: ${point.info}');
-    debugPrint('Phones: ${point.phones}');
-    debugPrint('Gross: ${point.gross}');
-    debugPrint('USD: Buy=${point.buyUSD}, Sell=${point.sellUSD}');
-    debugPrint('EUR: Buy=${point.buyEUR}, Sell=${point.sellEUR}');
-    debugPrint('RUB: Buy=${point.buyRUB}, Sell=${point.sellRUB}');
-    debugPrint('CNY: Buy=${point.buyCNY}, Sell=${point.sellCNY}');
-    debugPrint('GBP: Buy=${point.buyGBP}, Sell=${point.sellGBP}');
-    debugPrint('===============================');
+  Future<void> _showLoadErrorAndClose() async {
+    await showCupertinoDialog(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: const Text('Ошибка'),
+        content: const Text('Не удалось загрузить обменный пункт'),
+        actions: [
+          CupertinoDialogAction(
+            child: const Text('OK'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      ),
+    );
+    if (mounted) Navigator.of(context).pop();
+  }
 
+  void _populateFormFields(ExchangePoint point) {
     setState(() {
       // Initialize form with exchange point data
       _form = ExchangePointForm.fromExchangePoint(point);
+
+      for (final controller in _phoneControllers) {
+        controller.dispose();
+      }
+      _phoneControllers
+        ..clear()
+        ..addAll(_form.phones.value
+            .map((phone) => TextEditingController(text: phone)));
 
       // Update currency controllers
       _buyUSDController.text = point.buyUSD != 0 ? point.buyUSD.toString() : '';
@@ -134,20 +177,6 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
       _sellGBPController.text =
           point.sellGBP != 0 ? point.sellGBP.toString() : '';
     });
-
-    // Debug log the form data after setting it
-    debugPrint('===== Form data after setting =====');
-    debugPrint('Name: ${_form.name.value}');
-    debugPrint('City: ${_form.city.value}');
-    debugPrint('Info: ${_form.info.value}');
-    debugPrint('Phones: ${_form.phones.value}');
-    debugPrint('Gross: ${_form.gross}');
-    debugPrint('USD: Buy=${_form.buyUSD}, Sell=${_form.sellUSD}');
-    debugPrint('EUR: Buy=${_form.buyEUR}, Sell=${_form.sellEUR}');
-    debugPrint('RUB: Buy=${_form.buyRUB}, Sell=${_form.sellRUB}');
-    debugPrint('CNY: Buy=${_form.buyCNY}, Sell=${_form.sellCNY}');
-    debugPrint('GBP: Buy=${_form.buyGBP}, Sell=${_form.sellGBP}');
-    debugPrint('==================================');
   }
 
   void _onNameChanged(String value) {
@@ -162,9 +191,27 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
     });
   }
 
-  void _onPhoneChanged(String value) {
+  // The phone fields own their text; the form mirrors it.
+  void _syncPhones() {
+    _form = _form.copyWith(
+      phones: PhonesInput.dirty(
+          _phoneControllers.map((controller) => controller.text).toList()),
+    );
+  }
+
+  void _onPhoneChanged(String _) => setState(_syncPhones);
+
+  void _addPhone() {
     setState(() {
-      _form = _form.copyWith(phones: PhonesInput.dirty(value));
+      _phoneControllers.add(TextEditingController());
+      _syncPhones();
+    });
+  }
+
+  void _removePhone(int index) {
+    setState(() {
+      _phoneControllers.removeAt(index).dispose();
+      _syncPhones();
     });
   }
 
@@ -227,12 +274,18 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
 
     setState(() {
       _form = updatedForm;
+      _saveError = null;
     });
 
     final formValid = _formKey.currentState?.validate() ?? false;
-    debugPrint('form validation: ${updatedForm.isValid}');
 
     if (!formValid || !updatedForm.isValid) {
+      final summary = updatedForm.errorSummary();
+      setState(() {
+        _saveError = summary.isEmpty
+            ? 'Проверьте заполнение формы'
+            : 'Исправьте:\n${summary.join('\n')}';
+      });
       return;
     }
 
@@ -241,32 +294,28 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
     });
 
     try {
-      final exchangePointData = _form.toJson();
-      if (widget.exchangePoint?.id != null) {
+      if (widget.exchangePoint != null) {
+        final original = _original!;
         await _exchangePointsService.updateExchangePoint(
-            widget.exchangePoint!.id, exchangePointData);
+            original.id, _form.toReplaceInput(original));
       } else {
-        await _exchangePointsService.createExchangePoint(exchangePointData);
+        await _exchangePointsService
+            .createExchangePoint(_form.toCreateInput());
       }
 
       if (mounted) {
-        Navigator.of(context).pop(exchangePointData);
+        // Any non-null result tells the list page to reload.
+        Navigator.of(context).pop(true);
       }
+    } on SessionExpiredException {
+      // The app is on its way to the sign-in screen, which explains it.
     } catch (e) {
       if (mounted) {
-        showCupertinoDialog(
-          context: context,
-          builder: (context) => CupertinoAlertDialog(
-            title: const Text('Ошибка'),
-            content: Text('Не удалось сохранить обменный пункт: $e'),
-            actions: [
-              CupertinoDialogAction(
-                child: const Text('OK'),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
-          ),
-        );
+        setState(() {
+          // ApiException texts are localized; anything else is not meant for the user.
+          _saveError =
+              e is ApiException ? e.toString() : 'Не удалось сохранить обменный пункт';
+        });
       }
     } finally {
       if (mounted) {
@@ -466,26 +515,24 @@ final theme = CupertinoTheme.of(context);
                           cursorColor: AppColors.darkSecondary,
                         ),
 
-                        // Phone Field
-                        CupertinoTextFormFieldRow(
-                          padding: _formFieldPadding,
-                          validator: (_) => ExchangePointFormValidation.phonesError(_form),
-                          prefix: Padding(
-                            padding: EdgeInsets.only(right: 12),
-                            child: Text(
-                              'Телефон',
-                              style: Typography.body2,
-                            ),
+                        // Phone Fields: one per number
+                        for (var i = 0; i < _phoneControllers.length; i++)
+                          _buildPhoneRow(i),
+
+                        CupertinoButton(
+                          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
+                          alignment: Alignment.centerLeft,
+                          onPressed: _addPhone,
+                          child: Row(
+                            children: [
+                              Icon(CupertinoIcons.add_circled, color: themePrimaryColor, size: 20),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Добавить номер',
+                                style: Typography.body2.copyWith(color: themePrimaryColor),
+                              ),
+                            ],
                           ),
-                          placeholder: "Номера телефонов через запятую",
-                          placeholderStyle: Typography.body2.copyWith(
-                            color: AppColors.darkSecondary,
-                          ),
-                          maxLines: null,
-                          style: Typography.body2,
-                          onChanged: _onPhoneChanged,
-                          initialValue: _form.phones.value,
-                          cursorColor: AppColors.darkSecondary,
                         ),
                       ],
                     ),
@@ -568,6 +615,13 @@ final theme = CupertinoTheme.of(context);
 
                     const SizedBox(height: 32),
 
+                    // Why the last save failed: next to the button the user just pressed.
+                    if (_saveError != null)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                        child: InlineNotice(text: _saveError!),
+                      ),
+
                     // Save button
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -584,6 +638,43 @@ final theme = CupertinoTheme.of(context);
                 ),
               ),
       ),
+    );
+  }
+
+  Widget _buildPhoneRow(int index) {
+    return Row(
+      // Keeps each field's state with its controller when a row above is removed
+      key: ObjectKey(_phoneControllers[index]),
+      children: [
+        Expanded(
+          child: CupertinoTextFormFieldRow(
+            padding: _formFieldPadding,
+            validator: (_) => ExchangePointFormValidation.phoneError(_form, index),
+            prefix: Padding(
+              padding: EdgeInsets.only(right: 12),
+              child: Text(
+                'Телефон',
+                style: Typography.body2,
+              ),
+            ),
+            placeholder: "+7 701 123 4567",
+            placeholderStyle: Typography.body2.copyWith(
+              color: AppColors.darkSecondary,
+            ),
+            keyboardType: TextInputType.phone,
+            style: Typography.body2,
+            onChanged: _onPhoneChanged,
+            controller: _phoneControllers[index],
+            cursorColor: AppColors.darkSecondary,
+          ),
+        ),
+        if (_phoneControllers.length > 1)
+          CupertinoButton(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            onPressed: () => _removePhone(index),
+            child: const Icon(CupertinoIcons.minus_circle, color: AppColors.generalRed, size: 20),
+          ),
+      ],
     );
   }
 
@@ -624,130 +715,158 @@ final theme = CupertinoTheme.of(context);
         sellController = TextEditingController(text: sellValue);
     }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 11),
-      child: Row(
-        children: [
-          // Currency icon
-          Container(
-            padding: const EdgeInsets.only(left: 10),
+    // Invalid values can only come from the server (rateInputFormatter stops typing them), so
+    // they are pointed out as soon as the form opens, not only after "Сохранить".
+    final buyError = ExchangePointFormValidation.rateError(buyValue);
+    final sellError = ExchangePointFormValidation.rateError(sellValue);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 11),
+          child: Row(
+            children: [
+              // Currency icon
+              Container(
+                padding: const EdgeInsets.only(left: 10),
+                child: Text(
+                  currency.icon,
+                  style: const TextStyle(fontSize: 24),
+                ),
+              ),
+
+              // Currency code/name
+              SizedBox(
+                width: 60,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 12),
+                  child: Text(
+                    currency.id,
+                    style: Typography.body2,
+                  ),
+                ),
+              ),
+
+              const SizedBox(width: 16),
+
+              // Buy field with improved styling
+              Expanded(
+                child: Container(
+                  height: 38,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: buyError == null
+                          ? CupertinoColors.systemGrey4
+                          : CupertinoColors.systemRed,
+                      width: 0.8,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                    color: backgroundColor,
+                  ),
+                  child: Row(
+                    children: [
+                      // Buy indicator
+                      Container(
+                        width: 4,
+                        decoration: const BoxDecoration(
+                          color: AppColors.generalGreen, // Green for buy
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(7),
+                            bottomLeft: Radius.circular(7),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: CupertinoTextField(
+                          placeholder: "Покупка",
+                          placeholderStyle: Typography.body2.copyWith(color: AppColors.darkSecondary),
+                          keyboardType:
+                              const TextInputType.numberWithOptions(decimal: true),
+                          inputFormatters: [rateInputFormatter],
+                          textAlign: TextAlign.center,
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          style: Typography.body2,
+                          onChanged: (value) => _onRateChanged(value,
+                              currency: currency.id, isBuy: true),
+                          decoration:
+                              null, // No decoration as we're using the parent container
+                          cursorColor: AppColors.darkSecondary,
+                          controller: buyController,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(width: 10),
+
+              // Sell field with improved styling
+              Expanded(
+                child: Container(
+                  height: 38,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: sellError == null
+                          ? CupertinoColors.systemGrey4
+                          : CupertinoColors.systemRed,
+                      width: 0.8,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                    color: backgroundColor,
+                  ),
+                  child: Row(
+                    children: [
+                      // Sell indicator
+                      Container(
+                        width: 4,
+                        decoration: const BoxDecoration(
+                          color: AppColors.generalRed, // Red for sell
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(7),
+                            bottomLeft: Radius.circular(7),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: CupertinoTextField(
+                          placeholder: "Продажа",
+                          placeholderStyle: Typography.body2.copyWith(color: AppColors.darkSecondary),
+                          keyboardType:
+                              const TextInputType.numberWithOptions(decimal: true),
+                          inputFormatters: [rateInputFormatter],
+                          textAlign: TextAlign.center,
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          style: Typography.body2,
+                          onChanged: (value) => _onRateChanged(value,
+                              currency: currency.id, isBuy: false),
+                          decoration:
+                              null, // No decoration as we're using the parent container
+                          cursorColor: AppColors.darkSecondary,
+                          controller: sellController,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        for (final error in [
+          if (buyError != null) 'Покупка: $buyError',
+          if (sellError != null) 'Продажа: $sellError',
+        ])
+          Padding(
+            padding: const EdgeInsets.fromLTRB(30, 0, 20, 8),
             child: Text(
-              currency.icon,
-              style: const TextStyle(fontSize: 24),
+              error,
+              style: const TextStyle(color: CupertinoColors.systemRed, fontSize: 13),
             ),
           ),
-
-          // Currency code/name
-          SizedBox(
-            width: 60,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 12),
-              child: Text(
-                currency.id,
-                style: Typography.body2,
-              ),
-            ),
-          ),
-
-          const SizedBox(width: 16),
-
-          // Buy field with improved styling
-          Expanded(
-            child: Container(
-              height: 38,
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: CupertinoColors.systemGrey4,
-                  width: 0.8,
-                ),
-                borderRadius: BorderRadius.circular(8),
-                color: backgroundColor,
-              ),
-              child: Row(
-                children: [
-                  // Buy indicator
-                  Container(
-                    width: 4,
-                    decoration: const BoxDecoration(
-                      color: AppColors.generalGreen, // Green for buy
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(7),
-                        bottomLeft: Radius.circular(7),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: CupertinoTextField(
-                      placeholder: "Покупка",
-                      placeholderStyle: Typography.body2.copyWith(color: AppColors.darkSecondary),
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                      textAlign: TextAlign.center,
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      style: Typography.body2,
-                      onChanged: (value) => _onRateChanged(value,
-                          currency: currency.id, isBuy: true),
-                      decoration:
-                          null, // No decoration as we're using the parent container
-                      cursorColor: AppColors.darkSecondary,
-                      controller: buyController,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          const SizedBox(width: 10),
-
-          // Sell field with improved styling
-          Expanded(
-            child: Container(
-              height: 38,
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: CupertinoColors.systemGrey4,
-                  width: 0.8,
-                ),
-                borderRadius: BorderRadius.circular(8),
-                color: backgroundColor,
-              ),
-              child: Row(
-                children: [
-                  // Sell indicator
-                  Container(
-                    width: 4,
-                    decoration: const BoxDecoration(
-                      color: AppColors.generalRed, // Red for sell
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(7),
-                        bottomLeft: Radius.circular(7),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: CupertinoTextField(
-                      placeholder: "Продажа",
-                      placeholderStyle: Typography.body2.copyWith(color: AppColors.darkSecondary),
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                      textAlign: TextAlign.center,
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      style: Typography.body2,
-                      onChanged: (value) => _onRateChanged(value,
-                          currency: currency.id, isBuy: false),
-                      decoration:
-                          null, // No decoration as we're using the parent container
-                      cursorColor: AppColors.darkSecondary,
-                      controller: sellController,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
+      ],
     );
   }
 }

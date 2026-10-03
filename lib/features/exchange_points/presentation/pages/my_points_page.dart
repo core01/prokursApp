@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:prokurs/core/constants/app_constants.dart';
+import 'package:prokurs/core/exceptions/session_expired_exception.dart';
 import 'package:prokurs/features/exchange_points/data/services/exchange_points_service.dart';
 import 'package:prokurs/features/exchange_points/domain/models/exchange_point.dart';
 import 'package:prokurs/features/exchange_points/presentation/pages/add_exchange_point_page.dart';
@@ -58,6 +59,8 @@ class _MyPointsState extends State<MyPointsPage> {
           _errorMessage = null;
         });
       }
+    } on SessionExpiredException {
+      // The app is on its way to the sign-in screen, which explains it.
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -106,6 +109,8 @@ class _MyPointsState extends State<MyPointsPage> {
           _points.removeWhere((p) => p.id == id);
         });
       }
+    } on SessionExpiredException {
+      // The app is on its way to the sign-in screen, which explains it.
     } catch (e) {
       if (mounted) {
         setState(() {

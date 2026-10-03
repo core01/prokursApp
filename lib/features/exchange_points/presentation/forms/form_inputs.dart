@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:formz/formz.dart';
 
 // Name Input
@@ -29,55 +30,38 @@ class InfoInput extends FormzInput<String, AddressValidationError> {
 // Phone Input
 enum PhoneValidationError { empty, invalid }
 
-class PhonesInput extends FormzInput<String, PhoneValidationError> {
-  const PhonesInput.pure() : super.pure('');
-  const PhonesInput.dirty([super.value = '']) : super.dirty();
+/// One entry per phone field on the form, blank fields included.
+class PhonesInput extends FormzInput<List<String>, PhoneValidationError> {
+  const PhonesInput.pure() : super.pure(const ['']);
+  const PhonesInput.dirty([super.value = const ['']]) : super.dirty();
+
+  // The API v2 rule: a 4-digit short number (2274) or +7 and 10 digits. Spaces, hyphens and
+  // parentheses are allowed: the API strips them before saving.
+  static final _phoneRegex = RegExp(r'^(\d{4}|\+7\d{10})$');
+
+  static bool isValidNumber(String phone) =>
+      _phoneRegex.hasMatch(phone.replaceAll(RegExp(r'[\s()-]'), ''));
+
+  static List<String> _filled(List<String> phones) =>
+      phones.map((phone) => phone.trim()).where((p) => p.isNotEmpty).toList();
+
+  /// The entered numbers without the blank fields.
+  List<String> get numbers => _filled(value);
 
   @override
-  PhoneValidationError? validator(String value) {
-    return value.isEmpty ? PhoneValidationError.empty : null;
+  PhoneValidationError? validator(List<String> value) {
+    final numbers = _filled(value);
+    if (numbers.isEmpty) return PhoneValidationError.empty;
+    return numbers.every(isValidNumber) ? null : PhoneValidationError.invalid;
   }
 }
 
-// Rate Input (for currency rates)
-enum RateValidationError { invalid }
-
-class RateInput extends FormzInput<String, RateValidationError> {
-  const RateInput.pure() : super.pure('');
-  const RateInput.dirty([super.value = '']) : super.dirty();
-
-  static final _rateRegex = RegExp(r'^(\d*\.?\d{0,2})?$');
-
-  @override
-  RateValidationError? validator(String value) {
-    if (value.isEmpty) return null; // Empty is valid (no rate provided)
-
-    // Check if it's a valid format
-    if (!_rateRegex.hasMatch(value)) return RateValidationError.invalid;
-
-    // Check if it's a valid number
-    final parsed = double.tryParse(value);
-    if (parsed == null) return RateValidationError.invalid;
-
-    // Valid number within reasonable range
-    return null;
-  }
-
-  double? toDouble() {
-    if (value.isEmpty) return 0.0;
-    return double.tryParse(value) ?? 0.0;
-  }
-
-  // Format the rate for display with proper decimal places
-  String formattedValue() {
-    if (value.isEmpty) return '';
-    final parsed = double.tryParse(value);
-    if (parsed == null) return value;
-
-    // Format with 2 decimal places
-    return parsed.toStringAsFixed(2);
-  }
-}
+/// Lets a rate field hold only what the API accepts: no minus, at most 2 decimal places and 6
+/// digits before the separator (the column is DECIMAL(8,2)). Blank is fine: it is saved as 0.
+final rateInputFormatter = TextInputFormatter.withFunction(
+  (oldValue, newValue) =>
+      RegExp(r'^\d{0,6}([.,]\d{0,2})?$').hasMatch(newValue.text) ? newValue : oldValue,
+);
 
 // City Input
 enum CityValidationError { empty }
