@@ -11,6 +11,9 @@ class RatesTable extends StatefulWidget {
   final String selectedCurrency;
   final BestRates bestRetailRates;
   final BestRates bestGrossRates;
+  final bool showBuy;
+  final VoidCallback onSortByBuy;
+  final VoidCallback onSortBySell;
   final onPointClick;
 
   const RatesTable({
@@ -19,6 +22,9 @@ class RatesTable extends StatefulWidget {
     required this.selectedCurrency,
     required this.bestRetailRates,
     required this.bestGrossRates,
+    required this.showBuy,
+    required this.onSortByBuy,
+    required this.onSortBySell,
     required Function this.onPointClick,
   });
 
@@ -83,6 +89,42 @@ class _RatesTable extends State<RatesTable> {
     );
   }
 
+  Widget getHeaderColumnButton(
+    String title, {
+    IconData? sortIcon,
+    required VoidCallback onPressed,
+  }) {
+    // CupertinoButton paints its child with the action color, keep the regular text color
+    final Color? labelColor = CupertinoTheme.of(context).textTheme.textStyle.color;
+
+    return CupertinoButton(
+      padding: EdgeInsets.zero,
+      onPressed: onPressed,
+      child: Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.center,
+        children: [
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: Typography.body3.copyWith(color: labelColor),
+          ),
+          // Placed outside the label's bounds so the title stays centered
+          // over its column and doesn't shift when the sorting changes.
+          if (sortIcon != null)
+            Positioned(
+              right: -16,
+              child: Icon(
+                sortIcon,
+                size: 13,
+                color: labelColor,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<ExchangePoint> exchangeRates = widget.exchangeRates;
@@ -90,7 +132,8 @@ class _RatesTable extends State<RatesTable> {
     
     return SliverStickyHeader(
       header: Container(
-        padding: const EdgeInsets.all(16),
+        // Vertical padding is smaller because the sort buttons have a 44pt tap target
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         color: CupertinoDynamicColor.resolve(AppColors.lightBg, context),
         child: SafeArea(
             bottom: false,
@@ -116,18 +159,19 @@ class _RatesTable extends State<RatesTable> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
+                        // Buy is sorted from highest to lowest, sell from lowest to highest
                         Expanded(
-                          child: Text(
+                          child: getHeaderColumnButton(
                             'Покупка',
-                            textAlign: TextAlign.center,
-                            style: Typography.body3,
+                            sortIcon: widget.showBuy ? CupertinoIcons.arrow_down : null,
+                            onPressed: widget.onSortByBuy,
                           ),
                         ),
                         Expanded(
-                          child: Text(
+                          child: getHeaderColumnButton(
                             'Продажа',
-                            textAlign: TextAlign.center,
-                            style: Typography.body3,
+                            sortIcon: widget.showBuy ? null : CupertinoIcons.arrow_up,
+                            onPressed: widget.onSortBySell,
                           ),
                         ),
                       ],

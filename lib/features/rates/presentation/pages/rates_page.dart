@@ -27,28 +27,17 @@ class RatesPage extends StatefulWidget {
   static const routeName = '/ratesPage';
 }
 
-enum Sorting { buy, sell }
-
 class _RatesPageState extends State<RatesPage> {
   late ScrollController scrollController = ScrollController();
 
   bool _isInitializationNeeded = true;
   bool _isLoading = true;
-  bool _showSorting = true;
 
   late City _selectedCity;
-
-  Sorting _sorting = Sorting.buy;
 
   List<City> cities = [];
   List<City> popularCities = [];
   List<City> unpopularCities = [];
-
-  @override
-  void initState() {
-    super.initState();
-    scrollController.addListener(_scrollListener);
-  }
 
   void onCurrencySelect(CurrencyItem currency) {
     context
@@ -56,14 +45,40 @@ class _RatesPageState extends State<RatesPage> {
         .changeSelectedCurrency(currency: currency.id);
   }
 
+  void _scrollToTop() {
+    if (!scrollController.hasClients) {
+      return;
+    }
+
+    scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
+  }
+
   void _toggleByBestBuy() {
     debugPrint('RatesPage -> _toggleByBestBuy');
-    context.read<ExchangeRatesProvider>().sortByBestBuy();
+    final ratesProvider = context.read<ExchangeRatesProvider>();
+    if (ratesProvider.showBuy) {
+      return;
+    }
+
+    ratesProvider.sortByBestBuy();
+    // Show the best rates for the new sorting right away
+    _scrollToTop();
   }
 
   void _toggleByBestSell() {
     debugPrint('RatesPage -> _toggleByBestSell');
-    context.read<ExchangeRatesProvider>().sortByBestSell();
+    final ratesProvider = context.read<ExchangeRatesProvider>();
+    if (!ratesProvider.showBuy) {
+      return;
+    }
+
+    ratesProvider.sortByBestSell();
+    // Show the best rates for the new sorting right away
+    _scrollToTop();
   }
 
   Future<void> _onRatesRefresh() async {
@@ -100,23 +115,9 @@ class _RatesPageState extends State<RatesPage> {
 
   @override
   dispose() {
-    scrollController.removeListener(_scrollListener);
     scrollController.dispose(); // Dispose the controller
 
     super.dispose();
-  }
-
-  void _scrollListener() {
-    if ((scrollController.position.pixels + 25.0) >=
-        scrollController.position.maxScrollExtent) {
-      setState(() {
-        _showSorting = false;
-      });
-    } else {
-      setState(() {
-        _showSorting = true;
-      });
-    }
   }
 
   @override
@@ -212,6 +213,7 @@ class _RatesPageState extends State<RatesPage> {
     final bestGrossRates = context.watch<ExchangeRatesProvider>().bestGrossRates;
     final ratesUpdateTime = context.watch<ExchangeRatesProvider>().ratesUpdateTime;
     final selectedCurrency = context.watch<ExchangeRatesProvider>().selectedCurrency;
+    final showBuy = context.watch<ExchangeRatesProvider>().showBuy;
 
 final theme = CupertinoTheme.of(context);
     final Color themePrimaryContrastingColor = CupertinoDynamicColor.resolve(theme.primaryContrastingColor, context);
@@ -707,7 +709,7 @@ final theme = CupertinoTheme.of(context);
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      'К сожалению, на данный момент нет информации по актуальному курсу ${_sorting == Sorting.buy ? 'покупки' : 'продажи'} $selectedCurrency в городе ${_selectedCity.title}',
+                                      'К сожалению, на данный момент нет информации по актуальному курсу ${showBuy ? 'покупки' : 'продажи'} $selectedCurrency в городе ${_selectedCity.title}',
                                       textAlign: TextAlign.center,
                                       style: Typography.body2,
                                     )
@@ -722,73 +724,14 @@ final theme = CupertinoTheme.of(context);
                             selectedCurrency: selectedCurrency,
                             bestGrossRates: bestGrossRates,
                             bestRetailRates: bestRetailRates,
+                            showBuy: showBuy,
+                            onSortByBuy: _toggleByBestBuy,
+                            onSortBySell: _toggleByBestSell,
                             onPointClick: onPointClick,
                           ),
                         ],
                       ],
                     ),
-                    if (exchangeRates.isNotEmpty &&
-                        (_showSorting || exchangeRates.length <= 4)) ...[
-                      Positioned.fill(
-                        bottom: 38,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Container(
-                              alignment: Alignment.center,
-                              margin: const EdgeInsets.only(bottom: 12),
-                              child: CupertinoSlidingSegmentedControl(
-                                padding: const EdgeInsets.all(4),
-                                  backgroundColor: AppColors.mainBlack,
-                                  thumbColor: AppColors.mainGrey,
-                                // This represents the currently selected segmented control.
-                                groupValue: _sorting,
-                                // Callback that sets the selected segmented control.
-                                onValueChanged: (value) {
-                                  if (value != null) {
-                                    setState(() {
-                                      _sorting = value;
-                                    });
-
-                                    if (value == Sorting.buy) {
-                                      _toggleByBestBuy();
-                                    } else {
-                                      _toggleByBestSell();
-                                    }
-                                  }
-                                },
-                                children: {
-                                  Sorting.buy: Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                    child: Text(
-                                      'Покупка',
-                                      style: Typography.body3
-                                          .merge(const TextStyle(
-                                        color: CupertinoColors.white,
-                                      )),
-                                    ),
-                                  ),
-                                  Sorting.sell: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 20),
-                                    child: Text(
-                                      'Продажа',
-                                      style: Typography.body3
-                                          .merge(const TextStyle(
-                                        color: CupertinoColors.white,
-                                      )),
-                                    ),
-                                  ),
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
                   ],
                 ],
               ),
