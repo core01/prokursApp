@@ -1,12 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:prokurs/features/auth/data/services/auth_service.dart';
 import 'package:prokurs/features/auth/domain/models/auth_tokens.dart';
-import 'package:prokurs/features/auth/presentation/pages/sign_in_page.dart';
-import 'package:prokurs/features/home/presentation/pages/home_page.dart';
-import 'package:prokurs/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthProvider extends ChangeNotifier {
@@ -14,6 +11,10 @@ class AuthProvider extends ChangeNotifier {
   AuthTokens? _tokens;
 
   bool _isLoading = false;
+
+  // Set when the server ended the session; the sign-in screen reads it once.
+  bool _sessionExpired = false;
+  String? _expiredSessionEmail;
 
   AuthTokens? get tokens => _tokens;
   bool get isAuthenticated => _tokens != null;
@@ -46,9 +47,6 @@ class AuthProvider extends ChangeNotifier {
       final accessToken = prefs.getString('access_token');
       final refreshToken = prefs.getString('refresh_token');
 
-      debugPrint('checkAuth -> accessToken: $accessToken');
-      debugPrint('checkAuth -> refreshToken: $refreshToken');
-
       if (accessToken != null && refreshToken != null) {
         _tokens = AuthTokens(
           accessToken: accessToken,
@@ -68,16 +66,10 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _tokens = await _authService.signIn(email: email, password: password);
-
-      // Save tokens to SharedPreferences
-      if (_tokens != null) {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('access_token', _tokens!.accessToken);
-        await prefs.setString('refresh_token', _tokens!.refreshToken);
-      }
-
-      notifyListeners();
+      await updateTokens(
+          await _authService.signIn(email: email, password: password));
+      _sessionExpired = false;
+      _expiredSessionEmail = null;
     } catch (e) {
       debugPrint('Error signing in: $e');
       rethrow;
@@ -103,46 +95,52 @@ class AuthProvider extends ChangeNotifier {
     await prefs.remove('access_token');
     await prefs.remove('refresh_token');
     await prefs.remove('user_email');
+    // Written by older app versions.
+    await prefs.remove('tokens');
   }
 
+  /// The user signs out. Listeners (see main.dart) take them to the sign-in screen.
   Future<void> signOut() async {
-    _isLoading = true;
-    try {
-      await clearTokens();
-      notifyListeners();
-      // First clear to HomePage
-      navigatorKey.currentState?.pushNamedAndRemoveUntil(
-        HomePage.routeName,
-        (route) => false,
-      );
-      // Then push SignInPage
-      navigatorKey.currentState?.pushNamed(SignInPage.routeName);
-    } finally {
-      _isLoading = false;
+    final refreshToken = _tokens?.refreshToken;
+    if (refreshToken != null) {
+      // In the background: signing out must not wait for the network.
+      unawaited(_authService.logout(refreshToken).catchError((Object e) {
+        // Offline, or the token is already rotated/revoked: nothing to revoke.
+        debugPrint('Error revoking refresh token: $e');
+      }));
     }
+    _sessionExpired = false;
+    _expiredSessionEmail = null;
+    await clearTokens();
+    notifyListeners();
+  }
+
+  /// The server rejected the refresh token. Like [signOut], but the sign-in screen tells the
+  /// user why they are there and prefills their email.
+  Future<void> expireSession() async {
+    _sessionExpired = true;
+    _expiredSessionEmail = userEmail;
+    await clearTokens();
+    notifyListeners();
+  }
+
+  /// Whether the session expired since the last sign-in, and its email. Resets both, so the
+  /// sign-in screen explains the expiry only the first time it opens after it.
+  ({bool expired, String? email}) takeExpiredSession() {
+    final session = (expired: _sessionExpired, email: _expiredSessionEmail);
+    _sessionExpired = false;
+    _expiredSessionEmail = null;
+    return session;
   }
 
   /// Updates the authentication tokens
-  Future<void> updateTokens(Map<String, dynamic> tokenData) async {
-    try {
-      debugPrint('AuthProvider -> updateTokens -> received data: $tokenData');
+  Future<void> updateTokens(AuthTokens tokens) async {
+    _tokens = tokens;
 
-      final newTokens = AuthTokens.fromJson(tokenData);
-      _tokens = newTokens;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('access_token', tokens.accessToken);
+    await prefs.setString('refresh_token', tokens.refreshToken);
 
-      // Save tokens to shared preferences
-      final prefs = await SharedPreferences.getInstance();
-
-      // Use both individual keys and the combined 'tokens' key for backward compatibility
-      await prefs.setString('access_token', newTokens.accessToken);
-      await prefs.setString('refresh_token', newTokens.refreshToken);
-      await prefs.setString('tokens', jsonEncode(tokenData));
-
-      debugPrint('AuthProvider -> updateTokens -> tokens saved: $_tokens');
-      notifyListeners();
-    } catch (e) {
-      debugPrint('Error updating tokens: $e');
-      throw Exception('Failed to update tokens: $e');
-    }
+    notifyListeners();
   }
 }

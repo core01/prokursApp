@@ -5,11 +5,16 @@ class SignInForm extends StatefulWidget {
   final VoidCallback? onSignUp;
   final void Function(String email, String password)? onSignIn;
   final String? signInError;
+
+  /// Prefills the email, e.g. from the session that just expired.
+  final String? initialEmail;
+
   const SignInForm({
     super.key,
     this.onSignUp,
     this.onSignIn,
     this.signInError,
+    this.initialEmail,
   });
 
   @override
@@ -17,7 +22,8 @@ class SignInForm extends StatefulWidget {
 }
 
 class _SignInFormState extends State<SignInForm> {
-  final TextEditingController _emailController = TextEditingController();
+  late final TextEditingController _emailController =
+      TextEditingController(text: widget.initialEmail);
   final TextEditingController _passwordController = TextEditingController();
 
   String? _emailError;
@@ -92,7 +98,7 @@ class _SignInFormState extends State<SignInForm> {
               controller: _emailController,
               placeholder: 'Email',
               // placeholderStyle: TextStyle(color: AppColors.lightSecondary),
-              autofocus: true,
+              autofocus: widget.initialEmail == null,
               keyboardType: TextInputType.emailAddress,
               cursorColor: AppColors.darkSecondary,
               padding: const EdgeInsets.all(16),
@@ -117,6 +123,7 @@ class _SignInFormState extends State<SignInForm> {
               controller: _passwordController,
               placeholder: 'Пароль',
               // placeholderStyle: TextStyle(color: AppColors.lightSecondary),
+              autofocus: widget.initialEmail != null,
               obscureText: true,
               cursorColor: AppColors.darkSecondary,
               padding: const EdgeInsets.all(16),

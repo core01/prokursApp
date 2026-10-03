@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:prokurs/core/constants/app_constants.dart';
 import 'package:prokurs/core/services/translation_service.dart';
+import 'package:prokurs/core/widgets/inline_notice.dart';
 import 'package:prokurs/features/auth/presentation/forms/sign_in_form.dart';
 import 'package:prokurs/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:prokurs/features/auth/presentation/state/auth_provider.dart';
@@ -22,9 +23,13 @@ class _SignInState extends State<SignInPage> {
   bool _isLoading = false;
   String? _errorMessage;
 
+  // Why the user is here: the session expired since the last sign-in (read once).
+  late final ({bool expired, String? email}) _expiredSession;
+
   @override
   void initState() {
     super.initState();
+    _expiredSession = context.read<AuthProvider>().takeExpiredSession();
   }
 
   @override
@@ -147,9 +152,18 @@ class _SignInState extends State<SignInPage> {
                       ],
                     ),
                   ),
+                  if (_expiredSession.expired)
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 8),
+                      child: InlineNotice(
+                        text: 'Сессия истекла. Войдите снова, чтобы продолжить',
+                        color: CupertinoColors.systemOrange,
+                      ),
+                    ),
                   SignInForm(
                     onSignIn: _handleSignIn,
                     signInError: _errorMessage,
+                    initialEmail: _expiredSession.email,
                     onSignUp: () {
                       if (mounted) {
                         Navigator.pushNamed(context, SignUpPage.routeName)

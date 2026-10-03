@@ -36,14 +36,12 @@ void main() async {
   bool isAuthenticated = false;
 
   try {
-    // First check authentication
-    isAuthenticated = await authProvider.checkAuth();
-    // Then initialize API client with the authenticated provider
+    // The client reads tokens from the provider lazily, so it doesn't depend on checkAuth.
     ApiClient.initialize(authProvider);
+    isAuthenticated = await authProvider.checkAuth();
+    _redirectToSignInOnSignOut(authProvider);
 
     debugPrint('main -> isAuthenticated: $isAuthenticated');
-    debugPrint(
-        'main -> authProvider.tokens = ${authProvider.tokens?.accessToken}');
   } catch (e) {
     debugPrint('main -> error in authProvider.checkAuth: $e');
   }
@@ -65,6 +63,20 @@ void main() async {
       citiesProvider: citiesProvider,
     ),
   );
+}
+
+/// The one place that navigates on auth changes: whenever the session ends — the user signs
+/// out or the server rejects the session — the user lands on the sign-in screen over Home.
+void _redirectToSignInOnSignOut(AuthProvider authProvider) {
+  var wasAuthenticated = authProvider.isAuthenticated;
+  authProvider.addListener(() {
+    if (wasAuthenticated && !authProvider.isAuthenticated) {
+      navigatorKey.currentState
+        ?..pushNamedAndRemoveUntil(HomePage.routeName, (route) => false)
+        ..pushNamed(SignInPage.routeName);
+    }
+    wasAuthenticated = authProvider.isAuthenticated;
+  });
 }
 
 class MyApp extends StatelessWidget {
