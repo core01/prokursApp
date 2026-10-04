@@ -9,12 +9,16 @@ class SignInForm extends StatefulWidget {
   /// Prefills the email, e.g. from the session that just expired.
   final String? initialEmail;
 
+  /// Shown above the fields, with their width: why the user has to sign in.
+  final Widget? notice;
+
   const SignInForm({
     super.key,
     this.onSignUp,
     this.onSignIn,
     this.signInError,
     this.initialEmail,
+    this.notice,
   });
 
   @override
@@ -94,6 +98,10 @@ class _SignInFormState extends State<SignInForm> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (widget.notice != null) ...[
+              widget.notice!,
+              const SizedBox(height: 16),
+            ],
             CupertinoTextField(
               controller: _emailController,
               placeholder: 'Email',

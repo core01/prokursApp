@@ -152,15 +152,13 @@ class _SignInState extends State<SignInPage> {
                       ],
                     ),
                   ),
-                  if (_expiredSession.expired)
-                    const Padding(
-                      padding: EdgeInsets.only(bottom: 8),
-                      child: InlineNotice(
-                        text: 'Сессия истекла. Войдите снова, чтобы продолжить',
-                        color: CupertinoColors.systemOrange,
-                      ),
-                    ),
                   SignInForm(
+                    notice: _expiredSession.expired
+                        ? const InlineNotice(
+                            text: 'Сессия истекла. Войдите снова, чтобы продолжить',
+                            color: CupertinoColors.systemOrange,
+                          )
+                        : null,
                     onSignIn: _handleSignIn,
                     signInError: _errorMessage,
                     initialEmail: _expiredSession.email,

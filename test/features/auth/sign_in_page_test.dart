@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:prokurs/core/widgets/inline_notice.dart';
 import 'package:prokurs/features/auth/domain/models/auth_tokens.dart';
 import 'package:prokurs/features/auth/presentation/pages/sign_in_page.dart';
 import 'package:prokurs/features/auth/presentation/state/auth_provider.dart';
@@ -27,6 +28,9 @@ void main() {
 
     expect(find.text('Сессия истекла. Войдите снова, чтобы продолжить'), findsOneWidget);
     expect(find.text('owner@mail.kz'), findsOneWidget);
+    // Lined up with the fields, not wider.
+    expect(tester.getSize(find.byType(InlineNotice)).width,
+        tester.getSize(find.byType(CupertinoTextField).first).width);
 
     // Shown once: opening the screen again later doesn't repeat it.
     await tester.pumpWidget(const SizedBox());
