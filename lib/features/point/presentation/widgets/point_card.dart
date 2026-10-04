@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:prokurs/core/constants/app_constants.dart';
+import 'package:prokurs/core/theme/app_theme.dart';
 import 'package:prokurs/core/utils/utils.dart';
 import 'package:prokurs/features/exchange_points/domain/models/exchange_point.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -188,7 +189,7 @@ class PointCardState extends State<PointCard> {
             border: i != CURRENCY_LIST.length - 1
                   ? Border(top: BorderSide(
                       width: 1,
-                      color: CupertinoDynamicColor.resolve(AppColors.divider, context),
+                      color: AppColors.separator.resolveFrom(context),
                     ),
                   )
                   : Border(),
@@ -203,7 +204,7 @@ class PointCardState extends State<PointCard> {
                   margin: const EdgeInsets.only(right: 8),
                   child: Text(
                     "${currency.icon} ${currency.unicode} ${currency.label}",
-                    style: Typography.body2,
+                    style: AppTypography.body,
                   ),
                 ),
               ),
@@ -223,14 +224,14 @@ class PointCardState extends State<PointCard> {
                             children: [
                               Text(
                                 getPointCurrencyBuyValue(currency.id),
-                                style: Typography.body2,
+                                style: AppTypography.body,
                                 softWrap: false,
                               ),
                               if (hasPointCurrencyBuyValue(currency.id)) ...[
                                 // Tenge sign
                                 const Text('\u{20B8}',
                                     textAlign: TextAlign.center,
-                                    style: Typography.body2),
+                                    style: AppTypography.body),
                               ]
                             ]),
                       ),
@@ -247,14 +248,14 @@ class PointCardState extends State<PointCard> {
                             children: [
                               Text(
                                 getPointCurrencySellValue(currency.id),
-                                style: Typography.body2,
+                                style: AppTypography.body,
                                 softWrap: false,
                               ),
                               if (hasPointCurrencySellValue(currency.id)) ...[
                                 // Tenge sign
                                 const Text('\u{20B8}',
                                     textAlign: TextAlign.center,
-                                    style: Typography.body2),
+                                    style: AppTypography.body),
                               ]
                             ]),
                       ),
@@ -281,11 +282,6 @@ class PointCardState extends State<PointCard> {
         widget.point.latitude != 0 &&
         widget.point.longitude != 0;
 
-final theme = CupertinoTheme.of(context);
-    final Color themePrimaryContrastingColor = CupertinoDynamicColor.resolve(theme.primaryContrastingColor, context);
-    final Color themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
-    final Color themeScaffoldBackgroundColor = CupertinoDynamicColor.resolve(theme.scaffoldBackgroundColor, context);
-    final Color themeBarBackgroundColor = CupertinoDynamicColor.resolve(theme.barBackgroundColor, context);
     if (_isLoading) {
       return Center(
         child: Stack(
@@ -296,7 +292,6 @@ final theme = CupertinoTheme.of(context);
               left: 0.0,
               right: 0.0,
               child: CupertinoActivityIndicator(
-                color: themePrimaryColor,
                 radius: 14.0,
               ),
             )
@@ -357,14 +352,13 @@ final theme = CupertinoTheme.of(context);
                     Positioned(
                       right: 16,
                       bottom: 16,
-                      child: CupertinoButton(
+                      child: CupertinoButton.filled(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         borderRadius: BorderRadius.circular(16),
-                        color: themePrimaryColor,
                         onPressed: _openInMaps,
-                        child: Text(
+                        child: const Text(
                           'Открыть в картах',
-                          style: Typography.body3.copyWith(color: themePrimaryContrastingColor),
+                          style: AppTypography.subheadline,
                         ),
                       ),
                     ),
@@ -373,7 +367,7 @@ final theme = CupertinoTheme.of(context);
               ),
             ],
             Container(
-              color: themeScaffoldBackgroundColor,
+              color: AppColors.background.resolveFrom(context),
               padding: const EdgeInsets.only(bottom: 16),
               child: SafeArea(
                 top: false,
@@ -386,7 +380,7 @@ final theme = CupertinoTheme.of(context);
                         padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                         child: Text(
                           widget.point.info as String,
-                          style: Typography.body2,
+                          style: AppTypography.body,
                           textAlign: TextAlign.left,
                         ),
                       ),
@@ -395,9 +389,9 @@ final theme = CupertinoTheme.of(context);
                       padding: const EdgeInsets.fromLTRB(16, 0, 0, 4),
                       child: Text(
                         "Телефоны:",
-                        style: Typography.body2.merge(const TextStyle(
-                          color: AppColors.darkSecondary,
-                        )),
+                        style: AppTypography.body.copyWith(
+                          color: AppColors.secondaryLabel.resolveFrom(context),
+                        ),
                         textAlign: TextAlign.left,
                       ),
                     ),
@@ -410,7 +404,7 @@ final theme = CupertinoTheme.of(context);
                               child: Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(40),
-                                  color: AppColors.generalWhite,
+                                  color: AppColors.surface.resolveFrom(context),
                                 ),
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 3,
@@ -421,9 +415,7 @@ final theme = CupertinoTheme.of(context);
                                     : const EdgeInsets.only(right: 4),
                                 child: Text(
                                   phoneNumbers[i],
-                                  style: Typography.body2.merge(const TextStyle(
-                                    color: AppColors.generalBlack,
-                                  )),
+                                  style: AppTypography.body,
                                   textAlign: TextAlign.center,
                                 ),
                               ),
@@ -452,7 +444,7 @@ final theme = CupertinoTheme.of(context);
                             alignment: Alignment.centerLeft,
                             child: const Text(
                               'Валюта',
-                              style: Typography.body2,
+                              style: AppTypography.body,
                             ),
                           ),
                         ),
@@ -466,7 +458,7 @@ final theme = CupertinoTheme.of(context);
                                   margin: const EdgeInsets.only(right: 8),
                                   child: const Text(
                                     'Покупка',
-                                    style: Typography.body2,
+                                    style: AppTypography.body,
                                   ),
                                 ),
                               ),
@@ -475,7 +467,7 @@ final theme = CupertinoTheme.of(context);
                                   alignment: Alignment.centerRight,
                                   child: const Text(
                                     'Продажа',
-                                    style: Typography.body2,
+                                    style: AppTypography.body,
                                   ),
                                 ),
                               ),

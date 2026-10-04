@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:prokurs/core/constants/app_constants.dart';
+import 'package:prokurs/core/theme/app_theme.dart';
 import 'package:prokurs/features/auth/data/services/auth_service.dart';
 import 'package:prokurs/features/auth/presentation/forms/sign_up_form.dart';
 
@@ -57,8 +58,6 @@ class _SignUpState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = CupertinoTheme.of(context);
-    final Color themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
           leading: GestureDetector(
@@ -70,13 +69,12 @@ class _SignUpState extends State<SignUpPage> {
             child: Icon(
                 CupertinoIcons.arrow_left,
                 size: 24,
-              color: themePrimaryColor,
               ),
             ),
           ),
           middle: Text(
             "Регистрация",
-            style: Typography.heading2,
+            style: AppTypography.headline,
             textAlign: TextAlign.center,
           ),
         ),
@@ -95,24 +93,20 @@ class _SignUpState extends State<SignUpPage> {
                       padding: const EdgeInsets.all(12),
                       margin: const EdgeInsets.only(bottom: 20),
                       decoration: BoxDecoration(
-                      color: AppColors.darkSecondary.withAlpha(51),
+                        color: AppColors.surface.resolveFrom(context),
                         borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppColors.darkSecondary),
                       ),
                       child: Row(
                         children: [
                           Icon(
                             CupertinoIcons.info_circle,
-                            color: themePrimaryColor,
                             size: 24,
                           ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
                               'Регистрация необходима для владельцев обменных пунктов. Если вы хотите добавить обменный пункт, заполните данные ниже.',
-                            style: TextStyle(
-                                fontSize: 14,
-                              ),
+                            style: AppTypography.subheadline,
                             ),
                           ),
                         ],

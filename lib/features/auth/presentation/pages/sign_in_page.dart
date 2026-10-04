@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:prokurs/core/constants/app_constants.dart';
+import 'package:prokurs/core/theme/app_theme.dart';
 import 'package:prokurs/core/services/translation_service.dart';
 import 'package:prokurs/core/widgets/inline_notice.dart';
 import 'package:prokurs/features/auth/presentation/forms/sign_in_form.dart';
@@ -83,13 +84,10 @@ class _SignInState extends State<SignInPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = CupertinoTheme.of(context);
-    final Color themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
+    final success = AppColors.success.resolveFrom(context);
 
     return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
-        backgroundColor: AppColors.mainBlack,
-          // padding: const EdgeInsetsDirectional.fromSTEB(10, 5, 5, 5),
           leading: GestureDetector(
             onTap: () {
               Navigator.pop(context);
@@ -99,7 +97,6 @@ class _SignInState extends State<SignInPage> {
             child: Icon(
                 CupertinoIcons.arrow_left,
                 size: 24,
-              color: themePrimaryColor,
               ),
             ),
           ),
@@ -122,18 +119,15 @@ class _SignInState extends State<SignInPage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(
+                            Icon(
                               CupertinoIcons.checkmark_circle_fill,
-                              color: CupertinoColors.activeGreen,
+                              color: success,
                               size: 20,
                             ),
                             const SizedBox(width: 8),
-                            const Text(
+                            Text(
                               "Успешная регистрация",
-                              style: TextStyle(
-                                color: CupertinoColors.activeGreen,
-                                fontSize: 16,
-                              ),
+                              style: AppTypography.callout.copyWith(color: success),
                               textAlign: TextAlign.center,
                             ),
                           ],
@@ -146,7 +140,7 @@ class _SignInState extends State<SignInPage> {
                       children: [
                         Text(
                           "Вход в личный кабинет обменного пункта",
-                        style: Typography.heading,
+                        style: AppTypography.title2,
                           textAlign: TextAlign.center,
                         ),
                       ],
@@ -156,7 +150,7 @@ class _SignInState extends State<SignInPage> {
                     notice: _expiredSession.expired
                         ? const InlineNotice(
                             text: 'Сессия истекла. Войдите снова, чтобы продолжить',
-                            color: CupertinoColors.systemOrange,
+                            color: AppColors.warning,
                           )
                         : null,
                     onSignIn: _handleSignIn,

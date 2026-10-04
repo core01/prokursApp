@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
-
-import 'package:prokurs/core/constants/app_constants.dart';
+import 'package:prokurs/core/theme/app_theme.dart';
 import 'package:prokurs/core/services/translation_service.dart';
 
 class SignUpForm extends StatefulWidget {
@@ -112,14 +111,13 @@ class _SignUpFormState extends State<SignUpForm> {
           CupertinoTextField(
             controller: _nameController,
             placeholder: 'Как вас зовут?',
-            // placeholderStyle: TextStyle(color: AppColors.lightSecondary),
+            placeholderStyle: const TextStyle(color: AppColors.secondaryLabel),
             autofocus: true,
             keyboardType: TextInputType.text,
-            cursorColor: AppColors.darkSecondary,
             padding: const EdgeInsets.all(16),
             enabled: !widget.isLoading,
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.darkSecondary),
+              border: Border.all(color: AppColors.inputBorder),
               borderRadius: BorderRadius.circular(8),
             ),
           ),
@@ -128,9 +126,8 @@ class _SignUpFormState extends State<SignUpForm> {
               padding: const EdgeInsets.only(top: 8),
               child: Text(
                 _nameError!,
-                style: const TextStyle(
-                  color: CupertinoColors.destructiveRed,
-                  fontSize: 14,
+                style: AppTypography.footnote.copyWith(
+                  color: AppColors.error.resolveFrom(context),
                 ),
               ),
             ),
@@ -139,13 +136,12 @@ class _SignUpFormState extends State<SignUpForm> {
             controller: _emailController,
             placeholder: 'Email',
             autofocus: true,
-            // placeholderStyle: TextStyle(color: AppColors.lightSecondary),
+            placeholderStyle: const TextStyle(color: AppColors.secondaryLabel),
             keyboardType: TextInputType.emailAddress,
-            cursorColor: AppColors.darkSecondary,
             padding: const EdgeInsets.all(16),
             enabled: !widget.isLoading,
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.darkSecondary),
+              border: Border.all(color: AppColors.inputBorder),
               borderRadius: BorderRadius.circular(8),
             ),
           ),
@@ -154,9 +150,8 @@ class _SignUpFormState extends State<SignUpForm> {
               padding: const EdgeInsets.only(top: 8),
               child: Text(
                 _emailError!,
-                style: const TextStyle(
-                  color: CupertinoColors.destructiveRed,
-                  fontSize: 14,
+                style: AppTypography.footnote.copyWith(
+                  color: AppColors.error.resolveFrom(context),
                 ),
               ),
             ),
@@ -164,13 +159,12 @@ class _SignUpFormState extends State<SignUpForm> {
           CupertinoTextField(
             controller: _passwordController,
             placeholder: 'Пароль',
-            // placeholderStyle: TextStyle(color: AppColors.lightSecondary),
+            placeholderStyle: const TextStyle(color: AppColors.secondaryLabel),
             obscureText: true,
-            cursorColor: AppColors.darkSecondary,
             padding: const EdgeInsets.all(16),
             enabled: !widget.isLoading,
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.darkSecondary),
+              border: Border.all(color: AppColors.inputBorder),
               borderRadius: BorderRadius.circular(8),
             ),
           ),
@@ -179,9 +173,8 @@ class _SignUpFormState extends State<SignUpForm> {
               padding: const EdgeInsets.only(top: 8),
               child: Text(
                 _passwordError!,
-                style: const TextStyle(
-                  color: CupertinoColors.destructiveRed,
-                  fontSize: 14,
+                style: AppTypography.footnote.copyWith(
+                  color: AppColors.error.resolveFrom(context),
                 ),
               ),
             ),
@@ -189,13 +182,12 @@ class _SignUpFormState extends State<SignUpForm> {
           CupertinoTextField(
             controller: _passwordConfirmationController,
             placeholder: 'Подтверждение пароля',
-            // placeholderStyle: TextStyle(color: AppColors.lightSecondary),
+            placeholderStyle: const TextStyle(color: AppColors.secondaryLabel),
             obscureText: true,
-            cursorColor: AppColors.darkSecondary,
             padding: const EdgeInsets.all(16),
             enabled: !widget.isLoading,
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.darkSecondary),
+              border: Border.all(color: AppColors.inputBorder),
               borderRadius: BorderRadius.circular(8),
             ),
           ),
@@ -204,9 +196,8 @@ class _SignUpFormState extends State<SignUpForm> {
               padding: const EdgeInsets.only(top: 8),
               child: Text(
                 _passwordConfirmationError!,
-                style: const TextStyle(
-                  color: CupertinoColors.destructiveRed,
-                  fontSize: 14,
+                style: AppTypography.footnote.copyWith(
+                  color: AppColors.error.resolveFrom(context),
                 ),
               ),
             ),
@@ -215,7 +206,9 @@ class _SignUpFormState extends State<SignUpForm> {
               padding: const EdgeInsets.only(top: 24),
               child: Text(
                 TranslationService.translate(widget.errorMessage!),
-                style: const TextStyle(color: CupertinoColors.destructiveRed),
+                style: AppTypography.footnote.copyWith(
+                  color: AppColors.error.resolveFrom(context),
+                ),
                 textAlign: TextAlign.center,
               ),
             ),

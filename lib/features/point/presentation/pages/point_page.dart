@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:prokurs/core/constants/app_constants.dart';
+import 'package:prokurs/core/theme/app_theme.dart';
 import 'package:prokurs/core/utils/utils.dart';
 import 'package:prokurs/features/point/presentation/navigation/point_screen_arguments.dart';
 import 'package:prokurs/features/point/presentation/widgets/point_card.dart';
@@ -19,22 +19,12 @@ class PointPage extends StatelessWidget {
 
     var updateTime = getUpdateTime(datetime);
 
-
-final theme = CupertinoTheme.of(context);
-    final Color themePrimaryContrastingColor = CupertinoDynamicColor.resolve(theme.primaryContrastingColor, context);
-    final Color themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
-    final Color themeScaffoldBackgroundColor = CupertinoDynamicColor.resolve(theme.scaffoldBackgroundColor, context);
-    final Color themeBarBackgroundColor = CupertinoDynamicColor.resolve(theme.barBackgroundColor, context);
-    
-
     return Container(
       padding: const EdgeInsets.fromLTRB(0, 4, 0, 0),
       child: CupertinoPageScaffold(
-        backgroundColor: themeScaffoldBackgroundColor,
         navigationBar: CupertinoNavigationBar(
           automaticBackgroundVisibility: false,
-          backgroundColor: themeBarBackgroundColor,
-          // padding: const EdgeInsetsDirectional.fromSTEB(10, 5, 5, 5),
+          backgroundColor: AppColors.header,
           leading: GestureDetector(
             onTap: () {
               Navigator.pop(context);
@@ -44,7 +34,7 @@ final theme = CupertinoTheme.of(context);
               child: Icon(
                 CupertinoIcons.arrow_left,
                 size: 24,
-                color: AppColors.generalWhite,
+                color: AppColors.onHeader,
               ),
             ),
           ),
@@ -53,13 +43,11 @@ final theme = CupertinoTheme.of(context);
               Text(
                   exchangePoint.name,
                   overflow: TextOverflow.ellipsis,
-                  style: Typography.body2.merge(TextStyle(color: AppColors.generalWhite,
-                  )),
+                  style: AppTypography.headline.copyWith(color: AppColors.onHeader),
               ),
               Text(
                 "Обновлено в $updateTime",
-                  style: Typography.body3
-                      .merge(const TextStyle(color: AppColors.darkSecondary)),
+                  style: AppTypography.footnote.copyWith(color: AppColors.onHeaderSecondary),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -69,7 +57,7 @@ final theme = CupertinoTheme.of(context);
           children: [
             Expanded(
               child: Container(
-                color: themePrimaryContrastingColor,
+                color: AppColors.surface.resolveFrom(context),
                 child: PointCard(point: exchangePoint),
               ),
             ),

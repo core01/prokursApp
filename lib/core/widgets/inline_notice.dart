@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:prokurs/core/theme/app_theme.dart';
 
 /// A message shown in place, next to what it is about, instead of an alert: problems the
 /// screen itself lets the user resolve (Apple HIG, "Alerts" and "Feedback").
@@ -6,7 +7,7 @@ class InlineNotice extends StatelessWidget {
   const InlineNotice({
     super.key,
     required this.text,
-    this.color = CupertinoColors.systemRed,
+    this.color = AppColors.error,
   });
 
   final String text;
@@ -30,7 +31,7 @@ class InlineNotice extends StatelessWidget {
           children: [
             Icon(CupertinoIcons.exclamationmark_circle_fill, color: color, size: 22),
             const SizedBox(width: 10),
-            Expanded(child: Text(text, style: const TextStyle(fontSize: 15))),
+            Expanded(child: Text(text, style: AppTypography.subheadline)),
           ],
         ),
       ),

@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:prokurs/core/constants/app_constants.dart';
+import 'package:prokurs/core/theme/app_theme.dart';
 
 class SignInForm extends StatefulWidget {
   final VoidCallback? onSignUp;
@@ -105,13 +105,12 @@ class _SignInFormState extends State<SignInForm> {
             CupertinoTextField(
               controller: _emailController,
               placeholder: 'Email',
-              // placeholderStyle: TextStyle(color: AppColors.lightSecondary),
+              placeholderStyle: const TextStyle(color: AppColors.secondaryLabel),
               autofocus: widget.initialEmail == null,
               keyboardType: TextInputType.emailAddress,
-              cursorColor: AppColors.darkSecondary,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                border: Border.all(color: AppColors.darkSecondary),
+                border: Border.all(color: AppColors.inputBorder),
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
@@ -120,9 +119,8 @@ class _SignInFormState extends State<SignInForm> {
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
                   _emailError!,
-                  style: const TextStyle(
-                    color: CupertinoColors.destructiveRed,
-                    fontSize: 14,
+                  style: AppTypography.footnote.copyWith(
+                    color: AppColors.error.resolveFrom(context),
                   ),
                 ),
               ),
@@ -130,13 +128,12 @@ class _SignInFormState extends State<SignInForm> {
             CupertinoTextField(
               controller: _passwordController,
               placeholder: 'Пароль',
-              // placeholderStyle: TextStyle(color: AppColors.lightSecondary),
+              placeholderStyle: const TextStyle(color: AppColors.secondaryLabel),
               autofocus: widget.initialEmail != null,
               obscureText: true,
-              cursorColor: AppColors.darkSecondary,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                border: Border.all(color: AppColors.darkSecondary),
+                border: Border.all(color: AppColors.inputBorder),
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
@@ -145,9 +142,8 @@ class _SignInFormState extends State<SignInForm> {
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
                   _passwordError!,
-                  style: const TextStyle(
-                    color: CupertinoColors.destructiveRed,
-                    fontSize: 14,
+                  style: AppTypography.footnote.copyWith(
+                    color: AppColors.error.resolveFrom(context),
                   ),
                 ),
               ),
@@ -156,9 +152,8 @@ class _SignInFormState extends State<SignInForm> {
                 padding: const EdgeInsets.only(top: 24),
                 child: Text(
                   widget.signInError!,
-                  style: const TextStyle(
-                    color: CupertinoColors.destructiveRed,
-                    fontSize: 14,
+                  style: AppTypography.footnote.copyWith(
+                    color: AppColors.error.resolveFrom(context),
                   ),
                 ),
               ),
@@ -170,12 +165,11 @@ class _SignInFormState extends State<SignInForm> {
             const SizedBox(height: 32),
             GestureDetector(
               onTap: widget.onSignUp,
-              child: const Center(
+              child: Center(
                 child: Text(
                   'Еще нет аккаунта? Зарегистрируйтесь',
-                  style: TextStyle(
-                    color: CupertinoColors.activeBlue,
-                    fontSize: 16,
+                  style: AppTypography.callout.copyWith(
+                    color: AppColors.link.resolveFrom(context),
                   ),
                 ),
               ),

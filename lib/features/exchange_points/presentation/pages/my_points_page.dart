@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:prokurs/core/constants/app_constants.dart';
 import 'package:prokurs/core/exceptions/session_expired_exception.dart';
 import 'package:prokurs/features/exchange_points/data/services/exchange_points_service.dart';
 import 'package:prokurs/features/exchange_points/domain/models/exchange_point.dart';
@@ -126,19 +125,11 @@ class _MyPointsState extends State<MyPointsPage> {
     final userEmail = context.watch<AuthProvider>().userEmail;
     final authProvider = context.read<AuthProvider>();
 
-final theme = CupertinoTheme.of(context);
-    final Color themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
-    final Color themePrimaryContrastingColor = CupertinoDynamicColor.resolve(theme.primaryContrastingColor, context);
-    final Color themeScaffoldBackgroundColor = CupertinoDynamicColor.resolve(theme.scaffoldBackgroundColor, context);
-    final Color themeBarBackgroundColor = CupertinoDynamicColor.resolve(theme.barBackgroundColor, context);
-
     return CupertinoPageScaffold(
-      backgroundColor: themeScaffoldBackgroundColor,
       navigationBar: MyPointsNavigationBar(
         userEmail: userEmail,
         onSignOut: () => authProvider.signOut(),
         onAdd: _showAddPointForm,
-        themePrimaryColor: themePrimaryColor,
       ),
       child: SafeArea(
         bottom: false,

@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:prokurs/core/constants/app_constants.dart';
+import 'package:prokurs/core/theme/app_theme.dart';
 import 'package:prokurs/features/exchange_points/domain/models/exchange_point.dart';
 import 'package:prokurs/features/exchange_points/presentation/widgets/currency_rates_table.dart';
 
@@ -27,10 +27,6 @@ class MyPointsPointsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = CupertinoTheme.of(context);
-    final themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
-    final themePrimaryContrastingColor = CupertinoDynamicColor.resolve(theme.primaryContrastingColor, context);
-    final themeScaffoldBackgroundColor = CupertinoDynamicColor.resolve(theme.scaffoldBackgroundColor, context);
     return CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
@@ -53,7 +49,6 @@ class MyPointsPointsList extends StatelessWidget {
                         left: 0.0,
                         right: 0.0,
                         child: CupertinoActivityIndicator(
-                          color: themePrimaryColor,
                           radius: 14.0,
                         ),
                       ),
@@ -114,24 +109,23 @@ class MyPointsErrorSection extends StatelessWidget {
       children: [
         Text(
           "Упс! Что-то пошло не так",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          style: AppTypography.title3,
         ),
         const SizedBox(height: 8),
         Text(
           errorMessage,
-          style: TextStyle(fontSize: 14),
+          style: AppTypography.subheadline,
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 16),
-        CupertinoButton(
+        CupertinoButton.filled(
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-          color: AppColors.generalBlack,
           onPressed: () {
             onRetry();
           },
           child: isLoading
-              ? const CupertinoActivityIndicator(
-                  color: AppColors.generalWhite,
+              ? CupertinoActivityIndicator(
+                  color: AppColors.onAccent.resolveFrom(context),
                   radius: 14.0,
                 )
               : const Text("Повторить"),
@@ -161,10 +155,10 @@ class ExchangePointListItem extends StatelessWidget {
       key: Key(point.id.toString()),
       direction: DismissDirection.endToStart,
       background: Container(
-        color: CupertinoColors.destructiveRed,
+        color: AppColors.destructive.resolveFrom(context),
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
-        child: const Icon(CupertinoIcons.delete, color: CupertinoColors.white),
+        child: const Icon(CupertinoIcons.delete, color: AppColors.onDestructive),
       ),
       onDismissed: (direction) async {
         await onDelete(point.id);
@@ -214,37 +208,20 @@ class ExchangePointCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = CupertinoTheme.of(context);
-    final themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
-    final themePrimaryContrastingColor = CupertinoDynamicColor.resolve(theme.primaryContrastingColor, context);
-    final themeScaffoldBackgroundColor = CupertinoDynamicColor.resolve(theme.scaffoldBackgroundColor, context);
-    final themeBarBackgroundColor = CupertinoDynamicColor.resolve(theme.barBackgroundColor, context);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: themePrimaryContrastingColor,
+        color: AppColors.surface.resolveFrom(context),
         borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: CupertinoColors.systemGrey5.withValues(alpha: 0.5),
-            blurRadius: 2,
-            offset: const Offset(0, 1),
-          ),
-        ],
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              point.name,
-              style: Typography.body2.merge(
-                const TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
+            Text(point.name, style: AppTypography.headline),
             const SizedBox(height: 4),
-            Text(point.info ?? '', style: Typography.body3),
+            Text(point.info ?? '', style: AppTypography.subheadline),
             const SizedBox(height: 12),
             CurrencyRatesTable(point: point, formatDateTime: formatDateTime),
           ],

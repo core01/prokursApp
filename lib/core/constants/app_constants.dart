@@ -1,5 +1,4 @@
 import 'package:flag/flag.dart';
-import 'package:flutter/cupertino.dart';
 
 class Currency {
   static const String USD = 'USD';
@@ -41,74 +40,6 @@ const List<CurrencyItem> CURRENCY_LIST = [
 
 const BUY_KEY = 'buy';
 const SELL_KEY = 'sell';
-
-class AppDynamicColors {
-  static const lightBg = CupertinoDynamicColor.withBrightness(
-    color: Color.fromRGBO(244, 244, 245, 1), // светлая тема
-    darkColor: AppColors.generalBlack,
-  );
-}
-class AppColors {
-
-  static const generalBlack2222 = Color.fromARGB(255, 31, 31, 31);
-
-  // font
-  static const generalBlack = Color(0xFF1B1D1E);
-  static const generalWhite = Color(0xFFFFFFFF);
-  static const mainGrey = Color(0xFF494a4b);
-  // background
-  static const mainBlack = Color(0xFF24292f); // Dark theme color
-  // static const lightBg = Color.fromRGBO(244, 244, 245, 1);
-  static const lightBg = AppDynamicColors.lightBg;
-  
-  static const lightSecondary = Color.fromRGBO(27, 29, 30, 0.35);
-  static const divider = CupertinoDynamicColor.withBrightness(
-    color: Color.fromRGBO(5, 25, 35, 0.08),
-    darkColor: Color.fromRGBO(255, 255, 255, 0.12),
-  );
-  static const generalGreen = Color.fromRGBO(0, 165, 36, 1);
-  static const generalGreenBg = Color.fromRGBO(0, 165, 36, 0.08);
-  static const generalRed = Color(0xFFC14953);
-  static const generalRedBg = Color.fromRGBO(218, 21, 0, 0.08);
-  static const darkSecondary = Color(0xFF8d8e8e);
-}
-
-class Typography {
-  static const heading = TextStyle(
-    fontFamily: "Manrope",
-    fontSize: 22, // title 2   22, 28/22   // Design 20, 24/20
-    fontWeight: FontWeight.w600,
-    height: 26 / 22,
-  );
-
-  static const heading2 = TextStyle(
-    fontFamily: "Manrope",
-    fontSize: 17, // title 3 20, 25/20  // Design 14, 21/14
-    fontWeight: FontWeight.w600,
-    height: 22 / 17,
-  );
-
-  static const body = TextStyle(
-    fontFamily: "Manrope",
-    fontSize: 19, // body 17, 22/17 // Design 16, 24/16
-    fontWeight: FontWeight.w500,
-    height: 24 / 19,
-  );
-
-  static const body2 = TextStyle(
-    fontFamily: "Manrope",
-    fontSize: 17, // Callout 16, 21/16 // Design 14, 21/14
-    fontWeight: FontWeight.w500,
-    height: 22 / 17,
-  );
-
-  static const body3 = TextStyle(
-    fontFamily: "Manrope",
-    fontSize: 14, // Subhead  15, 20/15  // Design 12, 18/12
-    fontWeight: FontWeight.w500,
-    height: 19 / 14,
-  );
-}
 
 class SignUpResult {
   final String email;

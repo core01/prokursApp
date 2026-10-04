@@ -2,6 +2,7 @@ import 'dart:io' show Platform;
 
 import 'package:extended_sliver/extended_sliver.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:prokurs/core/theme/app_theme.dart';
 
 class MySliverPinnedPersistentHeaderDelegate
     extends SliverPinnedPersistentHeaderDelegate {
@@ -17,9 +18,7 @@ class MySliverPinnedPersistentHeaderDelegate
         shrinkOffset + (Platform.isAndroid ? -5 : 30) >= minExtent!;
 
     return DefaultTextStyle.merge(
-      style: const TextStyle(
-        color: CupertinoColors.white,
-      ),
+      style: const TextStyle(color: AppColors.onHeader),
       child:
           isMinExtentPrototypeVisible ? minExtentProtoType : maxExtentProtoType,
     );

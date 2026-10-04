@@ -2,7 +2,7 @@ import 'dart:core';
 
 import 'package:extended_sliver/extended_sliver.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' hide Typography;
+import 'package:flutter/material.dart' show ActionChip, Divider, Material, MaterialType;
 import 'package:flutter/services.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:prokurs/features/about/presentation/pages/about_page.dart';
@@ -16,6 +16,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:prokurs/core/constants/app_constants.dart';
+import 'package:prokurs/core/theme/app_theme.dart';
 import 'package:prokurs/features/exchange_points/domain/models/city.dart';
 
 class RatesPage extends StatefulWidget {
@@ -164,7 +165,7 @@ class _RatesPageState extends State<RatesPage> {
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
       separatorBuilder: (context, index) =>
-          Divider(color: CupertinoDynamicColor.resolve(AppColors.divider, context),
+          Divider(color: AppColors.separator.resolveFrom(context),
               height: 20,
               indent: 0,
             ),
@@ -173,23 +174,21 @@ class _RatesPageState extends State<RatesPage> {
           City city = cities[index];
 
           return GestureDetector(
-            child: Container(
-              color: Colors.transparent,
+            behavior: HitTestBehavior.opaque,
               child: Row(
                 children: [
                   Text(
                     city.title,
-                    style: Typography.body2,
+                    style: AppTypography.body,
                   ),
                   const Spacer(),
-                  const Icon(
+                  Icon(
                     CupertinoIcons.chevron_forward,
-                    color: AppColors.lightSecondary,
+                    color: AppColors.secondaryLabel.resolveFrom(context),
                     size: 24,
                   ),
                 ],
               ),
-            ),
             onTap: () async {
               await onCitySelect(city.id);
               if (context.mounted) {
@@ -213,12 +212,9 @@ class _RatesPageState extends State<RatesPage> {
     final ratesUpdateTime = context.watch<ExchangeRatesProvider>().ratesUpdateTime;
     final selectedCurrency = context.watch<ExchangeRatesProvider>().selectedCurrency;
 
-final theme = CupertinoTheme.of(context);
-    final Color themePrimaryContrastingColor = CupertinoDynamicColor.resolve(theme.primaryContrastingColor, context);
-    final Color themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
-    final Color themeScaffoldBackgroundColor = CupertinoDynamicColor.resolve(theme.scaffoldBackgroundColor, context);
-    final Color themeBarBackgroundColor = CupertinoDynamicColor.resolve(theme.barBackgroundColor, context);
-    
+    final background = AppColors.background.resolveFrom(context);
+    final surface = AppColors.surface.resolveFrom(context);
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         // iOS: statusBarBrightness controls status bar appearance
@@ -229,7 +225,6 @@ final theme = CupertinoTheme.of(context);
         statusBarIconBrightness: Brightness.light,
       ),
       child: CupertinoPageScaffold(
-        backgroundColor: themeScaffoldBackgroundColor,
         child: SafeArea(
           bottom: false,
           top: false,
@@ -237,12 +232,12 @@ final theme = CupertinoTheme.of(context);
           children: [
             Expanded(
               child: Container(
-                color: themePrimaryContrastingColor,
+                color: surface,
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
                     if (_isLoading) ...[
-                      const Center(child: CupertinoActivityIndicator(color: AppColors.mainBlack, radius: 15)),
+                      const Center(child: CupertinoActivityIndicator(radius: 15)),
                     ] else ...[
                       CustomScrollView(
                         controller: scrollController,
@@ -251,7 +246,7 @@ final theme = CupertinoTheme.of(context);
                           SliverPinnedPersistentHeader(
                             delegate: MySliverPinnedPersistentHeaderDelegate(
                               maxExtentProtoType: Container(
-                                color: themeBarBackgroundColor,
+                                color: AppColors.header,
                                 child: SafeArea(
                                   bottom: false,
                                   child: SingleChildScrollView(
@@ -285,7 +280,7 @@ final theme = CupertinoTheme.of(context);
                                                       onTap: () {
                                                           showCupertinoModalBottomSheet(
                                                             backgroundColor:
-                                                                themeScaffoldBackgroundColor,
+                                                                background,
                                                           context: context,
                                                           builder: (context) =>
                                                               Container(
@@ -294,7 +289,7 @@ final theme = CupertinoTheme.of(context);
                                                                     .fromLTRB(0,
                                                                     32, 0, 32),
                                                             // height: 400,
-                                                              color: themeScaffoldBackgroundColor,
+                                                              color: background,
                                                             child:
                                                                 SingleChildScrollView(
                                                               child: Column(
@@ -310,8 +305,8 @@ final theme = CupertinoTheme.of(context);
                                                                     child:
                                                                         const Text(
                                                                       "Выберите город",
-                                                                      style: Typography
-                                                                          .heading,
+                                                                      style: AppTypography
+                                                                          .title2,
                                                                       textAlign:
                                                                           TextAlign
                                                                               .center,
@@ -326,7 +321,7 @@ final theme = CupertinoTheme.of(context);
                                                                               15),
                                                                       decoration:
                                                                           BoxDecoration(
-                                                                          color: themePrimaryContrastingColor,
+                                                                          color: surface,
                                                                         borderRadius:
                                                                             BorderRadius.circular(15),
                                                                       ),
@@ -348,7 +343,7 @@ final theme = CupertinoTheme.of(context);
                                                                               15),
                                                                       decoration:
                                                                           BoxDecoration(
-                                                                          color: themePrimaryContrastingColor,
+                                                                          color: surface,
                                                                         borderRadius:
                                                                             BorderRadius.circular(15),
                                                                       ),
@@ -370,8 +365,8 @@ final theme = CupertinoTheme.of(context);
                                                         children: [
                                                           Text(
                                                             _selectedCity.title,
-                                                            style: Typography
-                                                                .heading,
+                                                            style: AppTypography
+                                                                .title2,
                                                             textAlign:
                                                                 TextAlign.left,
                                                           ),
@@ -380,9 +375,9 @@ final theme = CupertinoTheme.of(context);
                                                                 const EdgeInsets
                                                                     .only(
                                                                     left: 4),
-                                                              child: Icon(
-                                                                Icons.keyboard_arrow_down,
-                                                                color: AppColors.generalWhite,
+                                                              child: const Icon(
+                                                                CupertinoIcons.chevron_down,
+                                                                color: AppColors.onHeader,
                                                               ),
                                                           )
                                                         ],
@@ -392,7 +387,7 @@ final theme = CupertinoTheme.of(context);
                                                       child: const Icon(
                                                           CupertinoIcons
                                                               .info_circle,
-                                                          color: AppColors.generalWhite,
+                                                          color: AppColors.onHeader,
                                                         ),
                                                       onTap: () {
                                                         Navigator.of(context)
@@ -405,11 +400,11 @@ final theme = CupertinoTheme.of(context);
                                               ),
                                               Text(
                                                 "Обновлено в $ratesUpdateTime",
-                                                  style: Typography.body2
-                                                    .merge(const TextStyle(
+                                                  style: AppTypography.body
+                                                    .copyWith(
                                                   color:
-                                                      AppColors.darkSecondary,
-                                                )),
+                                                      AppColors.onHeaderSecondary,
+                                                ),
                                                 textAlign: TextAlign.left,
                                               )
                                             ],
@@ -419,7 +414,7 @@ final theme = CupertinoTheme.of(context);
                                           margin: const EdgeInsets.symmetric(
                                               vertical: 24),
                                           child: Material(
-                                            color: Colors.transparent,
+                                            type: MaterialType.transparency,
                                             child: SingleChildScrollView(
                                               scrollDirection: Axis.horizontal,
                                               child: Row(
@@ -444,7 +439,7 @@ final theme = CupertinoTheme.of(context);
                                                                 horizontal: 5),
                                                         side: const BorderSide(
                                                             color: AppColors
-                                                              .darkSecondary,
+                                                              .onHeaderSecondary,
                                                           width: 0.5,
                                                         ),
                                                         shape: const RoundedRectangleBorder(
@@ -463,14 +458,14 @@ final theme = CupertinoTheme.of(context);
                                                               child: Text(
                                                                 CURRENCY_LIST[i]
                                                                     .unicode,
-                                                                style: Typography.body2.merge(TextStyle(
+                                                                style: AppTypography.body.copyWith(
                                                                     color: selectedCurrency ==
                                                                             CURRENCY_LIST[i]
                                                                                 .id
                                                                           ? AppColors
-                                                                            .mainBlack
+                                                                            .header
                                                                           : AppColors
-                                                                            .generalWhite)),
+                                                                            .onHeader),
                                                                 textAlign:
                                                                     TextAlign
                                                                         .center,
@@ -479,14 +474,14 @@ final theme = CupertinoTheme.of(context);
                                                               Text(
                                                                 CURRENCY_LIST[i]
                                                                     .label,
-                                                                style: Typography.body2.merge(TextStyle(
+                                                                style: AppTypography.body.copyWith(
                                                                     color: selectedCurrency ==
                                                                             CURRENCY_LIST[i]
                                                                                 .id
                                                                         ? AppColors
-                                                                            .mainBlack
+                                                                            .header
                                                                         : AppColors
-                                                                            .generalWhite)),
+                                                                            .onHeader),
                                                                 textAlign:
                                                                     TextAlign
                                                                         .center,
@@ -499,9 +494,9 @@ final theme = CupertinoTheme.of(context);
                                                                             i]
                                                                         .id
                                                               ? AppColors
-                                                                    .generalWhite
+                                                                    .onHeader
                                                               : AppColors
-                                                                    .mainGrey,
+                                                                    .headerFill,
                                                         onPressed: () {
                                                           onCurrencySelect(
                                                               CURRENCY_LIST[i]);
@@ -521,7 +516,7 @@ final theme = CupertinoTheme.of(context);
                               ),
                             ),
                             minExtentProtoType: Container(
-                                color: themeBarBackgroundColor,
+                                color: AppColors.header,
                               child: SafeArea(
                                 bottom: false,
                                 child: Container(
@@ -539,7 +534,7 @@ final theme = CupertinoTheme.of(context);
                                           children: [
                                             Text(
                                               _selectedCity.title,
-                                              style: Typography.body2,
+                                              style: AppTypography.body,
                                               textAlign: TextAlign.left,
                                             ),
                                             Container(
@@ -548,18 +543,15 @@ final theme = CupertinoTheme.of(context);
                                                       horizontal: 4),
                                               child: const Text(
                                                 "•",
-                                                style: Typography.body2,
+                                                style: AppTypography.body,
                                               ),
                                             ),
                                             GestureDetector(
                                               onTap: () {
                                                   showCupertinoModalBottomSheet(
-                                                    backgroundColor:
-                                                        themeScaffoldBackgroundColor,
+                                                    backgroundColor: background,
                                                   context: context,
                                                     builder: (context) {
-                                                      final bool isDarkTheme =
-                                                          CupertinoTheme.of(context).brightness == Brightness.dark;
                                                       return Container(
                                                         padding: const EdgeInsets.fromLTRB(16, 32, 16, 16),
                                                         // height: 256,
@@ -573,8 +565,8 @@ final theme = CupertinoTheme.of(context);
                                                                   bottom: 24),
                                                           child: const Text(
                                                                 "Выберите валюту",
-                                                            style: Typography
-                                                                .heading,
+                                                            style: AppTypography
+                                                                .title2,
                                                             textAlign: TextAlign
                                                                 .center,
                                                           ),
@@ -588,35 +580,20 @@ final theme = CupertinoTheme.of(context);
                                                                 (currency) {
                                                                   final bool isSelected =
                                                                       selectedCurrency == currency.id;
-                                                                  final Color buttonColor = isSelected
-                                                                      ? (isDarkTheme
-                                                                            ? AppColors.generalWhite
-                                                                            : AppColors.generalBlack)
-                                                                      : (isDarkTheme
-                                                                            ? AppColors.generalBlack
-                                                                            : AppColors.generalWhite);
-                                                                  final Color textColor = isSelected
-                                                                      ? (isDarkTheme
-                                                                            ? AppColors.generalBlack
-                                                                            : AppColors.generalWhite)
-                                                                      : (isDarkTheme
-                                                                            ? AppColors.generalWhite
-                                                                            : AppColors.generalBlack);
 
                                                                   return SizedBox(
                                                                     width: 160,
                                                                     child: CupertinoButton(
-                                                                      color: buttonColor,
+                                                                      color: isSelected ? AppColors.accent : AppColors.surface,
+                                                                      foregroundColor: (isSelected
+                                                                              ? AppColors.onAccent
+                                                                              : AppColors.label)
+                                                                          .resolveFrom(context),
                                                                       padding: const EdgeInsets.symmetric(
                                                                         vertical: 8,
                                                                         horizontal: 16,
                                                                       ),
-                                                                      child: Text(
-                                                                        currency.label,
-                                                                        style: Typography.body.merge(
-                                                                          TextStyle(color: textColor),
-                                                                        ),
-                                                                      ),
+                                                                      child: Text(currency.label),
                                                                       onPressed: () {
                                                                         onCurrencySelect(currency);
                                                                         Navigator.of(context).pop();
@@ -636,15 +613,15 @@ final theme = CupertinoTheme.of(context);
                                                 children: [
                                                   Text(
                                                     selectedCurrency,
-                                                    style: Typography.body2,
+                                                    style: AppTypography.body,
                                                     textAlign: TextAlign.center,
                                                   ),
                                                     SizedBox(
                                                     height: 24,
                                                     width: 24,
-                                                    child: Icon(Icons
-                                                        .keyboard_arrow_down,
-                                                        color: AppColors.generalWhite,
+                                                    child: const Icon(
+                                                        CupertinoIcons.chevron_down,
+                                                        color: AppColors.onHeader,
                                                       ),
                                                   )
                                                 ],
@@ -655,10 +632,10 @@ final theme = CupertinoTheme.of(context);
                                       ),
                                       Text(
                                         "Обновлено в $ratesUpdateTime",
-                                        style: Typography.body3
-                                            .merge(const TextStyle(
-                                          color: AppColors.darkSecondary,
-                                        )),
+                                        style: AppTypography.subheadline
+                                            .copyWith(
+                                          color: AppColors.onHeaderSecondary,
+                                        ),
                                         textAlign: TextAlign.left,
                                       )
                                     ],
@@ -688,7 +665,6 @@ final theme = CupertinoTheme.of(context);
                                   left: 0.0,
                                   right: 0.0,
                                   child: CupertinoActivityIndicator(
-                                            color: themePrimaryColor,
                                     radius: 14.0,
                                   ),
                                 )
@@ -701,7 +677,7 @@ final theme = CupertinoTheme.of(context);
                             child: Container(
                               alignment: Alignment.center,
                               padding: const EdgeInsets.all(16),
-                                color: themeScaffoldBackgroundColor,
+                                color: background,
                               child: Center(
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -709,7 +685,7 @@ final theme = CupertinoTheme.of(context);
                                     Text(
                                       'К сожалению, на данный момент нет информации по актуальному курсу ${_sorting == Sorting.buy ? 'покупки' : 'продажи'} $selectedCurrency в городе ${_selectedCity.title}',
                                       textAlign: TextAlign.center,
-                                      style: Typography.body2,
+                                      style: AppTypography.body,
                                     )
                                   ],
                                 ),
@@ -740,8 +716,8 @@ final theme = CupertinoTheme.of(context);
                               margin: const EdgeInsets.only(bottom: 12),
                               child: CupertinoSlidingSegmentedControl(
                                 padding: const EdgeInsets.all(4),
-                                  backgroundColor: AppColors.mainBlack,
-                                  thumbColor: AppColors.mainGrey,
+                                  backgroundColor: AppColors.header,
+                                  thumbColor: AppColors.headerFill,
                                 // This represents the currently selected segmented control.
                                 groupValue: _sorting,
                                 // Callback that sets the selected segmented control.
@@ -765,10 +741,8 @@ final theme = CupertinoTheme.of(context);
                                     ),
                                     child: Text(
                                       'Покупка',
-                                      style: Typography.body3
-                                          .merge(const TextStyle(
-                                        color: CupertinoColors.white,
-                                      )),
+                                      style: AppTypography.subheadline
+                                          .copyWith(color: AppColors.onHeader),
                                     ),
                                   ),
                                   Sorting.sell: Container(
@@ -776,10 +750,8 @@ final theme = CupertinoTheme.of(context);
                                         horizontal: 20),
                                     child: Text(
                                       'Продажа',
-                                      style: Typography.body3
-                                          .merge(const TextStyle(
-                                        color: CupertinoColors.white,
-                                      )),
+                                      style: AppTypography.subheadline
+                                          .copyWith(color: AppColors.onHeader),
                                     ),
                                   ),
                                 },

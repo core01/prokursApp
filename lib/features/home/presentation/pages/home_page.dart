@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' hide Typography;
-import 'package:prokurs/core/constants/app_constants.dart';
+import 'package:flutter/material.dart' show Divider;
+import 'package:prokurs/core/theme/app_theme.dart';
 import 'package:prokurs/features/auth/presentation/pages/sign_in_page.dart';
 import 'package:prokurs/features/auth/presentation/state/auth_provider.dart';
 import 'package:prokurs/features/exchange_points/data/providers/cities_provider.dart';
@@ -23,17 +23,13 @@ class _HomeState extends State<HomePage> {
   late TextEditingController textController;
   
   buildCityList(List<City> cities, BuildContext context) {
-    final theme = CupertinoTheme.of(context);
-    final Color themePrimaryContrastingColor = CupertinoDynamicColor.resolve(theme.primaryContrastingColor, context);
-    final Color themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
-    final Color themeScaffoldBackgroundColor = CupertinoDynamicColor.resolve(theme.scaffoldBackgroundColor, context);
     return ListView.separated(
         scrollDirection: Axis.vertical,
         itemCount: cities.length,
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
-      separatorBuilder: (context, index) => const Divider(
-              // height: 20,
+      separatorBuilder: (context, index) => Divider(
+              color: AppColors.separator.resolveFrom(context),
               indent: 0,
             ),
         padding: const EdgeInsets.all(10),
@@ -41,23 +37,21 @@ class _HomeState extends State<HomePage> {
           City city = cities[index];
 
           return GestureDetector(
-          child: Container(
-            color: Colors.transparent,
+            behavior: HitTestBehavior.opaque,
               child: Row(
                 children: [
                   Text(
                     city.title,
-                    style: Typography.body2,
+                    style: AppTypography.body,
                   ),
                   const Spacer(),
                 Icon(
                     CupertinoIcons.chevron_forward,
-                    color: themePrimaryColor,
+                    color: AppColors.secondaryLabel.resolveFrom(context),
                     size: 24,
                   ),
                 ],
               ),
-            ),
             onTap: () async {
               final prefs = await SharedPreferences.getInstance();
               prefs.setInt('cityId', city.id);
@@ -89,12 +83,8 @@ class _HomeState extends State<HomePage> {
     final isAuthenticated = context.watch<AuthProvider>().isAuthenticated;
     final popularCities = context.watch<CitiesProvider>().popularCities;
     final unpopularCities = context.watch<CitiesProvider>().unpopularCities;
+    final surface = AppColors.surface.resolveFrom(context);
 
-    final theme = CupertinoTheme.of(context);
-    final Color themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
-    final Color themePrimaryContrastingColor = CupertinoDynamicColor.resolve(theme.primaryContrastingColor, context);
-    final Color themeScaffoldBackgroundColor = CupertinoDynamicColor.resolve(theme.scaffoldBackgroundColor, context);
-    
     return CupertinoPageScaffold(
       child: Container(
         padding: const EdgeInsets.fromLTRB(0, 4, 0, 0),
@@ -113,7 +103,7 @@ class _HomeState extends State<HomePage> {
                   double refreshIndicatorExtent,
                 ) {
                       return Center(
-                      child: CupertinoActivityIndicator(color: themePrimaryColor,
+                      child: CupertinoActivityIndicator(
                           radius: 14.0,
                         ),
                    );
@@ -129,14 +119,12 @@ class _HomeState extends State<HomePage> {
                       margin: EdgeInsets.only(bottom: 12),
                       child: Text(
                         'Список городов получить не удалось',
-                        style: Typography.body.merge(TextStyle(color: themePrimaryColor,
-                        )),
+                        style: AppTypography.title3,
                       ),
                     ),
                     Text(
                       'Потяните вниз, что бы попробовать снова',
-                      style: Typography.body3.merge(TextStyle(color: themePrimaryColor,
-                      )),
+                      style: AppTypography.subheadline,
                     ),
                   ],
                 ),
@@ -153,11 +141,10 @@ class _HomeState extends State<HomePage> {
                   },
                   child: Icon(
                     CupertinoIcons.person_circle,
-                    color: themePrimaryColor,
                     size: 24.0,
                   ),
                 ),
-                backgroundColor: themeScaffoldBackgroundColor,
+                backgroundColor: AppColors.background,
                 border: Border(),
               ),
               SliverList(
@@ -169,7 +156,7 @@ class _HomeState extends State<HomePage> {
                     Container(
                       margin: const EdgeInsets.symmetric(horizontal: 15),
                       decoration: BoxDecoration(
-                        color: themePrimaryContrastingColor,
+                        color: surface,
                         borderRadius: BorderRadius.circular(15),
                       ),
                       //padding: EdgeInsets.symmetric(horizontal: 15),
@@ -183,7 +170,7 @@ class _HomeState extends State<HomePage> {
                     Container(
                       margin: const EdgeInsets.symmetric(horizontal: 15),
                       decoration: BoxDecoration(
-                        color: themePrimaryContrastingColor,
+                        color: surface,
                         borderRadius: BorderRadius.circular(15),
                       ),
                       //padding: EdgeInsets.symmetric(horizontal: 15),

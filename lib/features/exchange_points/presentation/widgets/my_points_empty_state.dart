@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-
+import 'package:prokurs/core/theme/app_theme.dart';
 
 class MyPointsEmptyState extends StatelessWidget {
   const MyPointsEmptyState({super.key, required this.onAdd});
@@ -14,7 +14,7 @@ class MyPointsEmptyState extends StatelessWidget {
         children: [
           const Text(
             "У вас пока нет обменных пунктов",
-            style: TextStyle(fontSize: 16),
+            style: AppTypography.callout,
           ),
           const SizedBox(height: 16),
           CupertinoButton.filled(

@@ -18,7 +18,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:prokurs/core/utils/env_helper.dart';
-import 'package:prokurs/core/constants/app_constants.dart';
+import 'package:prokurs/core/theme/app_theme.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -177,32 +177,7 @@ class MyApp extends StatelessWidget {
               );
           }
         },
-        theme: CupertinoThemeData(
-          primaryColor: CupertinoDynamicColor.withBrightness(
-            color: AppColors.generalBlack,
-            darkColor: AppColors.generalWhite,
-          ),
-          primaryContrastingColor: CupertinoDynamicColor.withBrightness(
-            color: AppColors.generalWhite,
-            darkColor: AppColors.generalBlack,
-          ),
-          scaffoldBackgroundColor: CupertinoDynamicColor.withBrightness(
-            color: AppColors.lightBg,
-            darkColor: AppColors.mainBlack,
-          ),
-          barBackgroundColor: CupertinoDynamicColor.withBrightness(
-            color: AppColors.mainBlack,
-            darkColor: AppColors.mainBlack,
-          ),
-          textTheme: CupertinoTextThemeData(
-            textStyle: const TextStyle(fontFamily: 'Manrope', fontFamilyFallback: ['Montserrat']).copyWith(
-              color: CupertinoDynamicColor.withBrightness(
-                color: AppColors.mainBlack,
-                darkColor: AppColors.generalWhite,
-              ),
-            ),
-          ),
-        ),
+        theme: appTheme,
       ),
     );
   }

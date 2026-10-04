@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:prokurs/core/constants/app_constants.dart';
+import 'package:prokurs/core/theme/app_theme.dart';
 import 'package:prokurs/core/exceptions/api_exception.dart';
 import 'package:prokurs/core/exceptions/session_expired_exception.dart';
 import 'package:prokurs/core/widgets/inline_notice.dart';
@@ -327,12 +328,6 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
   }
 
   void _showCityPicker(BuildContext context) {
-    final theme = CupertinoTheme.of(context);
-    final Color themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
-    final Color themePrimaryContrastingColor = CupertinoDynamicColor.resolve(theme.primaryContrastingColor, context);
-    final Color themeScaffoldBackgroundColor = CupertinoDynamicColor.resolve(theme.scaffoldBackgroundColor, context);
-    final Color themeBarBackgroundColor = CupertinoDynamicColor.resolve(theme.barBackgroundColor, context);
-    
     int selectedIndex = 0;
     if (_form.city.value != null) {
       selectedIndex = _cities.indexWhere((city) => city.id == _form.city.value);
@@ -348,7 +343,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
           margin: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
-          color: CupertinoDynamicColor.resolve(AppDynamicColors.lightBg, context),
+          color: AppColors.background.resolveFrom(context),
           child: SafeArea(
             top: false,
             child: CupertinoPicker(
@@ -372,7 +367,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                   child: Center(
                     child: Text(
                       city.title,
-                      style: Typography.body2.merge(TextStyle(color: themePrimaryColor)),
+                      style: AppTypography.body,
                     ),
                   ),
                 );
@@ -397,24 +392,21 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
         cityTitle = _cities[cityIndex].title;
       }
     }
-final theme = CupertinoTheme.of(context);
-    final Color themePrimaryColor = CupertinoDynamicColor.resolve(theme.primaryColor, context);
-    final Color themePrimaryContrastingColor = CupertinoDynamicColor.resolve(theme.primaryContrastingColor, context);
-    final Color themeScaffoldBackgroundColor = CupertinoDynamicColor.resolve(theme.scaffoldBackgroundColor, context);
-    
+    final secondaryLabel = AppColors.secondaryLabel.resolveFrom(context);
+    final sectionHeaderStyle = AppTypography.footnote.copyWith(color: secondaryLabel);
+
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        backgroundColor: themeScaffoldBackgroundColor,
+        backgroundColor: AppColors.background,
         middle: Text(
           isEditing
               ? "Редактирование обменного пункта"
               : "Добавить обменный пункт",
-          style: Typography.heading2,
+          style: AppTypography.headline,
         ),
         leading: GestureDetector(
           child: Icon(
             CupertinoIcons.back,
-            color: themePrimaryColor,
             size: 24.0,
           ),
           onTap: () => Navigator.of(context).pop(),
@@ -431,12 +423,7 @@ final theme = CupertinoTheme.of(context);
                     const SizedBox(height: 16),
                     // Basic Info Section
                     CupertinoFormSection.insetGrouped(
-                      backgroundColor: themeScaffoldBackgroundColor,
-                      decoration: BoxDecoration(
-                        color: themePrimaryContrastingColor,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      header: const Text('ОСНОВНАЯ ИНФОРМАЦИЯ', style: Typography.heading2),
+                      header: Text('ОСНОВНАЯ ИНФОРМАЦИЯ', style: sectionHeaderStyle),
                       children: [
                         // City Selection
                         Container(
@@ -445,7 +432,7 @@ final theme = CupertinoTheme.of(context);
                               children: [
                                 Container(
                                   padding: const EdgeInsets.only(left: 10),
-                                child: Text('Город', style: Typography.body2),
+                                child: Text('Город', style: AppTypography.body),
                                 ),
                                 const Spacer(),
                               GestureDetector(
@@ -455,11 +442,11 @@ final theme = CupertinoTheme.of(context);
                                     Text(
                                       cityTitle,
                                       style: _form.city.value == null
-                                          ? Typography.body2.copyWith(color: AppColors.darkSecondary)
-                                          : Typography.body2,
+                                          ? AppTypography.body.copyWith(color: secondaryLabel)
+                                          : AppTypography.body,
                                     ),
                                     const SizedBox(width: 8),
-                                    const Icon(CupertinoIcons.chevron_right, color: AppColors.darkSecondary, size: 18),
+                                    Icon(CupertinoIcons.chevron_right, color: secondaryLabel, size: 18),
                                   ],
                                 ),
                               ),
@@ -479,17 +466,16 @@ final theme = CupertinoTheme.of(context);
                                     padding: EdgeInsets.only(right: 4),
                                     child: Text(
                                       'Название',
-                                      style: Typography.body2,
+                                      style: AppTypography.body,
                                     ))
                               ]),
                           placeholder: "Введите название",
-                          placeholderStyle: Typography.body2.copyWith(
-                            color: AppColors.darkSecondary,
+                          placeholderStyle: AppTypography.body.copyWith(
+                            color: AppColors.secondaryLabel,
                           ),
-                          style: Typography.body2,
+                          style: AppTypography.body,
                           onChanged: _onNameChanged,
                           initialValue: _form.name.value,
-                          cursorColor: AppColors.darkSecondary,
                           maxLines: null,
                         ),
 
@@ -501,18 +487,17 @@ final theme = CupertinoTheme.of(context);
                             padding: EdgeInsets.only(right: 32),
                             child: Text(
                               'Адрес',
-                              style: Typography.body2,
+                              style: AppTypography.body,
                             ),
                           ),
                           placeholder: "Введите адрес",
-                          placeholderStyle: Typography.body2.copyWith(
-                            color: AppColors.darkSecondary,
+                          placeholderStyle: AppTypography.body.copyWith(
+                            color: AppColors.secondaryLabel,
                           ),
-                          style: Typography.body2,
+                          style: AppTypography.body,
                           maxLines: null,
                           onChanged: _onAddressChanged,
                           initialValue: _form.info.value,
-                          cursorColor: AppColors.darkSecondary,
                         ),
 
                         // Phone Fields: one per number
@@ -525,11 +510,11 @@ final theme = CupertinoTheme.of(context);
                           onPressed: _addPhone,
                           child: Row(
                             children: [
-                              Icon(CupertinoIcons.add_circled, color: themePrimaryColor, size: 20),
+                              const Icon(CupertinoIcons.add_circled, size: 20),
                               const SizedBox(width: 8),
-                              Text(
+                              const Text(
                                 'Добавить номер',
-                                style: Typography.body2.copyWith(color: themePrimaryColor),
+                                style: AppTypography.body,
                               ),
                             ],
                           ),
@@ -537,18 +522,11 @@ final theme = CupertinoTheme.of(context);
                       ],
                     ),
                     CupertinoFormSection.insetGrouped(
-                      decoration: BoxDecoration(
-                        color: themePrimaryContrastingColor,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      backgroundColor: themeScaffoldBackgroundColor,
-                      header: Text('ТИП ОБМЕНА', style: Typography.heading2),
+                      header: Text('ТИП ОБМЕНА', style: sectionHeaderStyle),
                         children: [
                           Row(children: [
                             Expanded(
                               child: CupertinoSlidingSegmentedControl<bool>(
-                                // backgroundColor: CupertinoColors.black,
-                                thumbColor: themePrimaryContrastingColor,
                                 groupValue: _form.gross > 0,
                                 onValueChanged: (bool? value) {
                                   if (value != null) {
@@ -573,42 +551,32 @@ final theme = CupertinoTheme.of(context);
                         ]),
                     // Currency Rates Section
                     CupertinoFormSection.insetGrouped(
-                      decoration: BoxDecoration(
-                        color: themePrimaryContrastingColor,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      backgroundColor: themeScaffoldBackgroundColor,
-                      header: const Text('КУРСЫ ВАЛЮТ', style: Typography.heading2),
+                      header: Text('КУРСЫ ВАЛЮТ', style: sectionHeaderStyle),
                       children: [
                         _buildStyledCurrencyRow(
                           USD,
                           _form.buyUSD,
                           _form.sellUSD,
-                          backgroundColor: themeScaffoldBackgroundColor,
                         ),
                         _buildStyledCurrencyRow(
                           EUR,
                           _form.buyEUR,
                           _form.sellEUR,
-                          backgroundColor: themeScaffoldBackgroundColor,
                         ),
                         _buildStyledCurrencyRow(
                           RUR,
                           _form.buyRUB,
                           _form.sellRUB,
-                          backgroundColor: themeScaffoldBackgroundColor,
                         ),
                         _buildStyledCurrencyRow(
                           CNY,
                           _form.buyCNY,
                           _form.sellCNY,
-                          backgroundColor: themeScaffoldBackgroundColor,
                         ),
                         _buildStyledCurrencyRow(
                           GBP,
                           _form.buyGBP,
                           _form.sellGBP,
-                          backgroundColor: themeScaffoldBackgroundColor,
                         ),
                       ],
                     ),
@@ -654,25 +622,28 @@ final theme = CupertinoTheme.of(context);
               padding: EdgeInsets.only(right: 12),
               child: Text(
                 'Телефон',
-                style: Typography.body2,
+                style: AppTypography.body,
               ),
             ),
             placeholder: "+7 701 123 4567",
-            placeholderStyle: Typography.body2.copyWith(
-              color: AppColors.darkSecondary,
+            placeholderStyle: AppTypography.body.copyWith(
+              color: AppColors.secondaryLabel,
             ),
             keyboardType: TextInputType.phone,
-            style: Typography.body2,
+            style: AppTypography.body,
             onChanged: _onPhoneChanged,
             controller: _phoneControllers[index],
-            cursorColor: AppColors.darkSecondary,
           ),
         ),
         if (_phoneControllers.length > 1)
           CupertinoButton(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             onPressed: () => _removePhone(index),
-            child: const Icon(CupertinoIcons.minus_circle, color: AppColors.generalRed, size: 20),
+            child: Icon(
+              CupertinoIcons.minus_circle,
+              color: AppColors.destructive.resolveFrom(context),
+              size: 20,
+            ),
           ),
       ],
     );
@@ -682,9 +653,8 @@ final theme = CupertinoTheme.of(context);
   Widget _buildStyledCurrencyRow(
     CurrencyItem currency,
     String buyValue,
-    String sellValue, {
-    required Color backgroundColor,
-  }) {
+    String sellValue,
+  ) {
     // Get the appropriate controllers based on currency
     TextEditingController buyController;
     TextEditingController sellController;
@@ -733,7 +703,7 @@ final theme = CupertinoTheme.of(context);
                 padding: const EdgeInsets.only(left: 10),
                 child: Text(
                   currency.icon,
-                  style: const TextStyle(fontSize: 24),
+                  style: AppTypography.title2,
                 ),
               ),
 
@@ -744,7 +714,7 @@ final theme = CupertinoTheme.of(context);
                   padding: const EdgeInsets.only(left: 12),
                   child: Text(
                     currency.id,
-                    style: Typography.body2,
+                    style: AppTypography.body,
                   ),
                 ),
               ),
@@ -757,22 +727,21 @@ final theme = CupertinoTheme.of(context);
                   height: 38,
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: buyError == null
-                          ? CupertinoColors.systemGrey4
-                          : CupertinoColors.systemRed,
+                      color: (buyError == null ? AppColors.inputBorder : AppColors.error)
+                          .resolveFrom(context),
                       width: 0.8,
                     ),
                     borderRadius: BorderRadius.circular(8),
-                    color: backgroundColor,
+                    color: AppColors.background.resolveFrom(context),
                   ),
                   child: Row(
                     children: [
                       // Buy indicator
                       Container(
                         width: 4,
-                        decoration: const BoxDecoration(
-                          color: AppColors.generalGreen, // Green for buy
-                          borderRadius: BorderRadius.only(
+                        decoration: BoxDecoration(
+                          color: AppColors.buy.resolveFrom(context),
+                          borderRadius: const BorderRadius.only(
                             topLeft: Radius.circular(7),
                             bottomLeft: Radius.circular(7),
                           ),
@@ -781,18 +750,17 @@ final theme = CupertinoTheme.of(context);
                       Expanded(
                         child: CupertinoTextField(
                           placeholder: "Покупка",
-                          placeholderStyle: Typography.body2.copyWith(color: AppColors.darkSecondary),
+                          placeholderStyle: AppTypography.body.copyWith(color: AppColors.secondaryLabel),
                           keyboardType:
                               const TextInputType.numberWithOptions(decimal: true),
                           inputFormatters: [rateInputFormatter],
                           textAlign: TextAlign.center,
                           padding: const EdgeInsets.symmetric(vertical: 8),
-                          style: Typography.body2,
+                          style: AppTypography.body,
                           onChanged: (value) => _onRateChanged(value,
                               currency: currency.id, isBuy: true),
                           decoration:
                               null, // No decoration as we're using the parent container
-                          cursorColor: AppColors.darkSecondary,
                           controller: buyController,
                         ),
                       ),
@@ -809,22 +777,21 @@ final theme = CupertinoTheme.of(context);
                   height: 38,
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: sellError == null
-                          ? CupertinoColors.systemGrey4
-                          : CupertinoColors.systemRed,
+                      color: (sellError == null ? AppColors.inputBorder : AppColors.error)
+                          .resolveFrom(context),
                       width: 0.8,
                     ),
                     borderRadius: BorderRadius.circular(8),
-                    color: backgroundColor,
+                    color: AppColors.background.resolveFrom(context),
                   ),
                   child: Row(
                     children: [
                       // Sell indicator
                       Container(
                         width: 4,
-                        decoration: const BoxDecoration(
-                          color: AppColors.generalRed, // Red for sell
-                          borderRadius: BorderRadius.only(
+                        decoration: BoxDecoration(
+                          color: AppColors.sell.resolveFrom(context),
+                          borderRadius: const BorderRadius.only(
                             topLeft: Radius.circular(7),
                             bottomLeft: Radius.circular(7),
                           ),
@@ -833,18 +800,17 @@ final theme = CupertinoTheme.of(context);
                       Expanded(
                         child: CupertinoTextField(
                           placeholder: "Продажа",
-                          placeholderStyle: Typography.body2.copyWith(color: AppColors.darkSecondary),
+                          placeholderStyle: AppTypography.body.copyWith(color: AppColors.secondaryLabel),
                           keyboardType:
                               const TextInputType.numberWithOptions(decimal: true),
                           inputFormatters: [rateInputFormatter],
                           textAlign: TextAlign.center,
                           padding: const EdgeInsets.symmetric(vertical: 8),
-                          style: Typography.body2,
+                          style: AppTypography.body,
                           onChanged: (value) => _onRateChanged(value,
                               currency: currency.id, isBuy: false),
                           decoration:
                               null, // No decoration as we're using the parent container
-                          cursorColor: AppColors.darkSecondary,
                           controller: sellController,
                         ),
                       ),
@@ -863,7 +829,9 @@ final theme = CupertinoTheme.of(context);
             padding: const EdgeInsets.fromLTRB(30, 0, 20, 8),
             child: Text(
               error,
-              style: const TextStyle(color: CupertinoColors.systemRed, fontSize: 13),
+              style: AppTypography.footnote.copyWith(
+                color: AppColors.error.resolveFrom(context),
+              ),
             ),
           ),
       ],
