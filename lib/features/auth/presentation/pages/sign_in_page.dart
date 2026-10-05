@@ -87,88 +87,81 @@ class _SignInState extends State<SignInPage> {
     final success = AppColors.success.resolveFrom(context);
 
     return CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          leading: GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: Container(
-              padding: const EdgeInsets.all(8),
-            child: Icon(
-                CupertinoIcons.arrow_left,
-                size: 24,
-              ),
+      navigationBar: const CupertinoNavigationBar(),
+      child: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Fades in and out, making and giving back its room smoothly.
+                AnimatedSize(
+                  duration: AppMotion.duration,
+                  curve: AppMotion.curve,
+                  child: AnimatedSwitcher(
+                    duration: AppMotion.duration,
+                    child: !_isRegistered
+                        ? const SizedBox(width: double.infinity)
+                        : Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: AppSpacing.xs,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  CupertinoIcons.checkmark_circle_fill,
+                                  color: success,
+                                  size: AppIconSize.small,
+                                ),
+                                const SizedBox(width: AppSpacing.xs),
+                                Text(
+                                  "Успешная регистрация",
+                                  style: AppTypography.callout.copyWith(
+                                    color: success,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ),
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: AppSpacing.xl),
+                  child: Text(
+                    "Вход в личный кабинет обменного пункта",
+                    style: AppTypography.title2,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                SignInForm(
+                  notice: _expiredSession.expired
+                      ? const InlineNotice(
+                          text:
+                              'Сессия истекла. Войдите снова, чтобы продолжить',
+                          color: AppColors.warning,
+                        )
+                      : null,
+                  onSignIn: _handleSignIn,
+                  signInError: _errorMessage,
+                  initialEmail: _expiredSession.email,
+                  onSignUp: () {
+                    if (mounted) {
+                      Navigator.pushNamed(context, SignUpPage.routeName).then((
+                        result,
+                      ) {
+                        _handleSignUpResult(result as SignUpResult?);
+                      });
+                    }
+                  },
+                ),
+              ],
             ),
           ),
         ),
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(0, 4, 0, 0),
-          child: SafeArea(
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  if (_isRegistered)
-                    AnimatedOpacity(
-                      opacity: _isRegistered ? 1.0 : 0.0,
-                      duration: const Duration(milliseconds: 500),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              CupertinoIcons.checkmark_circle_fill,
-                              color: success,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              "Успешная регистрация",
-                              style: AppTypography.callout.copyWith(color: success),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  Container(
-                    margin: const EdgeInsets.symmetric(vertical: 28),
-                    child: Column(
-                      children: [
-                        Text(
-                          "Вход в личный кабинет обменного пункта",
-                        style: AppTypography.title2,
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
-                  SignInForm(
-                    notice: _expiredSession.expired
-                        ? const InlineNotice(
-                            text: 'Сессия истекла. Войдите снова, чтобы продолжить',
-                            color: AppColors.warning,
-                          )
-                        : null,
-                    onSignIn: _handleSignIn,
-                    signInError: _errorMessage,
-                    initialEmail: _expiredSession.email,
-                    onSignUp: () {
-                      if (mounted) {
-                        Navigator.pushNamed(context, SignUpPage.routeName)
-                            .then((result) {
-                          _handleSignUpResult(result as SignUpResult?);
-                        });
-                      }
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ));
+      ),
+    );
   }
 }

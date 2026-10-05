@@ -26,8 +26,9 @@ class SignInForm extends StatefulWidget {
 }
 
 class _SignInFormState extends State<SignInForm> {
-  late final TextEditingController _emailController =
-      TextEditingController(text: widget.initialEmail);
+  late final TextEditingController _emailController = TextEditingController(
+    text: widget.initialEmail,
+  );
   final TextEditingController _passwordController = TextEditingController();
 
   String? _emailError;
@@ -50,11 +51,12 @@ class _SignInFormState extends State<SignInForm> {
         _emailError = email.isEmpty
             ? 'Поле обязательно для заполнения'
             : !_isValidEmail(email)
-                ? 'Введите валидный email адрес'
-                : null;
+            ? 'Введите валидный email адрес'
+            : null;
 
-        _passwordError =
-            password.isEmpty ? 'Поле обязательно для заполнения' : null;
+        _passwordError = password.isEmpty
+            ? 'Поле обязательно для заполнения'
+            : null;
       }
     });
   }
@@ -91,92 +93,94 @@ class _SignInFormState extends State<SignInForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (widget.notice != null) ...[
-              widget.notice!,
-              const SizedBox(height: 16),
-            ],
-            CupertinoTextField(
-              controller: _emailController,
-              placeholder: 'Email',
-              placeholderStyle: const TextStyle(color: AppColors.secondaryLabel),
-              autofocus: widget.initialEmail == null,
-              keyboardType: TextInputType.emailAddress,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                border: Border.all(color: AppColors.inputBorder),
-                borderRadius: BorderRadius.circular(8),
-              ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (widget.notice != null) ...[
+          widget.notice!,
+          const SizedBox(height: AppSpacing.md),
+        ],
+        CupertinoTextField(
+          controller: _emailController,
+          placeholder: 'Email',
+          placeholderStyle: const TextStyle(color: AppColors.secondaryLabel),
+          autofocus: widget.initialEmail == null,
+          keyboardType: TextInputType.emailAddress,
+          clearButtonMode: OverlayVisibilityMode.editing,
+          padding: const EdgeInsets.all(AppSpacing.md),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: AppColors.inputBorder,
+              width: AppStroke.hairline,
             ),
-            if (_emailError != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Text(
-                  _emailError!,
-                  style: AppTypography.footnote.copyWith(
-                    color: AppColors.error.resolveFrom(context),
-                  ),
-                ),
-              ),
-            const SizedBox(height: 16),
-            CupertinoTextField(
-              controller: _passwordController,
-              placeholder: 'Пароль',
-              placeholderStyle: const TextStyle(color: AppColors.secondaryLabel),
-              autofocus: widget.initialEmail != null,
-              obscureText: true,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                border: Border.all(color: AppColors.inputBorder),
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            if (_passwordError != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Text(
-                  _passwordError!,
-                  style: AppTypography.footnote.copyWith(
-                    color: AppColors.error.resolveFrom(context),
-                  ),
-                ),
-              ),
-            if (widget.signInError != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 24),
-                child: Text(
-                  widget.signInError!,
-                  style: AppTypography.footnote.copyWith(
-                    color: AppColors.error.resolveFrom(context),
-                  ),
-                ),
-              ),
-            const SizedBox(height: 24),
-            CupertinoButton.filled(
-              onPressed: _validateAndSubmit,
-              child: const Text('Войти'),
-            ),
-            const SizedBox(height: 32),
-            GestureDetector(
-              onTap: widget.onSignUp,
-              child: Center(
-                child: Text(
-                  'Еще нет аккаунта? Зарегистрируйтесь',
-                  style: AppTypography.callout.copyWith(
-                    color: AppColors.link.resolveFrom(context),
-                  ),
-                ),
-              ),
-            ),
-          ],
+            borderRadius: AppRadius.control,
+          ),
         ),
-      ),
+        if (_emailError != null)
+          Padding(
+            padding: const EdgeInsets.only(top: AppSpacing.xs),
+            child: Text(
+              _emailError!,
+              style: AppTypography.footnote.copyWith(
+                color: AppColors.error.resolveFrom(context),
+              ),
+            ),
+          ),
+        const SizedBox(height: AppSpacing.md),
+        CupertinoTextField(
+          controller: _passwordController,
+          placeholder: 'Пароль',
+          placeholderStyle: const TextStyle(color: AppColors.secondaryLabel),
+          autofocus: widget.initialEmail != null,
+          obscureText: true,
+          padding: const EdgeInsets.all(AppSpacing.md),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: AppColors.inputBorder,
+              width: AppStroke.hairline,
+            ),
+            borderRadius: AppRadius.control,
+          ),
+        ),
+        if (_passwordError != null)
+          Padding(
+            padding: const EdgeInsets.only(top: AppSpacing.xs),
+            child: Text(
+              _passwordError!,
+              style: AppTypography.footnote.copyWith(
+                color: AppColors.error.resolveFrom(context),
+              ),
+            ),
+          ),
+        if (widget.signInError != null)
+          Padding(
+            padding: const EdgeInsets.only(top: AppSpacing.xl),
+            child: Text(
+              widget.signInError!,
+              style: AppTypography.footnote.copyWith(
+                color: AppColors.error.resolveFrom(context),
+              ),
+            ),
+          ),
+        const SizedBox(height: AppSpacing.xl),
+        CupertinoButton.filled(
+          borderRadius: AppRadius.card,
+          onPressed: _validateAndSubmit,
+          child: const Text('Войти'),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        CupertinoButton(
+          onPressed: widget.onSignUp,
+          child: Text(
+            'Еще нет аккаунта? Зарегистрируйтесь',
+            textAlign: TextAlign.center,
+            style: AppTypography.callout.copyWith(
+              color: AppColors.link.resolveFrom(context),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

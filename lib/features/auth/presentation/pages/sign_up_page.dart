@@ -19,7 +19,10 @@ class _SignUpState extends State<SignUpPage> {
   String? _errorMessage;
 
   Future<void> _handleSignUp(
-      String fullName, String email, String password) async {
+    String fullName,
+    String email,
+    String password,
+  ) async {
     if (_isLoading) return;
 
     setState(() {
@@ -29,7 +32,10 @@ class _SignUpState extends State<SignUpPage> {
 
     try {
       await _authService.signUp(
-          fullName: fullName, email: email, password: password);
+        fullName: fullName,
+        email: email,
+        password: password,
+      );
       if (mounted) {
         Navigator.pop(context, SignUpResult(email: email, password: password));
       }
@@ -59,69 +65,44 @@ class _SignUpState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-          leading: GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: Container(
-              padding: const EdgeInsets.all(8),
-            child: Icon(
-                CupertinoIcons.arrow_left,
-                size: 24,
-              ),
+      navigationBar: const CupertinoNavigationBar(middle: Text("Регистрация")),
+      child: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(AppSpacing.sm),
+                  margin: const EdgeInsets.only(bottom: AppSpacing.lg),
+                  decoration: cardDecoration(context),
+                  child: const Row(
+                    children: [
+                      Icon(
+                        CupertinoIcons.info_circle,
+                        size: AppIconSize.regular,
+                      ),
+                      SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: Text(
+                          'Регистрация необходима для владельцев обменных пунктов. Если вы хотите добавить обменный пункт, заполните данные ниже.',
+                          style: AppTypography.subheadline,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SignUpForm(
+                  onSignUp: _handleSignUp,
+                  isLoading: _isLoading,
+                  errorMessage: _errorMessage,
+                ),
+              ],
             ),
-          ),
-          middle: Text(
-            "Регистрация",
-            style: AppTypography.headline,
-            textAlign: TextAlign.center,
           ),
         ),
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(0, 4, 0, 0),
-          child: SafeArea(
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      margin: const EdgeInsets.only(bottom: 20),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface.resolveFrom(context),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            CupertinoIcons.info_circle,
-                            size: 24,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              'Регистрация необходима для владельцев обменных пунктов. Если вы хотите добавить обменный пункт, заполните данные ниже.',
-                            style: AppTypography.subheadline,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SignUpForm(
-                      onSignUp: _handleSignUp,
-                      isLoading: _isLoading,
-                      errorMessage: _errorMessage,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ));
+      ),
+    );
   }
 }
