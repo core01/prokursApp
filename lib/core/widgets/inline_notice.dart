@@ -21,16 +21,16 @@ class InlineNotice extends StatelessWidget {
     return Semantics(
       liveRegion: true,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
+        padding: const EdgeInsets.all(AppSpacing.sm),
+        decoration: ShapeDecoration(
           color: color.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(12),
+          shape: const RoundedSuperellipseBorder(borderRadius: AppRadius.card),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(CupertinoIcons.exclamationmark_circle_fill, color: color, size: 22),
-            const SizedBox(width: 10),
+            Icon(CupertinoIcons.exclamationmark_circle_fill, color: color, size: AppIconSize.small),
+            const SizedBox(width: AppSpacing.xs),
             Expanded(child: Text(text, style: AppTypography.subheadline)),
           ],
         ),

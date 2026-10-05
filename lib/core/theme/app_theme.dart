@@ -171,6 +171,67 @@ abstract final class AppTypography {
   );
 }
 
+/// Spacing on a 4-pt grid. Apple publishes no scale; [md] is the iPhone layout margin and
+/// [lg] the content inset of a grouped list row (CupertinoListTile, CupertinoFormRow).
+abstract final class AppSpacing {
+  static const xxs = 4.0;
+  static const xs = 8.0;
+  static const sm = 12.0;
+  static const md = 16.0;
+  static const lg = 20.0;
+  static const xl = 24.0;
+  static const xxl = 32.0;
+}
+
+/// Corner radii by role. Nested elements are rounded less than their container (Apple HIG,
+/// Layout). Touch targets use Flutter's kMinInteractiveDimensionCupertino (44 pt).
+abstract final class AppRadius {
+  /// Text fields and other controls inside cards.
+  static const control = BorderRadius.all(Radius.circular(8));
+
+  /// Cards, notices and buttons: the radius iOS inset grouped sections have
+  /// (CupertinoListSection clips its rows to it whatever decoration it gets).
+  static const card = BorderRadius.all(Radius.circular(10));
+
+  /// Chips and pills.
+  static const capsule = BorderRadius.all(Radius.circular(999));
+}
+
+/// Lines: separators and control borders.
+abstract final class AppStroke {
+  /// One physical pixel, like iOS separators: BorderSide paints width 0 as a hairline.
+  static const hairline = 0.0;
+}
+
+/// Animations. Brief, so nobody waits for them (Apple HIG, Motion).
+abstract final class AppMotion {
+  /// UIKit's standard short animation.
+  static const duration = Duration(milliseconds: 250);
+  static const curve = Curves.easeInOut;
+}
+
+abstract final class AppIconSize {
+  /// Next to text.
+  static const small = 20.0;
+
+  /// Navigation bars and list rows.
+  static const regular = 24.0;
+}
+
+/// A card on the grouped background, shaped like an inset grouped section (continuous corners).
+ShapeDecoration cardDecoration(BuildContext context) => ShapeDecoration(
+  color: AppColors.surface.resolveFrom(context),
+  shape: const RoundedSuperellipseBorder(borderRadius: AppRadius.card),
+);
+
+/// A grouped list or form section: the screen's side margins and the gap to what follows.
+const sectionMargin = EdgeInsetsDirectional.fromSTEB(
+  AppSpacing.md,
+  0,
+  AppSpacing.md,
+  AppSpacing.xl,
+);
+
 // The theme's text styles are complete (inherit: false), like Flutter's defaults: on route
 // transitions the navigation bar interpolates the title into the back button, and TextStyle.lerp
 // fails between styles with different `inherit`.
