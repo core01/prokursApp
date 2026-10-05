@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemChrome, DeviceOrientation;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:prokurs/features/auth/presentation/pages/sign_in_page.dart';
 import 'package:prokurs/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:prokurs/features/auth/presentation/state/auth_provider.dart';
@@ -123,10 +123,10 @@ class MyApp extends StatelessWidget {
       child: CupertinoApp(
         navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
-        localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
-          DefaultMaterialLocalizations.delegate,
-          DefaultWidgetsLocalizations.delegate,
-        ],
+        // System texts (back button label for VoiceOver, text selection menu) in Russian.
+        locale: const Locale('ru'),
+        supportedLocales: const [Locale('ru')],
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
         initialRoute: _getInitialRoute(),
         onGenerateRoute: (RouteSettings settings) {
           switch (settings.name) {
