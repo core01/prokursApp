@@ -171,15 +171,28 @@ abstract final class AppTypography {
   );
 }
 
+// The theme's text styles are complete (inherit: false), like Flutter's defaults: on route
+// transitions the navigation bar interpolates the title into the back button, and TextStyle.lerp
+// fails between styles with different `inherit`.
+TextStyle _themeStyle(TextStyle style, Color color) => style.copyWith(
+  inherit: false,
+  color: color,
+  decoration: TextDecoration.none,
+);
+
 final appTheme = CupertinoThemeData(
   primaryColor: AppColors.accent,
   primaryContrastingColor: AppColors.onAccent,
   scaffoldBackgroundColor: AppColors.background,
   textTheme: CupertinoTextThemeData(
     primaryColor: AppColors.accent,
-    textStyle: AppTypography.body.copyWith(color: AppColors.label),
-    actionTextStyle: AppTypography.body,
-    navTitleTextStyle: AppTypography.headline.copyWith(color: AppColors.label),
-    navLargeTitleTextStyle: AppTypography.largeTitle.copyWith(color: AppColors.label),
+    textStyle: _themeStyle(AppTypography.body, AppColors.label),
+    actionTextStyle: _themeStyle(AppTypography.body, AppColors.accent),
+    navActionTextStyle: _themeStyle(AppTypography.body, AppColors.accent),
+    navTitleTextStyle: _themeStyle(AppTypography.headline, AppColors.label),
+    navLargeTitleTextStyle: _themeStyle(
+      AppTypography.largeTitle,
+      AppColors.label,
+    ),
   ),
 );
