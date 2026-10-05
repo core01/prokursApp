@@ -76,9 +76,24 @@ void main() {
     expect(input.dayAndNight, 1);
     expect(input.longitude, 76.9);
     expect(input.latitude, 43.2);
-    expect(input.wholesaleNote, 'от 100 000');
     expect(input.workModes?.mon, ['09:00', '18:00', '', '']);
     expect(input.description, 'Без комиссии');
+  });
+
+  test('the wholesale conditions are sent as typed, blank as null, kept with gross off', () {
+    final original = _point();
+    final form = ExchangePointForm.fromExchangePoint(original);
+    expect(form.wholesaleNote, 'от 100 000');
+
+    final typed = form.copyWith(wholesaleNote: '  от 1 000 000  ');
+    expect(typed.toReplaceInput(original).wholesaleNote, 'от 1 000 000');
+    // Off (gross 0) hides them in the API, so switching it back on brings them back.
+    expect(typed.copyWith(gross: 0).toReplaceInput(original).wholesaleNote, 'от 1 000 000');
+
+    final cleared = form.copyWith(wholesaleNote: '  ');
+    expect(cleared.toReplaceInput(original).toJson()['wholesale_note'], isNull);
+    expect(cleared.copyWith(city: const CityInput.dirty(2)).toCreateInput().wholesaleNote,
+        isNull);
   });
 
   test('PUT body sends cleared fields as explicit null', () {

@@ -9,6 +9,10 @@ class ExchangePointForm {
   final PhonesInput phones;
   final CityInput city;
   final num gross;
+
+  /// The wholesale conditions; the API shows them only while [gross] is on, so they are kept
+  /// when it's switched off.
+  final String wholesaleNote;
   final bool isSubmitted;
 
   // Currency rates
@@ -29,6 +33,7 @@ class ExchangePointForm {
     this.phones = const PhonesInput.pure(),
     this.city = const CityInput.pure(),
     this.gross = 0,
+    this.wholesaleNote = '',
     this.isSubmitted = false,
     this.buyUSD = '',
     this.sellUSD = '',
@@ -48,6 +53,7 @@ class ExchangePointForm {
     PhonesInput? phones,
     CityInput? city,
     num? gross,
+    String? wholesaleNote,
     bool? isSubmitted,
     String? buyUSD,
     String? sellUSD,
@@ -66,6 +72,7 @@ class ExchangePointForm {
       phones: phones ?? this.phones,
       city: city ?? this.city,
       gross: gross ?? this.gross,
+      wholesaleNote: wholesaleNote ?? this.wholesaleNote,
       isSubmitted: isSubmitted ?? this.isSubmitted,
       buyUSD: buyUSD ?? this.buyUSD,
       sellUSD: sellUSD ?? this.sellUSD,
@@ -115,6 +122,11 @@ class ExchangePointForm {
           if (ExchangePointFormValidation.rateError(rate) case final error?) '$label — $error',
       ];
 
+  String? get _wholesaleNote {
+    final note = wholesaleNote.trim();
+    return note.isEmpty ? null : note;
+  }
+
   double _parseRate(String value) {
     if (value.isEmpty) return 0;
     return double.tryParse(value) ?? 0;
@@ -128,6 +140,7 @@ class ExchangePointForm {
       phoneNumbers: phones.numbers,
       cityId: city.value!,
       gross: gross.toInt(),
+      wholesaleNote: _wholesaleNote,
       buyUsd: _parseRate(buyUSD),
       sellUsd: _parseRate(sellUSD),
       buyEur: _parseRate(buyEUR),
@@ -152,6 +165,7 @@ class ExchangePointForm {
       phoneNumbers: phones.numbers,
       cityId: city.value!,
       gross: gross.toInt(),
+      wholesaleNote: _wholesaleNote,
       buyUsd: _parseRate(buyUSD),
       sellUsd: _parseRate(sellUSD),
       buyEur: _parseRate(buyEUR),
@@ -165,7 +179,6 @@ class ExchangePointForm {
       dayAndNight: original.day_and_night.toInt(),
       longitude: original.longitude,
       latitude: original.latitude,
-      wholesaleNote: original.wholesaleNote,
       workModes: original.workModes,
       description: original.description,
     );
@@ -179,6 +192,7 @@ class ExchangePointForm {
           point.phones.isEmpty ? const [''] : point.phones),
       city: CityInput.dirty(point.city_id.toInt()),
       gross: point.gross,
+      wholesaleNote: point.wholesaleNote ?? '',
       buyUSD: point.buyUSD != 0 ? point.buyUSD.toString() : '',
       sellUSD: point.sellUSD != 0 ? point.sellUSD.toString() : '',
       buyEUR: point.buyEUR != 0 ? point.buyEUR.toString() : '',

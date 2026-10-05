@@ -51,6 +51,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
 
   final _nameController = TextEditingController();
   final _infoController = TextEditingController();
+  final _wholesaleNoteController = TextEditingController();
 
   // Currency controllers
   final _buyUSDController = TextEditingController();
@@ -79,6 +80,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
   void dispose() {
     _nameController.dispose();
     _infoController.dispose();
+    _wholesaleNoteController.dispose();
     // Dispose currency controllers
     _buyUSDController.dispose();
     _sellUSDController.dispose();
@@ -167,6 +169,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
       _form = ExchangePointForm.fromExchangePoint(point);
       _nameController.text = _form.name.value;
       _infoController.text = _form.info.value;
+      _wholesaleNoteController.text = _form.wholesaleNote;
 
       for (final controller in _phoneControllers) {
         controller.dispose();
@@ -198,6 +201,12 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
   void _onNameChanged(String value) {
     setState(() {
       _form = _form.copyWith(name: NameInput.dirty(value));
+    });
+  }
+
+  void _onWholesaleNoteChanged(String value) {
+    setState(() {
+      _form = _form.copyWith(wholesaleNote: value);
     });
   }
 
@@ -465,25 +474,41 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                     margin: sectionMargin,
                     header: Text('ТИП ОБМЕНА', style: sectionHeaderStyle),
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.md, vertical: AppSpacing.xs),
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: CupertinoSlidingSegmentedControl<bool>(
-                            groupValue: _form.gross > 0,
-                            onValueChanged: (bool? value) {
-                              if (value != null) {
-                                _toggleRetailWholesale(value);
-                              }
-                            },
-                            children: const {
-                              false: Text('Розница'),
-                              true: Text('Опт'),
-                            },
+                      // An on/off choice is a switch in a list row on iOS: checkboxes are
+                      // macOS only (Apple HIG, Toggles). One VoiceOver element with the row.
+                      MergeSemantics(
+                        child: CupertinoListTile(
+                          // Vertical room too: the title wraps, the default only centers a line.
+                          padding: const EdgeInsetsDirectional.fromSTEB(
+                            AppSpacing.lg,
+                            AppSpacing.sm,
+                            AppSpacing.md,
+                            AppSpacing.sm,
+                          ),
+                          title: const Text(
+                            'Возможна продажа по оптовому курсу',
+                            maxLines: 3,
+                          ),
+                          trailing: CupertinoSwitch(
+                            value: _form.gross > 0,
+                            onChanged: _toggleRetailWholesale,
                           ),
                         ),
                       ),
+                      if (_form.gross > 0)
+                        Padding(
+                          // The text lines up with the row title above (the field pads by xs).
+                          padding: const EdgeInsetsDirectional.only(
+                            start: AppSpacing.lg - AppSpacing.xs,
+                            end: AppSpacing.xs,
+                          ),
+                          child: _textField(
+                            controller: _wholesaleNoteController,
+                            placeholder: 'Оптовые курсы от 100 000 тенге',
+                            onChanged: _onWholesaleNoteChanged,
+                            maxLines: null,
+                          ),
+                        ),
                     ],
                   ),
                   CupertinoFormSection.insetGrouped(

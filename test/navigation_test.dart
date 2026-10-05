@@ -92,6 +92,7 @@ ExchangePoint _pointWith({required num gross}) => ExchangePoint(
       date_update: 1700000000,
       day_and_night: 0,
       gross: gross,
+      wholesaleNote: 'Оптовые курсы от 100 000 тенге',
       city_id: City.ASTANA_ID,
     );
 
@@ -211,6 +212,16 @@ void main() {
       expect(find.text('2274'), findsOneWidget);
     },
   );
+
+  for (final (gross, shown) in [(1, true), (0, false)]) {
+    testWidgets('gross $gross: the point ${shown ? 'shows' : 'hides'} its wholesale conditions',
+        (tester) async {
+      await _openPoint(tester, _pointWith(gross: gross));
+
+      expect(find.text('Есть оптовые курсы'), shown ? findsOneWidget : findsNothing);
+      expect(find.text('Оптовые курсы от 100 000 тенге'), shown ? findsOneWidget : findsNothing);
+    });
+  }
 
   testWidgets('my points load the list once', (tester) async {
     final service = _CountingService();

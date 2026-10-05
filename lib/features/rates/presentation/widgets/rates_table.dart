@@ -6,6 +6,7 @@ import 'package:prokurs/core/theme/app_theme.dart';
 import 'package:prokurs/core/utils/utils.dart';
 import 'package:prokurs/features/exchange_points/domain/models/exchange_point.dart';
 import 'package:prokurs/features/rates/domain/models/best_rates.dart';
+import 'package:prokurs/features/rates/presentation/widgets/wholesale_info.dart';
 
 class RatesTable extends StatefulWidget {
   final List<ExchangePoint> exchangeRates;
@@ -254,14 +255,9 @@ class _RatesTable extends State<RatesTable> {
                           style: AppTypography.subheadline.copyWith(color: secondaryLabel),
                         ),
                         if (rate.gross > 0)
-                          Container(
-                            margin: const EdgeInsets.only(top: AppSpacing.xs),
-                            child: Text(
-                              'Оптовый курс',
-                              style: AppTypography.subheadline.copyWith(
-                                color: AppColors.warning.resolveFrom(context),
-                              ),
-                            ),
+                          const Padding(
+                            padding: EdgeInsets.only(top: AppSpacing.xs),
+                            child: WholesaleBadge(),
                           ),
                       ],
                     )),

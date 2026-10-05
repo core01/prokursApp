@@ -7,6 +7,7 @@ import 'package:prokurs/core/constants/app_constants.dart';
 import 'package:prokurs/core/theme/app_theme.dart';
 import 'package:prokurs/core/utils/utils.dart';
 import 'package:prokurs/features/exchange_points/domain/models/exchange_point.dart';
+import 'package:prokurs/features/rates/presentation/widgets/wholesale_info.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
@@ -384,6 +385,16 @@ class PointCardState extends State<PointCard> {
                         ),
                       ),
                     ],
+                    if (widget.point.gross > 0)
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          AppSpacing.md,
+                          widget.point.info == null ? AppSpacing.md : 0,
+                          AppSpacing.md,
+                          AppSpacing.sm,
+                        ),
+                        child: WholesaleNotice(note: widget.point.wholesaleNote),
+                      ),
                     Container(
                       padding: const EdgeInsets.only(left: AppSpacing.md),
                       child: Text(

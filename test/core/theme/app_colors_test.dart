@@ -48,6 +48,18 @@ void main() {
     }
   });
 
+  // The wholesale badge: semibold warning text on its own 12% tint. Bold text needs 3:1.
+  test('bold warning text reaches 3:1 on its own tint, in every appearance', () {
+    for (final MapEntry(key: bgName, value: bg) in backgrounds.entries) {
+      for (final MapEntry(key: variant, value: pick) in variants.entries) {
+        final warning = pick(AppColors.warning);
+        final tint = Color.alphaBlend(warning.withValues(alpha: 0.12), pick(bg));
+        expect(contrast(warning, tint), greaterThanOrEqualTo(3),
+            reason: 'warning on its tint over $bgName, $variant');
+      }
+    }
+  });
+
   test('input borders reach 3:1 on every background, in every appearance', () {
     for (final MapEntry(key: bgName, value: bg) in backgrounds.entries) {
       for (final MapEntry(key: variant, value: pick) in variants.entries) {
