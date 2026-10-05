@@ -14,6 +14,9 @@ class RatesTable extends StatefulWidget {
   final BestRates bestGrossRates;
   final onPointClick;
 
+  /// The list is sorted by the buy rate (highest first) or by the sell rate (lowest first).
+  final bool sortedByBuy;
+
   const RatesTable({
     super.key,
     required this.exchangeRates,
@@ -21,6 +24,7 @@ class RatesTable extends StatefulWidget {
     required this.bestRetailRates,
     required this.bestGrossRates,
     required Function this.onPointClick,
+    required this.sortedByBuy,
   });
 
   @override
@@ -70,6 +74,27 @@ class _RatesTable extends State<RatesTable> {
     );
   }
 
+  /// A rate column's title; the column the list is sorted by shows the order with an arrow.
+  Widget _columnTitle(String title, {required bool sorted, required bool descending}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Flexible(
+          child: Text(title, textAlign: TextAlign.center, style: AppTypography.subheadline),
+        ),
+        if (sorted) ...[
+          const SizedBox(width: AppSpacing.xxs),
+          Icon(
+            descending ? CupertinoIcons.arrow_down : CupertinoIcons.arrow_up,
+            size: AppTypography.subheadline.fontSize,
+            applyTextScaling: true,
+            semanticLabel: descending ? 'по убыванию' : 'по возрастанию',
+          ),
+        ],
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<ExchangePoint> exchangeRates = widget.exchangeRates;
@@ -105,17 +130,17 @@ class _RatesTable extends State<RatesTable> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Expanded(
-                          child: Text(
+                          child: _columnTitle(
                             'Покупка',
-                            textAlign: TextAlign.center,
-                            style: AppTypography.subheadline,
+                            sorted: widget.sortedByBuy,
+                            descending: true,
                           ),
                         ),
                         Expanded(
-                          child: Text(
+                          child: _columnTitle(
                             'Продажа',
-                            textAlign: TextAlign.center,
-                            style: AppTypography.subheadline,
+                            sorted: !widget.sortedByBuy,
+                            descending: false,
                           ),
                         ),
                       ],

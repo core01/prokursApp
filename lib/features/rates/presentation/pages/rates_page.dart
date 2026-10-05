@@ -461,6 +461,7 @@ class _RatesPageState extends State<RatesPage> {
         .watch<ExchangeRatesProvider>()
         .selectedCurrency;
     final isAuthenticated = context.watch<AuthProvider>().isAuthenticated;
+    final sortedByBuy = context.watch<ExchangeRatesProvider>().showBuy;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
@@ -525,6 +526,7 @@ class _RatesPageState extends State<RatesPage> {
                             bestGrossRates: bestGrossRates,
                             bestRetailRates: bestRetailRates,
                             onPointClick: onPointClick,
+                            sortedByBuy: sortedByBuy,
                           ),
                       ],
                     ),
