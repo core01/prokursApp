@@ -83,6 +83,7 @@ class _AboutPage extends State<AboutPage> {
                 ),
               ),
               CupertinoListSection.insetGrouped(
+                backgroundColor: AppColors.background,
                 margin: sectionMargin,
                 hasLeading: false,
                 children: [
@@ -102,6 +103,7 @@ class _AboutPage extends State<AboutPage> {
               ),
               // The way into the cabinet for the few who need it, not advertised elsewhere.
               CupertinoListSection.insetGrouped(
+                backgroundColor: AppColors.background,
                 margin: sectionMargin,
                 hasLeading: false,
                 children: [

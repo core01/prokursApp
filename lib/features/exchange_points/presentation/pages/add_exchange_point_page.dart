@@ -429,6 +429,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                 padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
                 children: [
                   CupertinoFormSection.insetGrouped(
+                    backgroundColor: AppColors.background,
                     margin: sectionMargin,
                     header: Text('ОСНОВНАЯ ИНФОРМАЦИЯ', style: sectionHeaderStyle),
                     children: [
@@ -471,6 +472,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                     ],
                   ),
                   CupertinoFormSection.insetGrouped(
+                    backgroundColor: AppColors.background,
                     margin: sectionMargin,
                     header: Text('ТИП ОБМЕНА', style: sectionHeaderStyle),
                     children: [
@@ -512,6 +514,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                     ],
                   ),
                   CupertinoFormSection.insetGrouped(
+                    backgroundColor: AppColors.background,
                     margin: sectionMargin,
                     header: Text('КУРСЫ ВАЛЮТ', style: sectionHeaderStyle),
                     children: [

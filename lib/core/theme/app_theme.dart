@@ -12,7 +12,18 @@ import 'package:flutter/cupertino.dart';
 /// `AppColors.x.resolveFrom(context)` there.
 abstract final class AppColors {
   // Backgrounds: the grouped set, since the screens are grouped lists and cards.
-  static const background = CupertinoColors.systemGroupedBackground;
+  // A neutral grey: systemGroupedBackground (F2F2F7) reads bluish in light mode. Dark mode
+  // keeps the system values, where the tint doesn't show.
+  static const background = CupertinoDynamicColor(
+    color: Color(0xFFF4F4F4),
+    darkColor: Color(0xFF000000),
+    highContrastColor: Color(0xFFEBEBEB),
+    darkHighContrastColor: Color(0xFF000000),
+    elevatedColor: Color(0xFFF4F4F4),
+    darkElevatedColor: Color(0xFF1C1C1E),
+    highContrastElevatedColor: Color(0xFFEBEBEB),
+    darkHighContrastElevatedColor: Color(0xFF242426),
+  );
   static const surface = CupertinoColors.secondarySystemGroupedBackground;
 
   // Text.

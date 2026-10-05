@@ -22,6 +22,7 @@ class CityList extends StatelessWidget {
         for (final cities in [popular, others])
           if (cities.isNotEmpty)
             CupertinoListSection.insetGrouped(
+              backgroundColor: AppColors.background,
               margin: sectionMargin,
               hasLeading: false,
               children: [
