@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:prokurs/core/network/api_client.dart';
@@ -73,8 +74,13 @@ Future<void> _launch(
   await tester.pumpAndSettle();
 }
 
-// Without coordinates: no map, which is a platform view.
-ExchangePoint _pointWith({required num gross}) => ExchangePoint(
+// Without coordinates, no map: it's a platform view.
+ExchangePoint _pointWith({
+  required num gross,
+  num? latitude,
+  num? longitude,
+}) =>
+    ExchangePoint(
       id: 1,
       name: 'Обменник',
       info: null,
@@ -94,6 +100,8 @@ ExchangePoint _pointWith({required num gross}) => ExchangePoint(
       gross: gross,
       wholesaleNote: 'Оптовые курсы от 100 000 тенге',
       city_id: City.ASTANA_ID,
+      latitude: latitude,
+      longitude: longitude,
     );
 
 /// The point's screen over another route, as the app opens it from the rates.
@@ -222,6 +230,33 @@ void main() {
       expect(find.text('Оптовые курсы от 100 000 тенге'), shown ? findsOneWidget : findsNothing);
     });
   }
+
+  // MapKit rejects camera moves until it has a surface to draw on: moveCamera returns false.
+  testWidgets('the map repeats the camera move until MapKit accepts it', (tester) async {
+    final accepted = [false, false, true];
+    final moves = <Map>[];
+    final messenger = tester.binding.defaultBinaryMessenger;
+    messenger.setMockMethodCallHandler(SystemChannels.platform_views, (call) async {
+      if (call.method == 'create') {
+        final id = (call.arguments as Map)['id'];
+        messenger.setMockMethodCallHandler(MethodChannel('yandex_mapkit/yandex_map_$id'),
+            (call) async {
+          if (call.method != 'moveCamera') return null;
+          moves.add(call.arguments as Map);
+          return accepted[moves.length - 1];
+        });
+      }
+      return null;
+    });
+
+    await _openPoint(tester, _pointWith(gross: 0, latitude: 51, longitude: 71.4));
+
+    expect(moves, hasLength(3));
+    expect(moves.last['cameraUpdate']['params']['cameraPosition'],
+        containsPair('zoom', 16.0));
+    expect(moves.last['cameraUpdate']['params']['cameraPosition']['target'],
+        {'latitude': 51.0, 'longitude': 71.4});
+  }, variant: TargetPlatformVariant.only(TargetPlatform.iOS));
 
   testWidgets('my points load the list once', (tester) async {
     final service = _CountingService();

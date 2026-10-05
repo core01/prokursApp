@@ -53,6 +53,28 @@ class PointCardState extends State<PointCard> {
   List phoneNumbers = [];
   BitmapDescriptor? bitmapDescriptor;
 
+  // Close enough to see the streets around the point.
+  static const _mapZoom = 16.0;
+
+  // toDouble: the API sends a whole coordinate as an int, which `as double` would reject.
+  Point get _location => Point(
+        latitude: widget.point.latitude!.toDouble(),
+        longitude: widget.point.longitude!.toDouble(),
+      );
+
+  /// Points the map at the exchange point. The plugin calls onMapCreated once the map's view
+  /// has a size, but MapKit gets its drawing surface a moment later and rejects camera moves
+  /// until then (moveCamera returns false). So the move is repeated each frame until the map
+  /// accepts it.
+  Future<void> _showPoint(YandexMapController map) async {
+    final camera = CameraUpdate.newCameraPosition(
+      CameraPosition(target: _location, zoom: _mapZoom),
+    );
+    while (mounted && !await map.moveCamera(camera)) {
+      await WidgetsBinding.instance.endOfFrame;
+    }
+  }
+
   // Once: didChangeDependencies runs again on every theme or text size change, which added
   // the phones over and over and downloaded the logo again.
   @override
@@ -308,30 +330,17 @@ class PointCardState extends State<PointCard> {
                 child: Stack(
                   children: [
                     Positioned.fill(
+                      // A still preview: no gesture moves the camera.
                       child: YandexMap(
                         scrollGesturesEnabled: false,
                         rotateGesturesEnabled: false,
                         zoomGesturesEnabled: false,
-                        onMapCreated: (YandexMapController yandexMapController) async {
-                          yandexMapController.moveCamera(
-                            CameraUpdate.newCameraPosition(
-                              CameraPosition(
-                                target: Point(
-                                  latitude: widget.point.latitude as double,
-                                  longitude: widget.point.longitude as double,
-                                ),
-                                zoom: 16,
-                              ),
-                            ),
-                          );
-                        },
+                        tiltGesturesEnabled: false,
+                        onMapCreated: _showPoint,
                         mapObjects: [
                           PlacemarkMapObject(
                             mapId: mapObjectId,
-                            point: Point(
-                              latitude: widget.point.latitude as double,
-                              longitude: widget.point.longitude as double,
-                            ),
+                            point: _location,
                             opacity: bitmapDescriptor != null ? 1 : 0.8,
                             icon: PlacemarkIcon.single(
                               PlacemarkIconStyle(
