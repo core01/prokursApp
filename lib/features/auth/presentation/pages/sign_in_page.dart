@@ -48,8 +48,11 @@ class _SignInState extends State<SignInPage> {
     try {
       await context.read<AuthProvider>().signIn(email, password);
       if (mounted) {
-        // Redirect to My Points page after successful sign-in
-        Navigator.of(context).pushReplacementNamed(MyPointsPage.routeName);
+        // Over the rates, the same stack the app restores at launch: back leads to the rates.
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          MyPointsPage.routeName,
+          (route) => route.isFirst,
+        );
       }
     } catch (e) {
       if (mounted) {

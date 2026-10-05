@@ -9,9 +9,14 @@ import 'package:prokurs/features/exchange_points/presentation/widgets/my_points_
 import 'package:prokurs/features/exchange_points/presentation/widgets/my_points_points_list.dart';
 import 'package:prokurs/features/auth/presentation/state/auth_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyPointsPage extends StatefulWidget {
   static const routeName = '/my-points';
+
+  /// A SharedPreferences flag: the cabinet was open when the app last closed, so the next
+  /// launch opens it again, over the rates (Apple HIG, Launching: restore the previous state).
+  static const reopenOnLaunchKey = 'myPointsOpen';
 
   const MyPointsPage({super.key, this.service});
 
@@ -32,7 +37,20 @@ class _MyPointsState extends State<MyPointsPage> {
   @override
   void initState() {
     super.initState();
+    _rememberOpen(true);
     _loadPoints();
+  }
+
+  @override
+  void dispose() {
+    // Gone back or signed out: the next launch opens the rates.
+    _rememberOpen(false);
+    super.dispose();
+  }
+
+  static Future<void> _rememberOpen(bool open) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(MyPointsPage.reopenOnLaunchKey, open);
   }
 
   /// The first load and "Повторить", with a spinner. Pull-to-refresh has its own indicator.

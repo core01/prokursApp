@@ -45,8 +45,12 @@ class _RatesTable extends State<RatesTable> {
           )
         : AppTypography.body;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    // A number can't wrap: with large Dynamic Type it shrinks to its column instead of
+    // overflowing it.
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           getPointCurrencyRateStringFormatted(rate, property),
@@ -62,6 +66,7 @@ class _RatesTable extends State<RatesTable> {
           ),
         ]
       ],
+      ),
     );
   }
 
@@ -73,7 +78,7 @@ class _RatesTable extends State<RatesTable> {
     
     return SliverStickyHeader(
       header: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.md),
         color: AppColors.background.resolveFrom(context),
         child: SafeArea(
             bottom: false,
@@ -83,7 +88,7 @@ class _RatesTable extends State<RatesTable> {
                 Expanded(
                   flex: 5,
                   child: Container(
-                    margin: const EdgeInsets.only(right: 8),
+                    margin: const EdgeInsets.only(right: AppSpacing.xs),
                     alignment: Alignment.centerLeft,
                     child: Text(
                       'Обменный пункт',
@@ -94,7 +99,7 @@ class _RatesTable extends State<RatesTable> {
                 Expanded(
                   flex: 5,
                   child: Container(
-                    margin: const EdgeInsets.only(right: 8),
+                    margin: const EdgeInsets.only(right: AppSpacing.xs),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -124,17 +129,19 @@ class _RatesTable extends State<RatesTable> {
         delegate: SliverChildBuilderDelegate(
           (BuildContext context, int index) {
             var rate = exchangeRates[index];
-            return GestureDetector(
-              onTap: () {
+            return CupertinoButton(
+              padding: EdgeInsets.zero,
+              foregroundColor: AppColors.label.resolveFrom(context),
+              onPressed: () {
                 widget.onPointClick(exchangeRates[index]);
               },
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                padding: const EdgeInsets.symmetric(
+                    vertical: AppSpacing.sm, horizontal: AppSpacing.md),
                 decoration: BoxDecoration(
                   border: Border(
                     top: BorderSide(
-                      width: 1,
+                      width: AppStroke.hairline,
                       color: AppColors.separator.resolveFrom(context),
                     ),
                   ),
@@ -153,16 +160,16 @@ class _RatesTable extends State<RatesTable> {
                                 children: [
                                   if (rate.hasLogo) ...[
                                     Container(
-                                        margin: const EdgeInsets.only(right: 8),
+                                        margin: const EdgeInsets.only(right: AppSpacing.xs),
                                         child: Image.network(
                                           rate.logo!,
-                                          width: 24,
-                                          height: 24,
+                                          width: AppIconSize.regular,
+                                          height: AppIconSize.regular,
                                         ))
                                   ],
                                   Expanded(
                                     child: Container(
-                                      margin: const EdgeInsets.only(right: 4),
+                                      margin: const EdgeInsets.only(right: AppSpacing.xxs),
                                       child: Text(
                                         overflow: TextOverflow.ellipsis,
                                         rate.name,
@@ -176,31 +183,19 @@ class _RatesTable extends State<RatesTable> {
                             Expanded(
                               flex: 5,
                               child: Container(
-                                margin: const EdgeInsets.only(left: 4),
+                                margin: const EdgeInsets.only(left: AppSpacing.xxs),
                                 child: Row(
                                   children: [
                                     Expanded(
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          getPointCurrencyRateContainer(
-                                            rate,
-                                            '$BUY_KEY$selectedCurrency',
-                                          )
-                                        ],
+                                      child: getPointCurrencyRateContainer(
+                                        rate,
+                                        '$BUY_KEY$selectedCurrency',
                                       ),
                                     ),
                                     Expanded(
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          getPointCurrencyRateContainer(
-                                            rate,
-                                            '$SELL_KEY$selectedCurrency',
-                                          ),
-                                        ],
+                                      child: getPointCurrencyRateContainer(
+                                        rate,
+                                        '$SELL_KEY$selectedCurrency',
                                       ),
                                     ),
                                   ],
@@ -210,7 +205,7 @@ class _RatesTable extends State<RatesTable> {
                           ],
                         ),
                         Container(
-                          margin: const EdgeInsets.only(bottom: 8),
+                          margin: const EdgeInsets.only(bottom: AppSpacing.xs),
                           child: Row(
                             children: [
                               Text(
@@ -235,7 +230,7 @@ class _RatesTable extends State<RatesTable> {
                         ),
                         if (rate.gross > 0)
                           Container(
-                            margin: const EdgeInsets.only(top: 8),
+                            margin: const EdgeInsets.only(top: AppSpacing.xs),
                             child: Text(
                               'Оптовый курс',
                               style: AppTypography.subheadline.copyWith(

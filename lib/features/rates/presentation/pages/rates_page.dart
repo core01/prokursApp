@@ -2,10 +2,11 @@ import 'dart:core';
 
 import 'package:extended_sliver/extended_sliver.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show ActionChip, Divider, Material, MaterialType;
 import 'package:flutter/services.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:prokurs/features/about/presentation/pages/about_page.dart';
+import 'package:prokurs/features/auth/presentation/state/auth_provider.dart';
+import 'package:prokurs/features/exchange_points/presentation/pages/my_points_page.dart';
 import 'package:prokurs/features/point/presentation/navigation/point_screen_arguments.dart';
 import 'package:prokurs/features/point/presentation/pages/point_page.dart';
 import 'package:prokurs/features/exchange_points/data/providers/cities_provider.dart';
@@ -17,6 +18,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:prokurs/core/constants/app_constants.dart';
 import 'package:prokurs/core/theme/app_theme.dart';
+import 'package:prokurs/core/widgets/empty_state.dart';
+import 'package:prokurs/features/home/presentation/widgets/city_list.dart';
 import 'package:prokurs/features/exchange_points/domain/models/city.dart';
 
 class RatesPage extends StatefulWidget {
@@ -33,7 +36,6 @@ enum Sorting { buy, sell }
 class _RatesPageState extends State<RatesPage> {
   late ScrollController scrollController = ScrollController();
 
-  bool _isInitializationNeeded = true;
   bool _isLoading = true;
   bool _showSorting = true;
 
@@ -49,12 +51,39 @@ class _RatesPageState extends State<RatesPage> {
   void initState() {
     super.initState();
     scrollController.addListener(_scrollListener);
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final citiesProvider = context.read<CitiesProvider>();
+      // main.dart loaded the cities at launch; fetch them only if that failed.
+      if (citiesProvider.cities.isEmpty) {
+        await citiesProvider.fetchCities();
+      }
+
+      cities = citiesProvider.cities;
+      popularCities = citiesProvider.popularCities;
+      unpopularCities = citiesProvider.unpopularCities;
+
+      final prefs = await SharedPreferences.getInstance();
+      final cityId = prefs.getInt('cityId');
+      if (!mounted) return;
+      await onCitySelect(
+        cities.any((city) => city.id == cityId) ? cityId! : cities.first.id,
+      );
+    } catch (err) {
+      debugPrint('RatesPage -> _load: $err');
+    } finally {
+      // Right away: the content cross-fades in (see build), nobody waits for a delay.
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   void onCurrencySelect(CurrencyItem currency) {
-    context
-        .read<ExchangeRatesProvider>()
-        .changeSelectedCurrency(currency: currency.id);
+    context.read<ExchangeRatesProvider>().changeSelectedCurrency(
+      currency: currency.id,
+    );
   }
 
   void _toggleByBestBuy() {
@@ -69,9 +98,9 @@ class _RatesPageState extends State<RatesPage> {
 
   Future<void> _onRatesRefresh() async {
     try {
-      await context
-          .read<ExchangeRatesProvider>()
-          .fetchAndSetExchangeRates(cityId: _selectedCity.id);
+      await context.read<ExchangeRatesProvider>().fetchAndSetExchangeRates(
+        cityId: _selectedCity.id,
+      );
     } catch (err) {
       debugPrint('RatesPage -> _onRatesRefresh: catch error $err');
     }
@@ -94,9 +123,9 @@ class _RatesPageState extends State<RatesPage> {
       return;
     }
 
-    await context
-        .read<ExchangeRatesProvider>()
-        .fetchAndSetExchangeRates(cityId: cityId);
+    await context.read<ExchangeRatesProvider>().fetchAndSetExchangeRates(
+      cityId: cityId,
+    );
   }
 
   @override
@@ -120,100 +149,318 @@ class _RatesPageState extends State<RatesPage> {
     }
   }
 
-  @override
-  void didChangeDependencies() async {
-    debugPrint('pages -> rates -> didChangeDependencies');
-    if (_isInitializationNeeded) {
-      setState(() {
-        _isLoading = true;
-      });
-
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      try {
-        if (mounted) {
-          await context.read<CitiesProvider>().fetchCities();
-
-          cities = context.read<CitiesProvider>().cities;
-          popularCities = context.read<CitiesProvider>().popularCities;
-          unpopularCities = context.read<CitiesProvider>().unpopularCities;
-
-          final cityId = prefs.getInt('cityId')!;
-          await onCitySelect(cities.any((city) => city.id == cityId)
-              ? cityId
-              : cities.first.id);
-        }
-      } catch (err) {
-        debugPrint(
-            'pages -> rates -> didChangeDependencies -> catch error in fetchAndSetExchangeRates: $err');
-      } finally {
-        _isInitializationNeeded = false;
-        Future.delayed(const Duration(milliseconds: 500), () {
-          setState(() {
-            _isLoading = false;
-          });
-        });
-      }
-    }
-
-    super.didChangeDependencies();
+  void _showCitySheet() {
+    showCupertinoModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.background.resolveFrom(context),
+      topRadius: AppRadius.card.topLeft,
+      builder: (sheetContext) => SafeArea(
+        top: false,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.only(top: AppSpacing.xxl),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(bottom: AppSpacing.xl),
+                child: Text(
+                  "Выберите город",
+                  style: AppTypography.title2,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              CityList(
+                popular: popularCities,
+                others: unpopularCities,
+                onSelect: (city) async {
+                  await onCitySelect(city.id);
+                  if (sheetContext.mounted) {
+                    Navigator.of(sheetContext).pop();
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
-  buildCityList(List<City> cities) {
-    return ListView.separated(
-        scrollDirection: Axis.vertical,
-        itemCount: cities.length,
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-      separatorBuilder: (context, index) =>
-          Divider(color: AppColors.separator.resolveFrom(context),
-              height: 20,
-              indent: 0,
-            ),
-        padding: const EdgeInsets.all(10),
-        itemBuilder: (context, index) {
-          City city = cities[index];
-
-          return GestureDetector(
-            behavior: HitTestBehavior.opaque,
-              child: Row(
+  void _showCurrencySheet(String selectedCurrency) {
+    showCupertinoModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.background.resolveFrom(context),
+      topRadius: AppRadius.card.topLeft,
+      builder: (sheetContext) => SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.md,
+            AppSpacing.xxl,
+            AppSpacing.md,
+            AppSpacing.md,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(bottom: AppSpacing.xl),
+                child: Text(
+                  "Выберите валюту",
+                  style: AppTypography.title2,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              Wrap(
+                spacing: AppSpacing.xs,
+                runSpacing: AppSpacing.xs,
                 children: [
-                  Text(
-                    city.title,
-                    style: AppTypography.body,
+                  for (final currency in CURRENCY_LIST)
+                    SizedBox(
+                      // Options of one set share a size (Apple HIG, Buttons).
+                      width: 160,
+                      child: CupertinoButton(
+                        color: selectedCurrency == currency.id
+                            ? AppColors.accent
+                            : AppColors.surface,
+                        foregroundColor:
+                            (selectedCurrency == currency.id
+                                    ? AppColors.onAccent
+                                    : AppColors.label)
+                                .resolveFrom(sheetContext),
+                        borderRadius: AppRadius.card,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppSpacing.xs,
+                          horizontal: AppSpacing.md,
+                        ),
+                        child: Text(currency.label),
+                        onPressed: () {
+                          onCurrencySelect(currency);
+                          Navigator.of(sheetContext).pop();
+                        },
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// A currency in the header: a pill, with the full 44-pt touch target around it.
+  Widget _currencyChip(CurrencyItem currency, {required bool isSelected}) {
+    return CupertinoButton(
+      padding: EdgeInsets.zero,
+      onPressed: () => onCurrencySelect(currency),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.onHeader : AppColors.headerFill,
+          borderRadius: AppRadius.capsule,
+          border: Border.all(
+            color: AppColors.onHeaderSecondary,
+            width: AppStroke.hairline,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.sm,
+            vertical: AppSpacing.xxs,
+          ),
+          child: Text(
+            '${currency.unicode}  ${currency.label}',
+            style: AppTypography.body.copyWith(
+              color: isSelected ? AppColors.header : AppColors.onHeader,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildExpandedHeader(
+    String ratesUpdateTime,
+    String selectedCurrency, {
+    required bool isAuthenticated,
+  }) {
+    return Container(
+      color: AppColors.header,
+      child: SafeArea(
+        bottom: false,
+        child: SingleChildScrollView(
+          physics: const NeverScrollableScrollPhysics(),
+          padding: const EdgeInsets.only(top: AppSpacing.xs),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CupertinoButton(
+                          padding: EdgeInsets.zero,
+                          foregroundColor: AppColors.onHeader,
+                          onPressed: _showCitySheet,
+                          child: Row(
+                            children: [
+                              Text(
+                                _selectedCity.title,
+                                style: AppTypography.title2,
+                              ),
+                              const SizedBox(width: AppSpacing.xxs),
+                              const Icon(CupertinoIcons.chevron_down),
+                            ],
+                          ),
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Only for owners who signed in: the cabinet isn't advertised
+                            // to everyone else (they find it in "О приложении").
+                            if (isAuthenticated)
+                              CupertinoButton(
+                                padding: EdgeInsets.zero,
+                                foregroundColor: AppColors.onHeader,
+                                onPressed: () =>
+                                    Navigator.of(context)
+                                        .pushNamed(MyPointsPage.routeName),
+                                child: const Icon(
+                                  CupertinoIcons.person_circle,
+                                  size: AppIconSize.regular,
+                                  semanticLabel: 'Мои пункты',
+                                ),
+                              ),
+                            CupertinoButton(
+                              padding: EdgeInsets.zero,
+                              foregroundColor: AppColors.onHeader,
+                              onPressed: () =>
+                                  Navigator.of(context)
+                                      .pushNamed(AboutPage.routeName),
+                              child: const Icon(
+                                CupertinoIcons.info_circle,
+                                size: AppIconSize.regular,
+                                semanticLabel: 'О приложении',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Text(
+                      "Обновлено в $ratesUpdateTime",
+                      style: AppTypography.body.copyWith(
+                        color: AppColors.onHeaderSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md,
+                  vertical: AppSpacing.md,
+                ),
+                child: Row(
+                  children: [
+                    for (final currency in CURRENCY_LIST)
+                      Padding(
+                        padding: const EdgeInsetsDirectional.only(
+                          end: AppSpacing.xs,
+                        ),
+                        child: _currencyChip(
+                          currency,
+                          isSelected: selectedCurrency == currency.id,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCollapsedHeader(
+    String ratesUpdateTime,
+    String selectedCurrency,
+  ) {
+    return Container(
+      color: AppColors.header,
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.md,
+            0,
+            AppSpacing.md,
+            AppSpacing.xs,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(_selectedCity.title),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: AppSpacing.xxs),
+                    child: Text("•"),
                   ),
-                  const Spacer(),
-                  Icon(
-                    CupertinoIcons.chevron_forward,
-                    color: AppColors.secondaryLabel.resolveFrom(context),
-                    size: 24,
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    foregroundColor: AppColors.onHeader,
+                    onPressed: () => _showCurrencySheet(selectedCurrency),
+                    child: Row(
+                      children: [
+                        Text(selectedCurrency),
+                        const Icon(CupertinoIcons.chevron_down),
+                      ],
+                    ),
                   ),
                 ],
               ),
-            onTap: () async {
-              await onCitySelect(city.id);
-              if (context.mounted) {
-                Navigator.of(context).pop();
-              }
-            },
-          );
-        });
+              Text(
+                "Обновлено в $ratesUpdateTime",
+                style: AppTypography.subheadline.copyWith(
+                  color: AppColors.onHeaderSecondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     void onPointClick(rate) {
-      Navigator.of(context).pushNamed(PointPage.routeName,
-          arguments: PointScreenArguments(rate));
+      Navigator.of(
+        context,
+      ).pushNamed(PointPage.routeName, arguments: PointScreenArguments(rate));
     }
 
     final exchangeRates = context.watch<ExchangeRatesProvider>().items;
-    final bestRetailRates = context.watch<ExchangeRatesProvider>().bestRetailRates;
-    final bestGrossRates = context.watch<ExchangeRatesProvider>().bestGrossRates;
-    final ratesUpdateTime = context.watch<ExchangeRatesProvider>().ratesUpdateTime;
-    final selectedCurrency = context.watch<ExchangeRatesProvider>().selectedCurrency;
-
-    final background = AppColors.background.resolveFrom(context);
-    final surface = AppColors.surface.resolveFrom(context);
+    final bestRetailRates = context
+        .watch<ExchangeRatesProvider>()
+        .bestRetailRates;
+    final bestGrossRates = context
+        .watch<ExchangeRatesProvider>()
+        .bestGrossRates;
+    final ratesUpdateTime = context
+        .watch<ExchangeRatesProvider>()
+        .ratesUpdateTime;
+    final selectedCurrency = context
+        .watch<ExchangeRatesProvider>()
+        .selectedCurrency;
+    final isAuthenticated = context.watch<AuthProvider>().isAuthenticated;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
@@ -225,474 +472,53 @@ class _RatesPageState extends State<RatesPage> {
         statusBarIconBrightness: Brightness.light,
       ),
       child: CupertinoPageScaffold(
-        child: SafeArea(
-          bottom: false,
-          top: false,
-          child: Column(
-          children: [
-            Expanded(
-              child: Container(
-                color: surface,
-                child: Stack(
-                  alignment: Alignment.center,
+        backgroundColor: AppColors.surface,
+        // The rates replace the spinner with a short cross-fade, as soon as they arrive.
+        child: AnimatedSwitcher(
+          duration: AppMotion.duration,
+          switchInCurve: AppMotion.curve,
+          switchOutCurve: AppMotion.curve,
+          child: _isLoading
+              ? const Center(
+                  key: ValueKey('loading'),
+                  child: CupertinoActivityIndicator(),
+                )
+              : Stack(
+                  key: const ValueKey('rates'),
                   children: [
-                    if (_isLoading) ...[
-                      const Center(child: CupertinoActivityIndicator(radius: 15)),
-                    ] else ...[
-                      CustomScrollView(
-                        controller: scrollController,
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        slivers: <Widget>[
-                          SliverPinnedPersistentHeader(
-                            delegate: MySliverPinnedPersistentHeaderDelegate(
-                              maxExtentProtoType: Container(
-                                color: AppColors.header,
-                                child: SafeArea(
-                                  bottom: false,
-                                  child: SingleChildScrollView(
-                                    physics: const NeverScrollableScrollPhysics(),
-                                    child: Container(
-                                      padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                                        children: [
-                                        Container(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              16, 0, 16, 0),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Container(
-                                                margin:
-                                                    const EdgeInsets.fromLTRB(
-                                                        0, 8, 0, 4),
-                                                child: Row(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: [
-                                                    GestureDetector(
-                                                      onTap: () {
-                                                          showCupertinoModalBottomSheet(
-                                                            backgroundColor:
-                                                                background,
-                                                          context: context,
-                                                          builder: (context) =>
-                                                              Container(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .fromLTRB(0,
-                                                                    32, 0, 32),
-                                                            // height: 400,
-                                                              color: background,
-                                                            child:
-                                                                SingleChildScrollView(
-                                                              child: Column(
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .stretch,
-                                                                children: [
-                                                                  Container(
-                                                                    margin: const EdgeInsets
-                                                                        .only(
-                                                                        bottom:
-                                                                            24),
-                                                                    child:
-                                                                        const Text(
-                                                                      "Выберите город",
-                                                                      style: AppTypography
-                                                                          .title2,
-                                                                      textAlign:
-                                                                          TextAlign
-                                                                              .center,
-                                                                    ),
-                                                                  ),
-                                                                  if (popularCities
-                                                                      .isNotEmpty) ...[
-                                                                    Container(
-                                                                      margin: const EdgeInsets
-                                                                          .symmetric(
-                                                                          horizontal:
-                                                                              15),
-                                                                      decoration:
-                                                                          BoxDecoration(
-                                                                          color: surface,
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(15),
-                                                                      ),
-                                                                      //padding: EdgeInsets.symmetric(horizontal: 15),
-                                                                      child: buildCityList(
-                                                                          popularCities),
-                                                                    ),
-                                                                  ],
-                                                                  if (unpopularCities
-                                                                      .isNotEmpty) ...[
-                                                                    const SizedBox(
-                                                                      height:
-                                                                          40,
-                                                                    ),
-                                                                    Container(
-                                                                      margin: const EdgeInsets
-                                                                          .symmetric(
-                                                                          horizontal:
-                                                                              15),
-                                                                      decoration:
-                                                                          BoxDecoration(
-                                                                          color: surface,
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(15),
-                                                                      ),
-                                                                      //padding: EdgeInsets.symmetric(horizontal: 15),
-                                                                      child: buildCityList(
-                                                                          unpopularCities),
-                                                                    )
-                                                                  ]
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        );
-                                                      },
-                                                      child: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            _selectedCity.title,
-                                                            style: AppTypography
-                                                                .title2,
-                                                            textAlign:
-                                                                TextAlign.left,
-                                                          ),
-                                                          Container(
-                                                            margin:
-                                                                const EdgeInsets
-                                                                    .only(
-                                                                    left: 4),
-                                                              child: const Icon(
-                                                                CupertinoIcons.chevron_down,
-                                                                color: AppColors.onHeader,
-                                                              ),
-                                                          )
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    GestureDetector(
-                                                      child: const Icon(
-                                                          CupertinoIcons
-                                                              .info_circle,
-                                                          color: AppColors.onHeader,
-                                                        ),
-                                                      onTap: () {
-                                                        Navigator.of(context)
-                                                            .pushNamed(AboutPage
-                                                                .routeName);
-                                                      },
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              Text(
-                                                "Обновлено в $ratesUpdateTime",
-                                                  style: AppTypography.body
-                                                    .copyWith(
-                                                  color:
-                                                      AppColors.onHeaderSecondary,
-                                                ),
-                                                textAlign: TextAlign.left,
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                        Container(
-                                          margin: const EdgeInsets.symmetric(
-                                              vertical: 24),
-                                          child: Material(
-                                            type: MaterialType.transparency,
-                                            child: SingleChildScrollView(
-                                              scrollDirection: Axis.horizontal,
-                                              child: Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  for (var i = 0;
-                                                      i < CURRENCY_LIST.length;
-                                                      i++) ...[
-                                                    Container(
-                                                      margin:
-                                                          EdgeInsets.fromLTRB(
-                                                              i == 0 ? 16 : 0,
-                                                              0,
-                                                              8,
-                                                              0),
-                                                      child: ActionChip(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .symmetric(
-                                                                vertical: 0,
-                                                                horizontal: 5),
-                                                        side: const BorderSide(
-                                                            color: AppColors
-                                                              .onHeaderSecondary,
-                                                          width: 0.5,
-                                                        ),
-                                                        shape: const RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .all(Radius
-                                                                        .circular(
-                                                                            8))),
-                                                        label: Row(
-                                                          children: [
-                                                            Container(
-                                                              margin:
-                                                                  const EdgeInsets
-                                                                      .only(
-                                                                      right: 8),
-                                                              child: Text(
-                                                                CURRENCY_LIST[i]
-                                                                    .unicode,
-                                                                style: AppTypography.body.copyWith(
-                                                                    color: selectedCurrency ==
-                                                                            CURRENCY_LIST[i]
-                                                                                .id
-                                                                          ? AppColors
-                                                                            .header
-                                                                          : AppColors
-                                                                            .onHeader),
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center,
-                                                              ),
-                                                            ),
-                                                              Text(
-                                                                CURRENCY_LIST[i]
-                                                                    .label,
-                                                                style: AppTypography.body.copyWith(
-                                                                    color: selectedCurrency ==
-                                                                            CURRENCY_LIST[i]
-                                                                                .id
-                                                                        ? AppColors
-                                                                            .header
-                                                                        : AppColors
-                                                                            .onHeader),
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center,
-                                                              ),
-                                                          ],
-                                                        ),
-                                                        backgroundColor:
-                                                            selectedCurrency ==
-                                                                    CURRENCY_LIST[
-                                                                            i]
-                                                                        .id
-                                                              ? AppColors
-                                                                    .onHeader
-                                                              : AppColors
-                                                                    .headerFill,
-                                                        onPressed: () {
-                                                          onCurrencySelect(
-                                                              CURRENCY_LIST[i]);
-                                                        },
-                                                      ),
-                                                    )
-                                                  ]
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
+                    CustomScrollView(
+                      controller: scrollController,
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      slivers: <Widget>[
+                        SliverPinnedPersistentHeader(
+                          delegate: MySliverPinnedPersistentHeaderDelegate(
+                            maxExtentProtoType: _buildExpandedHeader(
+                              ratesUpdateTime,
+                              selectedCurrency,
+                              isAuthenticated: isAuthenticated,
                             ),
-                            minExtentProtoType: Container(
-                                color: AppColors.header,
-                              child: SafeArea(
-                                bottom: false,
-                                child: Container(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(16, 8, 16, 12),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                        margin:
-                                            const EdgeInsets.only(bottom: 4),
-                                        child: Row(
-                                          children: [
-                                            Text(
-                                              _selectedCity.title,
-                                              style: AppTypography.body,
-                                              textAlign: TextAlign.left,
-                                            ),
-                                            Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 4),
-                                              child: const Text(
-                                                "•",
-                                                style: AppTypography.body,
-                                              ),
-                                            ),
-                                            GestureDetector(
-                                              onTap: () {
-                                                  showCupertinoModalBottomSheet(
-                                                    backgroundColor: background,
-                                                  context: context,
-                                                    builder: (context) {
-                                                      return Container(
-                                                        padding: const EdgeInsets.fromLTRB(16, 32, 16, 16),
-                                                        // height: 256,
-                                                        child: Column(
-                                                          mainAxisSize: MainAxisSize.min,
-                                                          children: [
-                                                            Container(
-                                                          margin:
-                                                              const EdgeInsets
-                                                                  .only(
-                                                                  bottom: 24),
-                                                          child: const Text(
-                                                                "Выберите валюту",
-                                                            style: AppTypography
-                                                                .title2,
-                                                            textAlign: TextAlign
-                                                                .center,
-                                                          ),
-                                                        ),
-                                                            Wrap(
-                                                              direction: Axis.horizontal,
-                                                              spacing: 8,
-                                                              runSpacing: 8,
-                                                              children: [
-                                                            ...CURRENCY_LIST.map(
-                                                                (currency) {
-                                                                  final bool isSelected =
-                                                                      selectedCurrency == currency.id;
-
-                                                                  return SizedBox(
-                                                                    width: 160,
-                                                                    child: CupertinoButton(
-                                                                      color: isSelected ? AppColors.accent : AppColors.surface,
-                                                                      foregroundColor: (isSelected
-                                                                              ? AppColors.onAccent
-                                                                              : AppColors.label)
-                                                                          .resolveFrom(context),
-                                                                      padding: const EdgeInsets.symmetric(
-                                                                        vertical: 8,
-                                                                        horizontal: 16,
-                                                                      ),
-                                                                      child: Text(currency.label),
-                                                                      onPressed: () {
-                                                                        onCurrencySelect(currency);
-                                                                        Navigator.of(context).pop();
-                                                                      },
-                                                                    ),
-                                                                  );
-                                                                }),
-                                                          ],
-                                                        ),
-                                                      ],
-                                                    ),
-                                                      );
-                                                    },
-                                                );
-                                              },
-                                              child: Row(
-                                                children: [
-                                                  Text(
-                                                    selectedCurrency,
-                                                    style: AppTypography.body,
-                                                    textAlign: TextAlign.center,
-                                                  ),
-                                                    SizedBox(
-                                                    height: 24,
-                                                    width: 24,
-                                                    child: const Icon(
-                                                        CupertinoIcons.chevron_down,
-                                                        color: AppColors.onHeader,
-                                                      ),
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Text(
-                                        "Обновлено в $ratesUpdateTime",
-                                        style: AppTypography.subheadline
-                                            .copyWith(
-                                          color: AppColors.onHeaderSecondary,
-                                        ),
-                                        textAlign: TextAlign.left,
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ),
+                            minExtentProtoType: _buildCollapsedHeader(
+                              ratesUpdateTime,
+                              selectedCurrency,
                             ),
                           ),
                         ),
                         CupertinoSliverRefreshControl(
-                          onRefresh: () async {
-                            await _onRatesRefresh();
-                          },
-                          builder: (
-                            BuildContext context,
-                            RefreshIndicatorMode refreshState,
-                            double pulledExtent,
-                            double refreshTriggerPullDistance,
-                            double refreshIndicatorExtent,
-                          ) {
-                                  return Center(
-                                child: Stack(
-                              children: [
-                                Positioned(
-                                  top: 15.0,
-                                  bottom: 15.0,
-                                  left: 0.0,
-                                  right: 0.0,
-                                  child: CupertinoActivityIndicator(
-                                    radius: 14.0,
-                                  ),
-                                )
-                              ],
-                            ));
-                          },
+                          onRefresh: _onRatesRefresh,
                         ),
-                        if (exchangeRates.isEmpty) ...[
+                        if (exchangeRates.isEmpty)
                           SliverFillRemaining(
-                            child: Container(
-                              alignment: Alignment.center,
-                              padding: const EdgeInsets.all(16),
-                                color: background,
-                              child: Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'К сожалению, на данный момент нет информации по актуальному курсу ${_sorting == Sorting.buy ? 'покупки' : 'продажи'} $selectedCurrency в городе ${_selectedCity.title}',
-                                      textAlign: TextAlign.center,
-                                      style: AppTypography.body,
-                                    )
-                                  ],
-                                ),
+                            hasScrollBody: false,
+                            child: ColoredBox(
+                              color: AppColors.background.resolveFrom(context),
+                              child: EmptyState(
+                                title: 'Курсов пока нет',
+                                message:
+                                    'К сожалению, на данный момент нет информации по актуальному курсу ${_sorting == Sorting.buy ? 'покупки' : 'продажи'} $selectedCurrency в городе ${_selectedCity.title}',
                               ),
                             ),
-                          ),
-                        ] else ...[
+                          )
+                        else
                           RatesTable(
                             exchangeRates: exchangeRates,
                             selectedCurrency: selectedCurrency,
@@ -700,76 +526,54 @@ class _RatesPageState extends State<RatesPage> {
                             bestRetailRates: bestRetailRates,
                             onPointClick: onPointClick,
                           ),
-                        ],
                       ],
                     ),
                     if (exchangeRates.isNotEmpty &&
-                        (_showSorting || exchangeRates.length <= 4)) ...[
-                      Positioned.fill(
-                        bottom: 38,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Container(
-                              alignment: Alignment.center,
-                              margin: const EdgeInsets.only(bottom: 12),
-                              child: CupertinoSlidingSegmentedControl(
-                                padding: const EdgeInsets.all(4),
-                                  backgroundColor: AppColors.header,
-                                  thumbColor: AppColors.headerFill,
-                                // This represents the currently selected segmented control.
-                                groupValue: _sorting,
-                                // Callback that sets the selected segmented control.
-                                onValueChanged: (value) {
-                                  if (value != null) {
-                                    setState(() {
-                                      _sorting = value;
-                                    });
+                        (_showSorting || exchangeRates.length <= 4))
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        // Above the home indicator.
+                        bottom:
+                            MediaQuery.paddingOf(context).bottom +
+                            AppSpacing.md,
+                        child: Center(
+                          // The system size (32 pt), which Apple HIG allows for controls (at
+                          // least 28 pt); stretching segments to 44 pt made it a bulky box.
+                          child: CupertinoSlidingSegmentedControl<Sorting>(
+                            backgroundColor: AppColors.header,
+                            thumbColor: AppColors.headerFill,
+                            groupValue: _sorting,
+                            onValueChanged: (value) {
+                              if (value != null) {
+                                setState(() {
+                                  _sorting = value;
+                                });
 
-                                    if (value == Sorting.buy) {
-                                      _toggleByBestBuy();
-                                    } else {
-                                      _toggleByBestSell();
-                                    }
-                                  }
-                                },
-                                children: {
-                                  Sorting.buy: Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                    child: Text(
-                                      'Покупка',
-                                      style: AppTypography.subheadline
-                                          .copyWith(color: AppColors.onHeader),
-                                    ),
-                                  ),
-                                  Sorting.sell: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 20),
-                                    child: Text(
-                                      'Продажа',
-                                      style: AppTypography.subheadline
-                                          .copyWith(color: AppColors.onHeader),
-                                    ),
-                                  ),
-                                },
-                              ),
-                            ),
-                          ],
+                                if (value == Sorting.buy) {
+                                  _toggleByBestBuy();
+                                } else {
+                                  _toggleByBestSell();
+                                }
+                              }
+                            },
+                            children: {
+                              Sorting.buy: _sortingLabel('Покупка'),
+                              Sorting.sell: _sortingLabel('Продажа'),
+                            },
+                          ),
                         ),
                       ),
-                    ],
                   ],
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-      ),
+                ),
+        ),
       ),
     );
   }
+
+  // The control sets the font: 13 pt, semibold when selected.
+  Widget _sortingLabel(String text) => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+    child: Text(text, style: const TextStyle(color: AppColors.onHeader)),
+  );
 }

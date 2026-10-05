@@ -20,6 +20,10 @@ class AuthProvider extends ChangeNotifier {
   bool get isAuthenticated => _tokens != null;
   bool get isLoading => _isLoading;
 
+  /// Whether the server ended the session (rather than the user signing out). Unlike
+  /// [takeExpiredSession], reading it doesn't reset it.
+  bool get sessionExpired => _sessionExpired;
+
   String? get userEmail {
     if (_tokens == null) return null;
     try {
@@ -99,7 +103,7 @@ class AuthProvider extends ChangeNotifier {
     await prefs.remove('tokens');
   }
 
-  /// The user signs out. Listeners (see main.dart) take them to the sign-in screen.
+  /// The user signs out. Listeners (see main.dart) take them back to the rates.
   Future<void> signOut() async {
     final refreshToken = _tokens?.refreshToken;
     if (refreshToken != null) {
