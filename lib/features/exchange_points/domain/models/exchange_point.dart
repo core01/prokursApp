@@ -109,6 +109,9 @@ class ExchangePoint {
       sellUSD: dto.sellUsd,
       logo: dto.logo,
       city_id: dto.cityId,
+      wholesaleNote: dto.wholesaleNote,
+      workModes: dto.workModes,
+      description: dto.description,
     );
   }
 
