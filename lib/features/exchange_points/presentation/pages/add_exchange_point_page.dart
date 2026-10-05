@@ -4,6 +4,7 @@ import 'package:prokurs/core/theme/app_theme.dart';
 import 'package:prokurs/core/exceptions/api_exception.dart';
 import 'package:prokurs/core/exceptions/session_expired_exception.dart';
 import 'package:prokurs/core/widgets/inline_notice.dart';
+import 'package:prokurs/core/widgets/list_tile_value.dart';
 import 'package:prokurs/features/exchange_points/data/providers/cities_provider.dart';
 import 'package:prokurs/features/exchange_points/data/services/exchange_points_service.dart';
 import 'package:prokurs/features/exchange_points/domain/models/city.dart';
@@ -27,7 +28,6 @@ class AddExchangePointPage extends StatefulWidget {
 }
 
 class _AddExchangePointPageState extends State<AddExchangePointPage> {
-  final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   List<City> _cities = [];
   ExchangePointForm _form = ExchangePointForm();
@@ -39,7 +39,18 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
   String? _saveError;
   final ExchangePointsService _exchangePointsService = ExchangePointsService();
 
-  static const EdgeInsetsDirectional _formFieldPadding = EdgeInsetsDirectional.fromSTEB(28.0, 6.0, 6.0, 6.0);
+  // Field labels share one column, so the fields line up.
+  static const _labelWidth = 96.0;
+  static const _currencyCodeWidth = 48.0;
+
+  // A text field 44 pt tall at the default text size, like a list row: the body line is 22 pt.
+  static const _fieldVerticalPadding = (kMinInteractiveDimensionCupertino - 22) / 2;
+
+  // UIPickerView's row height.
+  static const _pickerItemExtent = 32.0;
+
+  final _nameController = TextEditingController();
+  final _infoController = TextEditingController();
 
   // Currency controllers
   final _buyUSDController = TextEditingController();
@@ -66,6 +77,8 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
 
   @override
   void dispose() {
+    _nameController.dispose();
+    _infoController.dispose();
     // Dispose currency controllers
     _buyUSDController.dispose();
     _sellUSDController.dispose();
@@ -152,6 +165,8 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
     setState(() {
       // Initialize form with exchange point data
       _form = ExchangePointForm.fromExchangePoint(point);
+      _nameController.text = _form.name.value;
+      _infoController.text = _form.info.value;
 
       for (final controller in _phoneControllers) {
         controller.dispose();
@@ -278,9 +293,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
       _saveError = null;
     });
 
-    final formValid = _formKey.currentState?.validate() ?? false;
-
-    if (!formValid || !updatedForm.isValid) {
+    if (!updatedForm.isValid) {
       final summary = updatedForm.errorSummary();
       setState(() {
         _saveError = summary.isEmpty
@@ -339,7 +352,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
       builder: (BuildContext context) {
         return Container(
           height: 300,
-          padding: const EdgeInsets.only(top: 6.0),
+          padding: const EdgeInsets.only(top: AppSpacing.xs),
           margin: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
@@ -350,7 +363,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
               magnification: 1.22,
               squeeze: 1.2,
               useMagnifier: true,
-              itemExtent: 30,
+              itemExtent: MediaQuery.textScalerOf(context).scale(_pickerItemExtent),
               scrollController: FixedExtentScrollController(
                 initialItem: selectedIndex,
               ),
@@ -363,7 +376,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
               },
               children: _cities.map((City city) {
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                   child: Center(
                     child: Text(
                       city.title,
@@ -398,214 +411,150 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         backgroundColor: AppColors.background,
-        middle: Text(
-          isEditing
-              ? "Редактирование обменного пункта"
-              : "Добавить обменный пункт",
-          style: AppTypography.headline,
-        ),
-        leading: GestureDetector(
-          child: Icon(
-            CupertinoIcons.back,
-            size: 24.0,
-          ),
-          onTap: () => Navigator.of(context).pop(),
-        ),
+        middle: Text(isEditing ? "Редактирование" : "Новый пункт"),
       ),
       child: SafeArea(
         child: _isLoading
             ? const Center(child: CupertinoActivityIndicator())
-            : Form(
-                key: _formKey,
-                autovalidateMode: _form.isSubmitted ? AutovalidateMode.always : AutovalidateMode.disabled,
-                child: ListView(
-                  children: [
-                    const SizedBox(height: 16),
-                    // Basic Info Section
-                    CupertinoFormSection.insetGrouped(
-                      header: Text('ОСНОВНАЯ ИНФОРМАЦИЯ', style: sectionHeaderStyle),
-                      children: [
-                        // City Selection
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                            child: Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.only(left: 10),
-                                child: Text('Город', style: AppTypography.body),
-                                ),
-                                const Spacer(),
-                              GestureDetector(
-                                onTap: () => _showCityPicker(context),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      cityTitle,
-                                      style: _form.city.value == null
-                                          ? AppTypography.body.copyWith(color: secondaryLabel)
-                                          : AppTypography.body,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Icon(CupertinoIcons.chevron_right, color: secondaryLabel, size: 18),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Name Field
-                        CupertinoTextFormFieldRow(
-                          padding: _formFieldPadding,
-                          validator: (_) => ExchangePointFormValidation.nameError(_form),
-                          prefix: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Padding(
-                                    padding: EdgeInsets.only(right: 4),
-                                    child: Text(
-                                      'Название',
-                                      style: AppTypography.body,
-                                    ))
-                              ]),
+            : ListView(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                children: [
+                  CupertinoFormSection.insetGrouped(
+                    margin: sectionMargin,
+                    header: Text('ОСНОВНАЯ ИНФОРМАЦИЯ', style: sectionHeaderStyle),
+                    children: [
+                      CupertinoListTile(
+                        title: const Text('Город'),
+                        additionalInfo: ListTileValue(cityTitle),
+                        trailing: const CupertinoListTileChevron(),
+                        onTap: () => _showCityPicker(context),
+                      ),
+                      _fieldRow(
+                        label: 'Название',
+                        error: ExchangePointFormValidation.nameError(_form),
+                        field: _textField(
+                          controller: _nameController,
                           placeholder: "Введите название",
-                          placeholderStyle: AppTypography.body.copyWith(
-                            color: AppColors.secondaryLabel,
-                          ),
-                          style: AppTypography.body,
                           onChanged: _onNameChanged,
-                          initialValue: _form.name.value,
                           maxLines: null,
                         ),
-
-                        // Address Field
-                        CupertinoTextFormFieldRow(
-                          padding: _formFieldPadding,
-                          validator: (_) => ExchangePointFormValidation.addressError(_form),
-                          prefix: Padding(
-                            padding: EdgeInsets.only(right: 32),
-                            child: Text(
-                              'Адрес',
-                              style: AppTypography.body,
-                            ),
-                          ),
+                      ),
+                      _fieldRow(
+                        label: 'Адрес',
+                        error: ExchangePointFormValidation.addressError(_form),
+                        field: _textField(
+                          controller: _infoController,
                           placeholder: "Введите адрес",
-                          placeholderStyle: AppTypography.body.copyWith(
-                            color: AppColors.secondaryLabel,
-                          ),
-                          style: AppTypography.body,
-                          maxLines: null,
                           onChanged: _onAddressChanged,
-                          initialValue: _form.info.value,
+                          maxLines: null,
                         ),
+                      ),
 
-                        // Phone Fields: one per number
-                        for (var i = 0; i < _phoneControllers.length; i++)
-                          _buildPhoneRow(i),
+                      // Phone Fields: one per number
+                      for (var i = 0; i < _phoneControllers.length; i++)
+                        _buildPhoneRow(i),
 
-                        CupertinoButton(
-                          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
-                          alignment: Alignment.centerLeft,
-                          onPressed: _addPhone,
-                          child: Row(
-                            children: [
-                              const Icon(CupertinoIcons.add_circled, size: 20),
-                              const SizedBox(width: 8),
-                              const Text(
-                                'Добавить номер',
-                                style: AppTypography.body,
-                              ),
-                            ],
+                      CupertinoListTile(
+                        leading: const Icon(CupertinoIcons.add_circled),
+                        title: const Text('Добавить номер'),
+                        onTap: _addPhone,
+                      ),
+                    ],
+                  ),
+                  CupertinoFormSection.insetGrouped(
+                    margin: sectionMargin,
+                    header: Text('ТИП ОБМЕНА', style: sectionHeaderStyle),
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: CupertinoSlidingSegmentedControl<bool>(
+                            groupValue: _form.gross > 0,
+                            onValueChanged: (bool? value) {
+                              if (value != null) {
+                                _toggleRetailWholesale(value);
+                              }
+                            },
+                            children: const {
+                              false: Text('Розница'),
+                              true: Text('Опт'),
+                            },
                           ),
                         ),
-                      ],
-                    ),
-                    CupertinoFormSection.insetGrouped(
-                      header: Text('ТИП ОБМЕНА', style: sectionHeaderStyle),
-                        children: [
-                          Row(children: [
-                            Expanded(
-                              child: CupertinoSlidingSegmentedControl<bool>(
-                                groupValue: _form.gross > 0,
-                                onValueChanged: (bool? value) {
-                                  if (value != null) {
-                                    _toggleRetailWholesale(value);
-                                  }
-                                },
-                                children: const {
-                                  false: Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 20),
-                                    child: Text('Розница'),
-                                  ),
-                                  true: Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 20),
-                                    child: Text('Опт'),
-                                  ),
-                                },
-                              ),
-                            ),
-                          ]),
-                        ]),
-                    // Currency Rates Section
-                    CupertinoFormSection.insetGrouped(
-                      header: Text('КУРСЫ ВАЛЮТ', style: sectionHeaderStyle),
-                      children: [
-                        _buildStyledCurrencyRow(
-                          USD,
-                          _form.buyUSD,
-                          _form.sellUSD,
-                        ),
-                        _buildStyledCurrencyRow(
-                          EUR,
-                          _form.buyEUR,
-                          _form.sellEUR,
-                        ),
-                        _buildStyledCurrencyRow(
-                          RUR,
-                          _form.buyRUB,
-                          _form.sellRUB,
-                        ),
-                        _buildStyledCurrencyRow(
-                          CNY,
-                          _form.buyCNY,
-                          _form.sellCNY,
-                        ),
-                        _buildStyledCurrencyRow(
-                          GBP,
-                          _form.buyGBP,
-                          _form.sellGBP,
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 32),
-
-                    // Why the last save failed: next to the button the user just pressed.
-                    if (_saveError != null)
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                        child: InlineNotice(text: _saveError!),
                       ),
+                    ],
+                  ),
+                  CupertinoFormSection.insetGrouped(
+                    margin: sectionMargin,
+                    header: Text('КУРСЫ ВАЛЮТ', style: sectionHeaderStyle),
+                    children: [
+                      _buildStyledCurrencyRow(USD, _form.buyUSD, _form.sellUSD),
+                      _buildStyledCurrencyRow(EUR, _form.buyEUR, _form.sellEUR),
+                      _buildStyledCurrencyRow(RUR, _form.buyRUB, _form.sellRUB),
+                      _buildStyledCurrencyRow(CNY, _form.buyCNY, _form.sellCNY),
+                      _buildStyledCurrencyRow(GBP, _form.buyGBP, _form.sellGBP),
+                    ],
+                  ),
 
-                    // Save button
+                  // Why the last save failed: next to the button the user just pressed.
+                  if (_saveError != null)
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: CupertinoButton.filled(
-                        onPressed: _submitForm,
-                        child: Text(
-                          isEditing ? "Сохранить" : "Добавить",
-                        ),
-                      ),
+                      padding: const EdgeInsets.fromLTRB(
+                          AppSpacing.md, 0, AppSpacing.md, AppSpacing.sm),
+                      child: InlineNotice(text: _saveError!),
                     ),
 
-                    const SizedBox(height: 32),
-                  ],
-                ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                    child: CupertinoButton.filled(
+                      borderRadius: AppRadius.card,
+                      onPressed: _submitForm,
+                      child: Text(
+                        isEditing ? "Сохранить" : "Добавить",
+                      ),
+                    ),
+                  ),
+                ],
               ),
       ),
+    );
+  }
+
+  /// A labelled field in a form section; the error, if any, below it.
+  Widget _fieldRow({required String label, String? error, required Widget field}) {
+    return CupertinoFormRow(
+      padding: const EdgeInsetsDirectional.only(start: AppSpacing.lg, end: AppSpacing.xs),
+      prefix: SizedBox(width: _labelWidth, child: Text(label)),
+      error: error == null
+          ? null
+          : Text(
+              error,
+              style: AppTypography.footnote.copyWith(
+                color: AppColors.error.resolveFrom(context),
+              ),
+            ),
+      child: field,
+    );
+  }
+
+  CupertinoTextField _textField({
+    required TextEditingController controller,
+    required String placeholder,
+    required ValueChanged<String> onChanged,
+    TextInputType? keyboardType,
+    int? maxLines = 1,
+  }) {
+    return CupertinoTextField.borderless(
+      controller: controller,
+      placeholder: placeholder,
+      placeholderStyle: const TextStyle(color: AppColors.secondaryLabel),
+      padding: const EdgeInsetsDirectional.symmetric(
+          horizontal: AppSpacing.xs, vertical: _fieldVerticalPadding),
+      keyboardType: keyboardType,
+      maxLines: maxLines,
+      onChanged: onChanged,
     );
   }
 
@@ -615,41 +564,32 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
       key: ObjectKey(_phoneControllers[index]),
       children: [
         Expanded(
-          child: CupertinoTextFormFieldRow(
-            padding: _formFieldPadding,
-            validator: (_) => ExchangePointFormValidation.phoneError(_form, index),
-            prefix: Padding(
-              padding: EdgeInsets.only(right: 12),
-              child: Text(
-                'Телефон',
-                style: AppTypography.body,
-              ),
+          child: _fieldRow(
+            label: 'Телефон',
+            error: ExchangePointFormValidation.phoneError(_form, index),
+            field: _textField(
+              controller: _phoneControllers[index],
+              placeholder: "+7 701 123 4567",
+              keyboardType: TextInputType.phone,
+              onChanged: _onPhoneChanged,
             ),
-            placeholder: "+7 701 123 4567",
-            placeholderStyle: AppTypography.body.copyWith(
-              color: AppColors.secondaryLabel,
-            ),
-            keyboardType: TextInputType.phone,
-            style: AppTypography.body,
-            onChanged: _onPhoneChanged,
-            controller: _phoneControllers[index],
           ),
         ),
         if (_phoneControllers.length > 1)
           CupertinoButton(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
             onPressed: () => _removePhone(index),
             child: Icon(
               CupertinoIcons.minus_circle,
               color: AppColors.destructive.resolveFrom(context),
-              size: 20,
+              size: AppIconSize.small,
+              semanticLabel: 'Удалить номер',
             ),
           ),
       ],
     );
   }
 
-  // Enhanced currency row with modern styling
   Widget _buildStyledCurrencyRow(
     CurrencyItem currency,
     String buyValue,
@@ -695,127 +635,36 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 11),
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.lg, vertical: AppSpacing.xs),
           child: Row(
             children: [
-              // Currency icon
-              Container(
-                padding: const EdgeInsets.only(left: 10),
-                child: Text(
-                  currency.icon,
-                  style: AppTypography.title2,
-                ),
-              ),
-
-              // Currency code/name
+              Text(currency.icon, style: AppTypography.title2),
+              const SizedBox(width: AppSpacing.xs),
               SizedBox(
-                width: 60,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 12),
-                  child: Text(
-                    currency.id,
-                    style: AppTypography.body,
-                  ),
+                width: _currencyCodeWidth,
+                child: Text(currency.id),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: _rateField(
+                  placeholder: "Покупка",
+                  indicator: AppColors.buy,
+                  hasError: buyError != null,
+                  controller: buyController,
+                  onChanged: (value) =>
+                      _onRateChanged(value, currency: currency.id, isBuy: true),
                 ),
               ),
-
-              const SizedBox(width: 16),
-
-              // Buy field with improved styling
+              const SizedBox(width: AppSpacing.xs),
               Expanded(
-                child: Container(
-                  height: 38,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: (buyError == null ? AppColors.inputBorder : AppColors.error)
-                          .resolveFrom(context),
-                      width: 0.8,
-                    ),
-                    borderRadius: BorderRadius.circular(8),
-                    color: AppColors.background.resolveFrom(context),
-                  ),
-                  child: Row(
-                    children: [
-                      // Buy indicator
-                      Container(
-                        width: 4,
-                        decoration: BoxDecoration(
-                          color: AppColors.buy.resolveFrom(context),
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(7),
-                            bottomLeft: Radius.circular(7),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: CupertinoTextField(
-                          placeholder: "Покупка",
-                          placeholderStyle: AppTypography.body.copyWith(color: AppColors.secondaryLabel),
-                          keyboardType:
-                              const TextInputType.numberWithOptions(decimal: true),
-                          inputFormatters: [rateInputFormatter],
-                          textAlign: TextAlign.center,
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          style: AppTypography.body,
-                          onChanged: (value) => _onRateChanged(value,
-                              currency: currency.id, isBuy: true),
-                          decoration:
-                              null, // No decoration as we're using the parent container
-                          controller: buyController,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(width: 10),
-
-              // Sell field with improved styling
-              Expanded(
-                child: Container(
-                  height: 38,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: (sellError == null ? AppColors.inputBorder : AppColors.error)
-                          .resolveFrom(context),
-                      width: 0.8,
-                    ),
-                    borderRadius: BorderRadius.circular(8),
-                    color: AppColors.background.resolveFrom(context),
-                  ),
-                  child: Row(
-                    children: [
-                      // Sell indicator
-                      Container(
-                        width: 4,
-                        decoration: BoxDecoration(
-                          color: AppColors.sell.resolveFrom(context),
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(7),
-                            bottomLeft: Radius.circular(7),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: CupertinoTextField(
-                          placeholder: "Продажа",
-                          placeholderStyle: AppTypography.body.copyWith(color: AppColors.secondaryLabel),
-                          keyboardType:
-                              const TextInputType.numberWithOptions(decimal: true),
-                          inputFormatters: [rateInputFormatter],
-                          textAlign: TextAlign.center,
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          style: AppTypography.body,
-                          onChanged: (value) => _onRateChanged(value,
-                              currency: currency.id, isBuy: false),
-                          decoration:
-                              null, // No decoration as we're using the parent container
-                          controller: sellController,
-                        ),
-                      ),
-                    ],
-                  ),
+                child: _rateField(
+                  placeholder: "Продажа",
+                  indicator: AppColors.sell,
+                  hasError: sellError != null,
+                  controller: sellController,
+                  onChanged: (value) =>
+                      _onRateChanged(value, currency: currency.id, isBuy: false),
                 ),
               ),
             ],
@@ -826,7 +675,8 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
           if (sellError != null) 'Продажа: $sellError',
         ])
           Padding(
-            padding: const EdgeInsets.fromLTRB(30, 0, 20, 8),
+            padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.xs),
             child: Text(
               error,
               style: AppTypography.footnote.copyWith(
@@ -835,6 +685,50 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
             ),
           ),
       ],
+    );
+  }
+
+  /// A rate field with a stripe in the buy/sell color on its leading edge.
+  Widget _rateField({
+    required String placeholder,
+    required CupertinoDynamicColor indicator,
+    required bool hasError,
+    required TextEditingController controller,
+    required ValueChanged<String> onChanged,
+  }) {
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: AppColors.background.resolveFrom(context),
+        borderRadius: AppRadius.control,
+        border: Border.all(
+          color: (hasError ? AppColors.error : AppColors.inputBorder).resolveFrom(context),
+          width: AppStroke.hairline,
+        ),
+      ),
+      child: Stack(
+        children: [
+          CupertinoTextField(
+            controller: controller,
+            placeholder: placeholder,
+            placeholderStyle: const TextStyle(color: AppColors.secondaryLabel),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [rateInputFormatter],
+            textAlign: TextAlign.center,
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.xs, vertical: _fieldVerticalPadding),
+            decoration: null, // The container draws the border.
+            onChanged: onChanged,
+          ),
+          PositionedDirectional(
+            start: 0,
+            top: 0,
+            bottom: 0,
+            width: AppSpacing.xxs,
+            child: ColoredBox(color: indicator.resolveFrom(context)),
+          ),
+        ],
+      ),
     );
   }
 }

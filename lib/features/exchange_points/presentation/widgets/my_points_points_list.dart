@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:prokurs/core/theme/app_theme.dart';
+import 'package:prokurs/core/widgets/empty_state.dart';
 import 'package:prokurs/features/exchange_points/domain/models/exchange_point.dart';
 import 'package:prokurs/features/exchange_points/presentation/widgets/currency_rates_table.dart';
 
@@ -30,52 +31,26 @@ class MyPointsPointsList extends StatelessWidget {
     return CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
-        CupertinoSliverRefreshControl(
-          onRefresh: onRefresh,
-          builder:
-              (
-                context,
-                refreshState,
-                pulledExtent,
-                refreshTriggerPullDistance,
-                refreshIndicatorExtent,
-              ) {
-            return Center(
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        top: 15.0,
-                        bottom: 15.0,
-                        left: 0.0,
-                        right: 0.0,
-                        child: CupertinoActivityIndicator(
-                          radius: 14.0,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-        ),
+        CupertinoSliverRefreshControl(onRefresh: onRefresh),
         if (errorMessage != null)
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: MyPointsErrorSection(
-                errorMessage: errorMessage!,
-                isLoading: isLoading,
-                onRetry: onRetry,
-              ),
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: EmptyState(
+              title: 'Упс! Что-то пошло не так',
+              message: errorMessage,
+              actionLabel: 'Повторить',
+              onAction: onRetry,
+              isLoading: isLoading,
             ),
           )
         else
           SliverPadding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(AppSpacing.md),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
                 final point = points[index];
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                   child: ExchangePointListItem(
                     point: point,
                     onEdit: onEdit,
@@ -86,50 +61,6 @@ class MyPointsPointsList extends StatelessWidget {
               }, childCount: points.length),
             ),
           ),
-      ],
-    );
-  }
-}
-
-class MyPointsErrorSection extends StatelessWidget {
-  const MyPointsErrorSection({
-    super.key,
-    required this.errorMessage,
-    required this.isLoading,
-    required this.onRetry,
-  });
-
-  final String errorMessage;
-  final bool isLoading;
-  final Future<void> Function() onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          "Упс! Что-то пошло не так",
-          style: AppTypography.title3,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          errorMessage,
-          style: AppTypography.subheadline,
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 16),
-        CupertinoButton.filled(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-          onPressed: () {
-            onRetry();
-          },
-          child: isLoading
-              ? CupertinoActivityIndicator(
-                  color: AppColors.onAccent.resolveFrom(context),
-                  radius: 14.0,
-                )
-              : const Text("Повторить"),
-        ),
       ],
     );
   }
@@ -155,41 +86,42 @@ class ExchangePointListItem extends StatelessWidget {
       key: Key(point.id.toString()),
       direction: DismissDirection.endToStart,
       background: Container(
-        color: AppColors.destructive.resolveFrom(context),
+        decoration: ShapeDecoration(
+          color: AppColors.destructive.resolveFrom(context),
+          shape: const RoundedSuperellipseBorder(borderRadius: AppRadius.card),
+        ),
         alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 20),
+        padding: const EdgeInsets.only(right: AppSpacing.lg),
         child: const Icon(CupertinoIcons.delete, color: AppColors.onDestructive),
       ),
       onDismissed: (direction) async {
         await onDelete(point.id);
       },
+      // A choice about an action the user started: an action sheet, not an alert (Apple HIG).
       confirmDismiss: (direction) async {
-        return await showCupertinoDialog<bool>(
+        return await showCupertinoModalPopup<bool>(
               context: context,
-              builder: (context) => CupertinoAlertDialog(
+              builder: (context) => CupertinoActionSheet(
                 title: const Text('Удалить обменный пункт?'),
-                content: const Text(
-                  'Вы уверены, что хотите удалить этот обменный пункт?',
-                ),
                 actions: [
-                  CupertinoDialogAction(
-                    child: const Text(
-                      'Отмена',
-                    ),
-                    onPressed: () => Navigator.of(context).pop(false),
-                  ),
-                  CupertinoDialogAction(
+                  CupertinoActionSheetAction(
                     isDestructiveAction: true,
-                    child: const Text('Удалить'),
                     onPressed: () => Navigator.of(context).pop(true),
+                    child: const Text('Удалить'),
                   ),
                 ],
+                cancelButton: CupertinoActionSheetAction(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('Отмена'),
+                ),
               ),
             ) ??
             false;
       },
-      child: GestureDetector(
-        onTap: () => onEdit(point),
+      child: CupertinoButton(
+        padding: EdgeInsets.zero,
+        foregroundColor: AppColors.label.resolveFrom(context),
+        onPressed: () => onEdit(point),
         child: ExchangePointCard(point: point, formatDateTime: formatDateTime),
       ),
     );
@@ -209,23 +141,17 @@ class ExchangePointCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: AppColors.surface.resolveFrom(context),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(point.name, style: AppTypography.headline),
-            const SizedBox(height: 4),
-            Text(point.info ?? '', style: AppTypography.subheadline),
-            const SizedBox(height: 12),
-            CurrencyRatesTable(point: point, formatDateTime: formatDateTime),
-          ],
-        ),
+      decoration: cardDecoration(context),
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(point.name, style: AppTypography.headline),
+          const SizedBox(height: AppSpacing.xxs),
+          Text(point.info ?? '', style: AppTypography.subheadline),
+          const SizedBox(height: AppSpacing.sm),
+          CurrencyRatesTable(point: point, formatDateTime: formatDateTime),
+        ],
       ),
     );
   }

@@ -18,7 +18,7 @@ class CurrencyRatesTable extends StatelessWidget {
     return Column(
         children: [
           Padding(
-            padding: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.only(bottom: AppSpacing.xs),
             child: Row(
               children: [
                 Expanded(
@@ -76,7 +76,7 @@ class CurrencyRatesTable extends StatelessWidget {
             sell: point.sellGBP,
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.only(top: AppSpacing.xs),
             child: Align(
               alignment: Alignment.centerRight,
               child: Text(
@@ -108,7 +108,7 @@ class CurrencyRateRow extends StatelessWidget {
     final secondaryLabel = AppColors.secondaryLabel.resolveFrom(context);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
       child: Row(
         children: [
           Expanded(
@@ -165,10 +165,16 @@ class CurrencyRowDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 0.5,
-      width: double.infinity,
-      color: AppColors.separator.resolveFrom(context),
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(
+            color: AppColors.separator.resolveFrom(context),
+            width: AppStroke.hairline,
+          ),
+        ),
+      ),
+      child: const SizedBox(width: double.infinity),
     );
   }
 }

@@ -1,9 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:prokurs/core/exceptions/session_expired_exception.dart';
+import 'package:prokurs/core/theme/app_theme.dart';
+import 'package:prokurs/core/widgets/empty_state.dart';
 import 'package:prokurs/features/exchange_points/data/services/exchange_points_service.dart';
 import 'package:prokurs/features/exchange_points/domain/models/exchange_point.dart';
 import 'package:prokurs/features/exchange_points/presentation/pages/add_exchange_point_page.dart';
-import 'package:prokurs/features/exchange_points/presentation/widgets/my_points_empty_state.dart';
 import 'package:prokurs/features/exchange_points/presentation/widgets/my_points_navigation_bar.dart';
 import 'package:prokurs/features/exchange_points/presentation/widgets/my_points_points_list.dart';
 import 'package:prokurs/features/auth/presentation/state/auth_provider.dart';
@@ -12,7 +13,10 @@ import 'package:provider/provider.dart';
 class MyPointsPage extends StatefulWidget {
   static const routeName = '/my-points';
 
-  const MyPointsPage({super.key});
+  const MyPointsPage({super.key, this.service});
+
+  /// Where the points come from; tests pass a fake.
+  final ExchangePointsService? service;
 
   @override
   _MyPointsState createState() => _MyPointsState();
@@ -20,32 +24,22 @@ class MyPointsPage extends StatefulWidget {
 
 class _MyPointsState extends State<MyPointsPage> {
   bool _isLoading = true;
-  bool _isInitializationNeeded = true;
   String? _errorMessage;
   List<ExchangePoint> _points = [];
-  final ExchangePointsService _exchangePointsService = ExchangePointsService();
+  late final ExchangePointsService _exchangePointsService =
+      widget.service ?? ExchangePointsService();
 
   @override
   void initState() {
     super.initState();
-    _getExchangePoints();
+    _loadPoints();
   }
 
-  @override
-  void didChangeDependencies() async {
-    super.didChangeDependencies();
-    if (_isInitializationNeeded) {
-      setState(() {
-        _isLoading = true;
-      });
-      await _getExchangePoints();
-      _isInitializationNeeded = false;
-      Future.delayed(const Duration(milliseconds: 500), () {
-        setState(() {
-          _isLoading = false;
-        });
-      });
-    }
+  /// The first load and "Повторить", with a spinner. Pull-to-refresh has its own indicator.
+  Future<void> _loadPoints() async {
+    if (!_isLoading) setState(() => _isLoading = true);
+    await _getExchangePoints();
+    if (mounted) setState(() => _isLoading = false);
   }
 
   Future<void> _getExchangePoints() async {
@@ -133,19 +127,57 @@ class _MyPointsState extends State<MyPointsPage> {
       ),
       child: SafeArea(
         bottom: false,
-        child: _points.isEmpty
-            ? MyPointsEmptyState(onAdd: _showAddPointForm)
-            : MyPointsPointsList(
-                points: _points,
-                errorMessage: _errorMessage,
-                isLoading: _isLoading,
-                onRefresh: _getExchangePoints,
-                onRetry: _getExchangePoints,
-                onEdit: _editExchangePoint,
-                onDelete: _deleteExchangePoint,
-                formatDateTime: _formatDateTime,
-              ),
+        // The content replaces the spinner with a short cross-fade, as soon as it arrives.
+        child: AnimatedSwitcher(
+          duration: AppMotion.duration,
+          switchInCurve: AppMotion.curve,
+          switchOutCurve: AppMotion.curve,
+          child: _points.isEmpty
+              ? _buildWithoutPoints()
+              : MyPointsPointsList(
+                  key: const ValueKey('list'),
+                  points: _points,
+                  errorMessage: _errorMessage,
+                  isLoading: _isLoading,
+                  onRefresh: _getExchangePoints,
+                  onRetry: _loadPoints,
+                  onEdit: _editExchangePoint,
+                  onDelete: _deleteExchangePoint,
+                  formatDateTime: _formatDateTime,
+                ),
+        ),
       ),
+    );
+  }
+
+  Widget _buildWithoutPoints() {
+    if (_isLoading) {
+      return const Center(
+        key: ValueKey('loading'),
+        child: CupertinoActivityIndicator(),
+      );
+    }
+    return CustomScrollView(
+      key: ValueKey(_errorMessage == null ? 'empty' : 'error'),
+      physics: const AlwaysScrollableScrollPhysics(),
+      slivers: [
+        CupertinoSliverRefreshControl(onRefresh: _getExchangePoints),
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: _errorMessage != null
+              ? EmptyState(
+                  title: 'Упс! Что-то пошло не так',
+                  message: _errorMessage,
+                  actionLabel: 'Повторить',
+                  onAction: _loadPoints,
+                )
+              : EmptyState(
+                  title: 'У вас пока нет обменных пунктов',
+                  actionLabel: 'Добавить',
+                  onAction: _showAddPointForm,
+                ),
+        ),
+      ],
     );
   }
 
