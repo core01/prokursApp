@@ -8,6 +8,7 @@ import 'package:prokurs/features/exchange_points/presentation/pages/add_exchange
 import 'package:prokurs/features/exchange_points/presentation/widgets/my_points_navigation_bar.dart';
 import 'package:prokurs/features/exchange_points/presentation/widgets/my_points_points_list.dart';
 import 'package:prokurs/features/auth/presentation/state/auth_provider.dart';
+import 'package:prokurs/features/rates/presentation/state/exchange_rates_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -82,19 +83,25 @@ class _MyPointsState extends State<MyPointsPage> {
     }
   }
 
+  /// A point was added or changed: the cabinet's list and the rates under the cabinet load
+  /// it again, so going back shows the new rates and wholesale conditions.
+  void _onPointsChanged() {
+    _getExchangePoints();
+    context.read<ExchangeRatesProvider>().refresh();
+  }
+
   void _showAddPointForm() {
     Navigator.of(context)
         .push(
           CupertinoPageRoute(
             builder: (context) => AddExchangePointPage(
               exchangePoint: null, // null for new point
+              service: _exchangePointsService,
             ),
           ),
         )
         .then((exchangePointData) {
-          if (exchangePointData != null) {
-            _getExchangePoints(); // Refresh the list from API
-          }
+          if (exchangePointData != null && mounted) _onPointsChanged();
         });
   }
 
@@ -102,11 +109,10 @@ class _MyPointsState extends State<MyPointsPage> {
     Navigator.of(context)
         .push(
           CupertinoPageRoute(
-            builder: (context) => AddExchangePointPage(exchangePoint: point)))
+            builder: (context) => AddExchangePointPage(
+                exchangePoint: point, service: _exchangePointsService)))
         .then((updatedPoint) {
-      if (updatedPoint != null) {
-        _getExchangePoints(); // Refresh the list from API
-      }
+      if (updatedPoint != null && mounted) _onPointsChanged();
     });
   }
 
@@ -119,6 +125,7 @@ class _MyPointsState extends State<MyPointsPage> {
         setState(() {
           _points.removeWhere((p) => p.id == id);
         });
+        context.read<ExchangeRatesProvider>().refresh();
       }
     } on SessionExpiredException {
       // The app is on its way to the sign-in screen, which explains it.

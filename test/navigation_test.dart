@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:prokurs/core/network/api_client.dart';
+import 'package:prokurs/core/network/generated/export.dart';
 import 'package:prokurs/core/theme/app_theme.dart';
 import 'package:prokurs/features/auth/domain/models/auth_tokens.dart';
 import 'package:prokurs/features/auth/presentation/pages/sign_in_page.dart';
@@ -11,10 +12,12 @@ import 'package:prokurs/features/exchange_points/data/providers/cities_provider.
 import 'package:prokurs/features/exchange_points/data/services/exchange_points_service.dart';
 import 'package:prokurs/features/exchange_points/domain/models/city.dart';
 import 'package:prokurs/features/exchange_points/domain/models/exchange_point.dart';
+import 'package:prokurs/features/exchange_points/presentation/pages/add_exchange_point_page.dart';
 import 'package:prokurs/features/exchange_points/presentation/pages/my_points_page.dart';
 import 'package:prokurs/features/point/presentation/navigation/point_screen_arguments.dart';
 import 'package:prokurs/features/point/presentation/pages/point_page.dart';
 import 'package:prokurs/features/rates/presentation/pages/rates_page.dart';
+import 'package:prokurs/features/rates/presentation/state/exchange_rates_provider.dart';
 import 'package:prokurs/main.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,13 +36,31 @@ class _FakeCities extends CitiesProvider {
 }
 
 class _CountingService extends ExchangePointsService {
+  _CountingService([this.points = const []]);
+
+  final List<ExchangePoint> points;
   int calls = 0;
+  int updates = 0;
 
   @override
   Future<List<ExchangePoint>> getMyExchangePointsList() async {
     calls++;
-    return [];
+    return points;
   }
+
+  @override
+  Future<ExchangePoint> getMyExchangePoint(num id) async =>
+      points.firstWhere((point) => point.id == id);
+
+  @override
+  Future<void> updateExchangePoint(num id, ReplacePointV2Input point) async => updates++;
+}
+
+class _CountingRates extends ExchangeRatesProvider {
+  int refreshes = 0;
+
+  @override
+  Future<void> refresh() async => refreshes++;
 }
 
 // The test binding answers every HTTP request with an error, so screens get their error states.
@@ -77,13 +98,14 @@ Future<void> _launch(
 // Without coordinates, no map: it's a platform view.
 ExchangePoint _pointWith({
   required num gross,
+  String? info,
   num? latitude,
   num? longitude,
 }) =>
     ExchangePoint(
       id: 1,
       name: 'Обменник',
-      info: null,
+      info: info,
       phones: const ['2274'],
       buyUSD: 470,
       sellUSD: 475,
@@ -273,5 +295,41 @@ void main() {
 
     expect(service.calls, 1);
     expect(find.text('У вас пока нет обменных пунктов'), findsOneWidget);
+  });
+
+  testWidgets('a point saved in the cabinet reloads the rates under it', (tester) async {
+    tester.view.physicalSize = const Size(1179, 2556);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    final rates = _CountingRates();
+    final service = _CountingService([_pointWith(gross: 0, info: 'ул. Абая 1')]);
+    await tester.pumpWidget(MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider<CitiesProvider>(create: (_) => _FakeCities()),
+        ChangeNotifierProvider<ExchangeRatesProvider>.value(value: rates),
+      ],
+      child: CupertinoApp(
+        theme: appTheme,
+        home: MyPointsPage(service: service),
+      ),
+    ));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Обменник'));
+    await tester.pumpAndSettle();
+    expect(rates.refreshes, 0);
+
+    // At the bottom of the form.
+    await tester.scrollUntilVisible(find.text('Сохранить'), 300,
+        scrollable: find
+            .descendant(of: find.byType(ListView), matching: find.byType(Scrollable))
+            .first);
+    await tester.tap(find.text('Сохранить'));
+    await tester.pumpAndSettle();
+
+    expect(service.updates, 1);
+    expect(find.byType(AddExchangePointPage), findsNothing);
+    expect(rates.refreshes, 1);
   });
 }

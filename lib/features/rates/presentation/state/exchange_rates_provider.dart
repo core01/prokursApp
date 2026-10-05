@@ -7,6 +7,7 @@ import 'package:prokurs/features/rates/domain/models/best_rates.dart';
 
 class ExchangeRatesProvider with ChangeNotifier {
   List<ExchangePoint> _exchangeRates = [];
+  int? _cityId;
 
   String _currency = 'USD';
   bool _showBuy = true;
@@ -103,7 +104,13 @@ class ExchangeRatesProvider with ChangeNotifier {
     }
   }
 
+  /// Loads the rates of the city shown again: after an owner changed a point in the cabinet.
+  Future<void> refresh() async {
+    if (_cityId != null) await fetchAndSetExchangeRates(cityId: _cityId!);
+  }
+
   Future<void> fetchAndSetExchangeRates({required int cityId}) async {
+    _cityId = cityId;
     try {
       final response = await ApiClient.instance.api.cities
           .citiesControllerGetPointsV2(id: cityId);

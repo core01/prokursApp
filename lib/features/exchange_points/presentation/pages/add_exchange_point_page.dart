@@ -18,9 +18,13 @@ class AddExchangePointPage extends StatefulWidget {
 
   final ExchangePoint? exchangePoint;
 
+  /// The cabinet's service; a fake one in tests.
+  final ExchangePointsService? service;
+
   const AddExchangePointPage({
     super.key,
     this.exchangePoint,
+    this.service,
   });
 
   @override
@@ -37,7 +41,8 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
 
   /// Why the last save didn't go through, shown above the save button.
   String? _saveError;
-  final ExchangePointsService _exchangePointsService = ExchangePointsService();
+  late final ExchangePointsService _exchangePointsService =
+      widget.service ?? ExchangePointsService();
 
   // Field labels share one column, so the fields line up.
   static const _labelWidth = 96.0;
