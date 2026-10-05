@@ -52,10 +52,15 @@ class PointCardState extends State<PointCard> {
   List phoneNumbers = [];
   BitmapDescriptor? bitmapDescriptor;
 
+  // Once: didChangeDependencies runs again on every theme or text size change, which added
+  // the phones over and over and downloaded the logo again.
   @override
-  void didChangeDependencies() async {
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+    _load();
+  }
 
+  Future<void> _load() async {
     if (widget.point.hasLogo) {
       try {
         bitmapDescriptor = await getBitmapDescriptorFromUrl(widget.point.logo!);
@@ -69,9 +74,11 @@ class PointCardState extends State<PointCard> {
       phoneNumbers.add(phone);
     }
 
-    setState(() {
-      _isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   bool hasPointCurrencyBuyValue(String currencyId) {
@@ -188,20 +195,20 @@ class PointCardState extends State<PointCard> {
           decoration: BoxDecoration(
             border: i != CURRENCY_LIST.length - 1
                   ? Border(top: BorderSide(
-                      width: 1,
+                      width: AppStroke.hairline,
                       color: AppColors.separator.resolveFrom(context),
                     ),
                   )
                   : Border(),
           ),
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
           child: Row(
             children: [
               Flexible(
                   flex: 4,
                 child: Container(
                   alignment: Alignment.centerLeft,
-                  margin: const EdgeInsets.only(right: 8),
+                  margin: const EdgeInsets.only(right: AppSpacing.xs),
                   child: Text(
                     "${currency.icon} ${currency.unicode} ${currency.label}",
                     style: AppTypography.body,
@@ -216,11 +223,12 @@ class PointCardState extends State<PointCard> {
                       flex: 1,
                       child: Container(
                         alignment: Alignment.centerRight,
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                        ),
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
+                        margin: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+                        // A number can't wrap: with large Dynamic Type it shrinks instead.
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
                                 getPointCurrencyBuyValue(currency.id),
@@ -234,17 +242,19 @@ class PointCardState extends State<PointCard> {
                                     style: AppTypography.body),
                               ]
                             ]),
+                        ),
                       ),
                     ),
                     Expanded(
                       flex: 1,
                       child: Container(
                         alignment: Alignment.centerRight,
-                        margin: const EdgeInsets.only(
-                          left: 8,
-                        ),
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
+                        margin: const EdgeInsets.only(left: AppSpacing.xs),
+                        // A number can't wrap: with large Dynamic Type it shrinks instead.
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
                                 getPointCurrencySellValue(currency.id),
@@ -258,6 +268,7 @@ class PointCardState extends State<PointCard> {
                                     style: AppTypography.body),
                               ]
                             ]),
+                        ),
                       ),
                     ),
                   ],
@@ -283,21 +294,7 @@ class PointCardState extends State<PointCard> {
         widget.point.longitude != 0;
 
     if (_isLoading) {
-      return Center(
-        child: Stack(
-          children: [
-            Positioned(
-              top: 15.0,
-              bottom: 15.0,
-              left: 0.0,
-              right: 0.0,
-              child: CupertinoActivityIndicator(
-                radius: 14.0,
-              ),
-            )
-          ],
-        ),
-      );
+      return const Center(child: CupertinoActivityIndicator());
     } else {
       return SingleChildScrollView(
         child: Column(
@@ -350,11 +347,12 @@ class PointCardState extends State<PointCard> {
                       ),
                     ),
                     Positioned(
-                      right: 16,
-                      bottom: 16,
+                      right: AppSpacing.md,
+                      bottom: AppSpacing.md,
                       child: CupertinoButton.filled(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        borderRadius: BorderRadius.circular(16),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+                        borderRadius: AppRadius.card,
                         onPressed: _openInMaps,
                         child: const Text(
                           'Открыть в картах',
@@ -368,7 +366,7 @@ class PointCardState extends State<PointCard> {
             ],
             Container(
               color: AppColors.background.resolveFrom(context),
-              padding: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.only(bottom: AppSpacing.md),
               child: SafeArea(
                 top: false,
                 bottom: false,
@@ -377,7 +375,8 @@ class PointCardState extends State<PointCard> {
                   children: [
                     if (widget.point.info != null) ...[
                       Container(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                        padding: const EdgeInsets.fromLTRB(
+                            AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.xs),
                         child: Text(
                           widget.point.info as String,
                           style: AppTypography.body,
@@ -386,7 +385,7 @@ class PointCardState extends State<PointCard> {
                       ),
                     ],
                     Container(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 0, 4),
+                      padding: const EdgeInsets.only(left: AppSpacing.md),
                       child: Text(
                         "Телефоны:",
                         style: AppTypography.body.copyWith(
@@ -397,31 +396,31 @@ class PointCardState extends State<PointCard> {
                     ),
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                       child: Row(
                         children: [
-                          for (var i = 0; i < phoneNumbers.length; i++) ...[
-                            GestureDetector(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(40),
-                                  color: AppColors.surface.resolveFrom(context),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 3,
-                                  horizontal: 16,
-                                ),
-                                margin: i == 0
-                                    ? const EdgeInsets.fromLTRB(16, 0, 4, 0)
-                                    : const EdgeInsets.only(right: 4),
-                                child: Text(
-                                  phoneNumbers[i],
-                                  style: AppTypography.body,
-                                  textAlign: TextAlign.center,
+                          for (final phone in phoneNumbers)
+                            Padding(
+                              padding: const EdgeInsetsDirectional.only(end: AppSpacing.xs),
+                              // A pill, with the full 44-pt touch target around it.
+                              child: CupertinoButton(
+                                padding: EdgeInsets.zero,
+                                onPressed: () => _launchPhone(phone),
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    borderRadius: AppRadius.capsule,
+                                    color: AppColors.surface.resolveFrom(context),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: AppSpacing.xxs,
+                                      horizontal: AppSpacing.md,
+                                    ),
+                                    child: Text(phone),
+                                  ),
                                 ),
                               ),
-                              onTap: () => _launchPhone(phoneNumbers[i]),
                             ),
-                          ]
                         ],
                       ),
                     ),
@@ -435,7 +434,8 @@ class PointCardState extends State<PointCard> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                    padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.sm),
                     child: Row(
                       children: [
                         Flexible(
@@ -455,7 +455,7 @@ class PointCardState extends State<PointCard> {
                               Expanded(
                                 child: Container(
                                   alignment: Alignment.centerRight,
-                                  margin: const EdgeInsets.only(right: 8),
+                                  margin: const EdgeInsets.only(right: AppSpacing.xs),
                                   child: const Text(
                                     'Покупка',
                                     style: AppTypography.body,
@@ -478,7 +478,7 @@ class PointCardState extends State<PointCard> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                     child: Column(
                       children: [
                         ...getCurrencyRows(context),

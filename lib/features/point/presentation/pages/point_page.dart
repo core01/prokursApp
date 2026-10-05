@@ -19,51 +19,29 @@ class PointPage extends StatelessWidget {
 
     var updateTime = getUpdateTime(datetime);
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(0, 4, 0, 0),
-      child: CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          automaticBackgroundVisibility: false,
-          backgroundColor: AppColors.header,
-          leading: GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              child: Icon(
-                CupertinoIcons.arrow_left,
-                size: 24,
-                color: AppColors.onHeader,
-              ),
-            ),
-          ),
-          middle: Column(
-            children: [
-              Text(
-                  exchangePoint.name,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTypography.headline.copyWith(color: AppColors.onHeader),
-              ),
-              Text(
-                "Обновлено в $updateTime",
-                  style: AppTypography.footnote.copyWith(color: AppColors.onHeaderSecondary),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
-        child: Column(
+    return CupertinoPageScaffold(
+      backgroundColor: AppColors.surface,
+      navigationBar: CupertinoNavigationBar(
+        automaticBackgroundVisibility: false,
+        backgroundColor: AppColors.header,
+        // The standard back button, in the header's color.
+        leading: const CupertinoNavigationBarBackButton(color: AppColors.onHeader),
+        middle: Column(
           children: [
-            Expanded(
-              child: Container(
-                color: AppColors.surface.resolveFrom(context),
-                child: PointCard(point: exchangePoint),
-              ),
+            Text(
+              exchangePoint.name,
+              overflow: TextOverflow.ellipsis,
+              style: AppTypography.headline.copyWith(color: AppColors.onHeader),
+            ),
+            Text(
+              "Обновлено в $updateTime",
+              style: AppTypography.footnote.copyWith(color: AppColors.onHeaderSecondary),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
       ),
+      child: PointCard(point: exchangePoint),
     );
   }
 }
