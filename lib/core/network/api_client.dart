@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:prokurs/core/network/auth_interceptor.dart';
+import 'package:prokurs/core/network/date_only_interceptor.dart';
 import 'package:prokurs/core/network/generated/export.dart';
 import 'package:prokurs/features/auth/presentation/state/auth_provider.dart';
 
@@ -41,6 +42,8 @@ class ApiClient {
   /// Private constructor
   ApiClient._internal(AuthProvider authProvider) : dio = Dio(_options) {
     final plainDio = Dio(_options);
+    // Before the auth interceptor, whose retry sends the options this has already fixed.
+    dio.interceptors.add(const DateOnlyInterceptor());
     dio.interceptors.add(AuthInterceptor(authProvider, plainDio));
 
     // Add logging interceptor for debugging
