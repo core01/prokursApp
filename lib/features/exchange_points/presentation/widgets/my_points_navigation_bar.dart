@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:prokurs/core/theme/app_theme.dart';
+import 'package:prokurs/features/profile/presentation/pages/profile_page.dart';
 
 class MyPointsNavigationBar extends CupertinoNavigationBar {
   MyPointsNavigationBar({
     super.key,
     required String? userEmail,
-    required Future<void> Function() onSignOut,
     required VoidCallback onAdd,
   }) : super(
           backgroundColor: AppColors.background,
@@ -31,27 +31,7 @@ class MyPointsNavigationBar extends CupertinoNavigationBar {
               children: [
                 CupertinoButton(
                   padding: EdgeInsets.zero,
-                  onPressed: () => showCupertinoModalPopup(
-                    context: context,
-                    builder: (context) => CupertinoActionSheet(
-                      title: const Text('Профиль пользователя'),
-                      message: Text(userEmail ?? 'Не авторизован'),
-                      actions: [
-                        CupertinoActionSheetAction(
-                          onPressed: () async {
-                            Navigator.pop(context);
-                            await onSignOut();
-                          },
-                          isDestructiveAction: true,
-                          child: const Text('Выйти'),
-                        ),
-                      ],
-                      cancelButton: CupertinoActionSheetAction(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('Отмена'),
-                      ),
-                    ),
-                  ),
+                  onPressed: () => Navigator.of(context).pushNamed(ProfilePage.routeName),
                   child: const Icon(
                     CupertinoIcons.person_circle,
                     size: AppIconSize.regular,

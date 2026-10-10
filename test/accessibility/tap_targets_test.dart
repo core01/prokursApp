@@ -18,6 +18,9 @@ import 'package:prokurs/features/exchange_points/presentation/pages/my_points_pa
 import 'package:prokurs/features/home/presentation/pages/home_page.dart';
 import 'package:prokurs/features/point/presentation/navigation/point_screen_arguments.dart';
 import 'package:prokurs/features/point/presentation/pages/point_page.dart';
+import 'package:prokurs/features/profile/data/services/profile_service.dart';
+import 'package:prokurs/features/profile/domain/models/user_profile.dart';
+import 'package:prokurs/features/profile/presentation/pages/profile_page.dart';
 import 'package:prokurs/features/rates/presentation/pages/rates_page.dart';
 import 'package:prokurs/features/rates/presentation/state/exchange_rates_provider.dart';
 import 'package:provider/provider.dart';
@@ -71,6 +74,21 @@ class _FakeRates extends ExchangeRatesProvider {
 
   @override
   Future<void> fetchAndSetExchangeRates({required int cityId}) async {}
+}
+
+// An organization with a license: the page shows every row, the check of the license too.
+class _FakeProfile extends ProfileService {
+  @override
+  Future<UserProfile> getProfile() async => UserProfile(
+    username: 'owner@mail.kz',
+    organizationName: 'ТОО «Обменный пункт»',
+    bin: '971240001315',
+    legalAddress: 'г. Астана, ул. Абая, 1',
+    directorName: 'Иванов Иван Иванович',
+    contactPhone: '+77011234567',
+    licenseNumber: '12-34',
+    licenseDate: DateTime(2024, 3, 5),
+  );
 }
 
 /// Apple HIG (Accessibility): controls are 44×44 pt by default and 28×28 pt at least. Segments of
@@ -189,6 +207,7 @@ void main() {
     ('sign up', const SignUpPage(), null),
     ('my points', const MyPointsPage(), null),
     ('new exchange point', const AddExchangePointPage(), null),
+    ('profile', ProfilePage(service: _FakeProfile()), null),
   ];
 
   for (final (name, page, arguments) in pages) {

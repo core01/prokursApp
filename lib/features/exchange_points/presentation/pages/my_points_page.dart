@@ -142,12 +142,10 @@ class _MyPointsState extends State<MyPointsPage> {
   @override
   Widget build(BuildContext context) {
     final userEmail = context.watch<AuthProvider>().userEmail;
-    final authProvider = context.read<AuthProvider>();
 
     return CupertinoPageScaffold(
       navigationBar: MyPointsNavigationBar(
         userEmail: userEmail,
-        onSignOut: () => authProvider.signOut(),
         onAdd: _showAddPointForm,
       ),
       child: SafeArea(

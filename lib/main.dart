@@ -13,6 +13,7 @@ import 'package:prokurs/features/about/presentation/pages/about_page.dart';
 import 'package:prokurs/features/home/presentation/pages/home_page.dart';
 import 'package:prokurs/features/exchange_points/presentation/pages/my_points_page.dart';
 import 'package:prokurs/features/point/presentation/pages/point_page.dart';
+import 'package:prokurs/features/profile/presentation/pages/profile_page.dart';
 import 'package:prokurs/core/network/api_client.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -196,6 +197,11 @@ class _MyAppState extends State<MyApp> {
       case AddExchangePointPage.routeName:
         return CupertinoPageRoute(
           builder: (context) => const AddExchangePointPage(),
+          settings: settings,
+        );
+      case ProfilePage.routeName:
+        return CupertinoPageRoute(
+          builder: (context) => const ProfilePage(),
           settings: settings,
         );
       default:
