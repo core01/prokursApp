@@ -23,7 +23,7 @@ String getUpdateTime(DateTime date) {
   return DateFormat('HH:mm').format(date);
 }
 
-void openUrl({required String url}) async {
+Future<void> openUrl({required String url}) async {
   final uri = Uri.parse(url);
   var isEmail = url.startsWith('mailto:');
 

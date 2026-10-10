@@ -35,6 +35,8 @@ class AuthService {
     required String fullName,
     required String email,
     required String password,
+    required String organizationName,
+    required String bin,
   }) async {
     try {
       await _auth.authControllerRegisterV2(
@@ -42,6 +44,8 @@ class AuthService {
           fullName: fullName,
           username: email,
           password: password,
+          organizationName: organizationName,
+          bin: bin,
         ),
       );
     } on DioException catch (e) {

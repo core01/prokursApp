@@ -1,9 +1,27 @@
 import 'package:flutter/cupertino.dart';
 import 'package:prokurs/core/theme/app_theme.dart';
 import 'package:prokurs/core/services/translation_service.dart';
+import 'package:prokurs/core/utils/organization_rules.dart';
+
+/// What the form hands over once it is valid. [bin] is the clean number (no spaces).
+class SignUpData {
+  const SignUpData({
+    required this.fullName,
+    required this.email,
+    required this.password,
+    required this.organizationName,
+    required this.bin,
+  });
+
+  final String fullName;
+  final String email;
+  final String password;
+  final String organizationName;
+  final String bin;
+}
 
 class SignUpForm extends StatefulWidget {
-  final void Function(String fullName, String email, String password)? onSignUp;
+  final void Function(SignUpData data)? onSignUp;
   final bool isLoading;
   final String? errorMessage;
   const SignUpForm({
@@ -20,15 +38,29 @@ class SignUpForm extends StatefulWidget {
 class _SignUpFormState extends State<SignUpForm> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _organizationController = TextEditingController();
+  final TextEditingController _binController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _passwordConfirmationController =
       TextEditingController();
 
   String? _nameError;
   String? _emailError;
+  String? _organizationError;
+  String? _binError;
   String? _passwordError;
   String? _passwordConfirmationError;
   bool _submitted = false;
+
+  Widget _fieldError(String text) => Padding(
+        padding: const EdgeInsets.only(top: AppSpacing.xs),
+        child: Text(
+          text,
+          style: AppTypography.footnote.copyWith(
+            color: AppColors.error.resolveFrom(context),
+          ),
+        ),
+      );
 
   bool _isValidEmail(String email) {
     final emailRegex = RegExp(
@@ -42,6 +74,8 @@ class _SignUpFormState extends State<SignUpForm> {
       if (_submitted) {
         final name = _nameController.text.trim();
         final email = _emailController.text.trim();
+        final organization = _organizationController.text.trim();
+        final bin = normalizeBin(_binController.text);
         final password = _passwordController.text.trim();
         final passwordConfirmation = _passwordConfirmationController.text
             .trim();
@@ -52,6 +86,15 @@ class _SignUpFormState extends State<SignUpForm> {
             ? 'Поле обязательно для заполнения'
             : !_isValidEmail(email)
             ? 'Введите валидный email адрес'
+            : null;
+
+        _organizationError =
+            organization.isEmpty ? 'Поле обязательно для заполнения' : null;
+
+        _binError = bin.isEmpty
+            ? 'Поле обязательно для заполнения'
+            : !isValidBin(bin)
+            ? 'Неверный БИН: проверьте все 12 цифр'
             : null;
 
         _passwordError = password.isEmpty
@@ -71,6 +114,8 @@ class _SignUpFormState extends State<SignUpForm> {
     // Add listeners for live validation
     _nameController.addListener(_validateFields);
     _emailController.addListener(_validateFields);
+    _organizationController.addListener(_validateFields);
+    _binController.addListener(_validateFields);
     _passwordController.addListener(_validateFields);
   }
 
@@ -78,6 +123,8 @@ class _SignUpFormState extends State<SignUpForm> {
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
+    _organizationController.dispose();
+    _binController.dispose();
     _passwordController.dispose();
     _passwordConfirmationController.dispose();
     super.dispose();
@@ -93,11 +140,17 @@ class _SignUpFormState extends State<SignUpForm> {
       if (_emailError == null &&
           _passwordError == null &&
           _passwordConfirmationError == null &&
+          _organizationError == null &&
+          _binError == null &&
           _nameError == null) {
         widget.onSignUp?.call(
-          _nameController.text.trim(),
-          _emailController.text.trim(),
-          _passwordController.text.trim(),
+          SignUpData(
+            fullName: _nameController.text.trim(),
+            email: _emailController.text.trim(),
+            password: _passwordController.text.trim(),
+            organizationName: _organizationController.text.trim(),
+            bin: normalizeBin(_binController.text),
+          ),
         );
       }
     });
@@ -164,6 +217,43 @@ class _SignUpFormState extends State<SignUpForm> {
               ),
             ),
           ),
+        const SizedBox(height: AppSpacing.md),
+        CupertinoTextField(
+          controller: _organizationController,
+          placeholder: 'Наименование организации',
+          placeholderStyle: const TextStyle(color: AppColors.secondaryLabel),
+          keyboardType: TextInputType.text,
+          clearButtonMode: OverlayVisibilityMode.editing,
+          maxLength: 255, // the API's limit: longer is a 400
+          padding: const EdgeInsets.all(AppSpacing.md),
+          enabled: !widget.isLoading,
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: AppColors.inputBorder,
+              width: AppStroke.hairline,
+            ),
+            borderRadius: AppRadius.control,
+          ),
+        ),
+        if (_organizationError != null) _fieldError(_organizationError!),
+        const SizedBox(height: AppSpacing.md),
+        CupertinoTextField(
+          controller: _binController,
+          placeholder: 'БИН',
+          placeholderStyle: const TextStyle(color: AppColors.secondaryLabel),
+          keyboardType: TextInputType.number,
+          clearButtonMode: OverlayVisibilityMode.editing,
+          padding: const EdgeInsets.all(AppSpacing.md),
+          enabled: !widget.isLoading,
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: AppColors.inputBorder,
+              width: AppStroke.hairline,
+            ),
+            borderRadius: AppRadius.control,
+          ),
+        ),
+        if (_binError != null) _fieldError(_binError!),
         const SizedBox(height: AppSpacing.md),
         CupertinoTextField(
           controller: _passwordController,

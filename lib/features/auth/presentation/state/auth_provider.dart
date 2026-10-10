@@ -83,16 +83,6 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> signUp(String fullName, String email, String password) async {
-    _isLoading = true;
-    try {
-      await _authService.signUp(
-          fullName: fullName, email: email, password: password);
-    } finally {
-      _isLoading = false;
-    }
-  }
-
   Future<void> clearTokens() async {
     _tokens = null;
     final prefs = await SharedPreferences.getInstance();

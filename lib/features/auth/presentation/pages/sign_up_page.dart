@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:prokurs/core/constants/app_constants.dart';
 import 'package:prokurs/core/theme/app_theme.dart';
+import 'package:prokurs/core/widgets/legal_documents_section.dart';
 import 'package:prokurs/features/auth/data/services/auth_service.dart';
 import 'package:prokurs/features/auth/presentation/forms/sign_up_form.dart';
 
@@ -18,11 +19,7 @@ class _SignUpState extends State<SignUpPage> {
   bool _isLoading = false;
   String? _errorMessage;
 
-  Future<void> _handleSignUp(
-    String fullName,
-    String email,
-    String password,
-  ) async {
+  Future<void> _handleSignUp(SignUpData data) async {
     if (_isLoading) return;
 
     setState(() {
@@ -32,12 +29,17 @@ class _SignUpState extends State<SignUpPage> {
 
     try {
       await _authService.signUp(
-        fullName: fullName,
-        email: email,
-        password: password,
+        fullName: data.fullName,
+        email: data.email,
+        password: data.password,
+        organizationName: data.organizationName,
+        bin: data.bin,
       );
       if (mounted) {
-        Navigator.pop(context, SignUpResult(email: email, password: password));
+        Navigator.pop(
+          context,
+          SignUpResult(email: data.email, password: data.password),
+        );
       }
     } catch (e) {
       setState(() {
@@ -97,6 +99,11 @@ class _SignUpState extends State<SignUpPage> {
                   onSignUp: _handleSignUp,
                   isLoading: _isLoading,
                   errorMessage: _errorMessage,
+                ),
+                // Registering is the acceptance: the owner sees what of, and can read it first.
+                const SizedBox(height: AppSpacing.lg),
+                const LegalDocumentsSection(
+                  header: 'Регистрируясь, вы принимаете условия и даёте согласие:',
                 ),
               ],
             ),
