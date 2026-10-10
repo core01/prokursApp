@@ -77,15 +77,15 @@ void _expectPoint(ExchangePoint point) {
   expect([point.buyRUB, point.sellRUB], [3.1, 3.2]);
   expect([point.buyCNY, point.sellCNY], [4.1, 4.2]);
   expect([point.buyGBP, point.sellGBP], [5.1, 5.2]);
-  expect(point.city_id, 4);
-  expect(point.day_and_night, 1);
+  expect(point.cityId, 4);
+  expect(point.dayAndNight, 1);
   expect([point.longitude, point.latitude], [76.9, 43.2]);
   expect(point.gross, 1);
   expect(point.logo, 'https://example.kz/logo.png');
   expect(point.wholesaleNote, 'Оптовые курсы от 100 000 тенге');
   expect(point.workModes?.mon, ['09:00', '18:00', '', '']);
   expect(point.description, 'Без комиссии');
-  expect(point.date_update, 1700000000);
+  expect(point.dateUpdate, 1700000000);
   expect(point.phones, ['+7 701 123 4567']);
 }
 

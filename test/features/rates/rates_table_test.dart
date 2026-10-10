@@ -20,10 +20,10 @@ ExchangePoint _point({required num gross}) => ExchangePoint(
       sellCNY: 0,
       buyGBP: 0,
       sellGBP: 0,
-      date_update: 1700000000,
-      day_and_night: 0,
+      dateUpdate: 1700000000,
+      dayAndNight: 0,
       gross: gross,
-      city_id: 3,
+      cityId: 3,
     );
 
 Widget _table(List<ExchangePoint> points, {bool sortedByBuy = true}) => CupertinoApp(

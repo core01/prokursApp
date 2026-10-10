@@ -21,12 +21,13 @@ import 'package:prokurs/core/theme/app_theme.dart';
 import 'package:prokurs/core/widgets/empty_state.dart';
 import 'package:prokurs/features/home/presentation/widgets/city_list.dart';
 import 'package:prokurs/features/exchange_points/domain/models/city.dart';
+import 'package:prokurs/features/exchange_points/domain/models/exchange_point.dart';
 
 class RatesPage extends StatefulWidget {
   const RatesPage({super.key});
 
   @override
-  _RatesPageState createState() => _RatesPageState();
+  State<RatesPage> createState() => _RatesPageState();
 
   static const routeName = '/ratesPage';
 }
@@ -106,7 +107,7 @@ class _RatesPageState extends State<RatesPage> {
     }
   }
 
-  onCitySelect(int cityId) async {
+  Future<void> onCitySelect(int cityId) async {
     try {
       final prefs = await SharedPreferences.getInstance();
 
@@ -215,7 +216,7 @@ class _RatesPageState extends State<RatesPage> {
                 spacing: AppSpacing.xs,
                 runSpacing: AppSpacing.xs,
                 children: [
-                  for (final currency in CURRENCY_LIST)
+                  for (final currency in currencyList)
                     SizedBox(
                       // Options of one set share a size (Apple HIG, Buttons).
                       width: 160,
@@ -368,7 +369,7 @@ class _RatesPageState extends State<RatesPage> {
                 ),
                 child: Row(
                   children: [
-                    for (final currency in CURRENCY_LIST)
+                    for (final currency in currencyList)
                       Padding(
                         padding: const EdgeInsetsDirectional.only(
                           end: AppSpacing.xs,
@@ -441,7 +442,7 @@ class _RatesPageState extends State<RatesPage> {
 
   @override
   Widget build(BuildContext context) {
-    void onPointClick(rate) {
+    void onPointClick(ExchangePoint rate) {
       Navigator.of(
         context,
       ).pushNamed(PointPage.routeName, arguments: PointScreenArguments(rate));

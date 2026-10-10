@@ -16,13 +16,13 @@ class ExchangePoint {
   final num sellGBP;
   final String? info;
   final List<String> phones;
-  final num date_update;
-  final num day_and_night;
+  final num dateUpdate;
+  final num dayAndNight;
   final num? longitude;
   final num? latitude;
   final num gross;
   final String? logo;
-  final num city_id;
+  final num cityId;
   final String? wholesaleNote;
   final WorkModesDto? workModes;
   final String? description;
@@ -35,8 +35,8 @@ class ExchangePoint {
     required this.buyGBP,
     required this.buyRUB,
     required this.buyUSD,
-    required this.date_update,
-    required this.day_and_night,
+    required this.dateUpdate,
+    required this.dayAndNight,
     required this.gross,
     required this.id,
     required this.info,
@@ -50,7 +50,7 @@ class ExchangePoint {
     required this.sellRUB,
     required this.sellUSD,
     this.logo,
-    required this.city_id,
+    required this.cityId,
     this.wholesaleNote,
     this.workModes,
     this.description,
@@ -71,7 +71,7 @@ class ExchangePoint {
       'sellRUB': sellRUB,
       'sellUSD': sellUSD,
       'gross': gross,
-      'city_id': city_id,
+      'city_id': cityId,
     };
   }
 
@@ -93,8 +93,8 @@ class ExchangePoint {
       buyGBP: dto.buyGbp,
       buyRUB: dto.buyRub,
       buyUSD: dto.buyUsd,
-      date_update: dto.dateUpdate,
-      day_and_night: dto.dayAndNight,
+      dateUpdate: dto.dateUpdate,
+      dayAndNight: dto.dayAndNight,
       gross: dto.gross,
       id: dto.id,
       info: dto.info,
@@ -108,7 +108,7 @@ class ExchangePoint {
       sellRUB: dto.sellRub,
       sellUSD: dto.sellUsd,
       logo: dto.logo,
-      city_id: dto.cityId,
+      cityId: dto.cityId,
       wholesaleNote: dto.wholesaleNote,
       workModes: dto.workModes,
       description: dto.description,
@@ -123,8 +123,8 @@ class ExchangePoint {
       buyGBP: dto.buyGbp,
       buyRUB: dto.buyRub,
       buyUSD: dto.buyUsd,
-      date_update: dto.dateUpdate,
-      day_and_night: dto.dayAndNight,
+      dateUpdate: dto.dateUpdate,
+      dayAndNight: dto.dayAndNight,
       gross: dto.gross,
       id: dto.id,
       info: dto.info,
@@ -138,7 +138,7 @@ class ExchangePoint {
       sellRUB: dto.sellRub,
       sellUSD: dto.sellUsd,
       logo: dto.logo,
-      city_id: dto.cityId,
+      cityId: dto.cityId,
       wholesaleNote: dto.wholesaleNote,
       workModes: dto.workModes,
       description: dto.description,

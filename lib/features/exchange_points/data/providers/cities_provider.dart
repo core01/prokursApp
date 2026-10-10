@@ -8,10 +8,10 @@ class CitiesProvider with ChangeNotifier {
   List<City> get cities => _cities..sort((a, b) => a.title.compareTo(b.title));
 
   List<num> popularCityIds = [
-    City.ASTANA_ID,
-    City.ALMATY_ID,
-    City.OSKEMEN_ID,
-    City.PAVLODAR_ID
+    City.astanaId,
+    City.almatyId,
+    City.oskemenId,
+    City.pavlodarId
   ];
 
   List<City> get popularCities =>

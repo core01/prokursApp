@@ -105,24 +105,24 @@ class PointCardState extends State<PointCard> {
   }
 
   bool hasPointCurrencyBuyValue(String currencyId) {
-    return widget.point.get('$BUY_KEY$currencyId') != 0;
+    return widget.point.get('$buyPrefix$currencyId') != 0;
   }
 
   bool hasPointCurrencySellValue(String currencyId) {
-    return widget.point.get('$SELL_KEY$currencyId') != 0;
+    return widget.point.get('$sellPrefix$currencyId') != 0;
   }
 
   String getPointCurrencyBuyValue(String currencyId) {
     return getPointCurrencyRateStringFormatted(
-        widget.point, '$BUY_KEY$currencyId');
+        widget.point, '$buyPrefix$currencyId');
   }
 
   String getPointCurrencySellValue(String currencyId) {
     return getPointCurrencyRateStringFormatted(
-        widget.point, '$SELL_KEY$currencyId');
+        widget.point, '$sellPrefix$currencyId');
   }
 
-  void _launchPhone(phone) async {
+  void _launchPhone(String phone) async {
     final Uri phoneLink =
         Uri.parse('tel://${phone.replaceAll(RegExp("[^\\d+]"), "")}');
 
@@ -207,16 +207,16 @@ class PointCardState extends State<PointCard> {
     );
   }
 
-  getCurrencyRows(BuildContext context) {
+  List<Widget> getCurrencyRows(BuildContext context) {
     List<Widget> rows = [];
 
-    for (var i = 0; i < CURRENCY_LIST.length; i++) {
-      var currency = CURRENCY_LIST[i];
+    for (var i = 0; i < currencyList.length; i++) {
+      var currency = currencyList[i];
       if (canRenderCurrencyRow(getPointCurrencyBuyValue(currency.id),
           getPointCurrencySellValue(currency.id))) {
         rows.add(Container(
           decoration: BoxDecoration(
-            border: i != CURRENCY_LIST.length - 1
+            border: i != currencyList.length - 1
                   ? Border(top: BorderSide(
                       width: AppStroke.hairline,
                       color: AppColors.separator.resolveFrom(context),

@@ -28,7 +28,7 @@ class AddExchangePointPage extends StatefulWidget {
   });
 
   @override
-  _AddExchangePointPageState createState() => _AddExchangePointPageState();
+  State<AddExchangePointPage> createState() => _AddExchangePointPageState();
 }
 
 class _AddExchangePointPageState extends State<AddExchangePointPage> {
@@ -523,11 +523,11 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                     margin: sectionMargin,
                     header: Text('КУРСЫ ВАЛЮТ', style: sectionHeaderStyle),
                     children: [
-                      _buildStyledCurrencyRow(USD, _form.buyUSD, _form.sellUSD),
-                      _buildStyledCurrencyRow(EUR, _form.buyEUR, _form.sellEUR),
-                      _buildStyledCurrencyRow(RUR, _form.buyRUB, _form.sellRUB),
-                      _buildStyledCurrencyRow(CNY, _form.buyCNY, _form.sellCNY),
-                      _buildStyledCurrencyRow(GBP, _form.buyGBP, _form.sellGBP),
+                      _buildStyledCurrencyRow(usd, _form.buyUSD, _form.sellUSD),
+                      _buildStyledCurrencyRow(eur, _form.buyEUR, _form.sellEUR),
+                      _buildStyledCurrencyRow(rub, _form.buyRUB, _form.sellRUB),
+                      _buildStyledCurrencyRow(cny, _form.buyCNY, _form.sellCNY),
+                      _buildStyledCurrencyRow(gbp, _form.buyGBP, _form.sellGBP),
                     ],
                   ),
 

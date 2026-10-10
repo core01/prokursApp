@@ -13,7 +13,7 @@ class RatesTable extends StatefulWidget {
   final String selectedCurrency;
   final BestRates bestRetailRates;
   final BestRates bestGrossRates;
-  final onPointClick;
+  final void Function(ExchangePoint rate) onPointClick;
 
   /// The list is sorted by the buy rate (highest first) or by the sell rate (lowest first).
   final bool sortedByBuy;
@@ -24,23 +24,23 @@ class RatesTable extends StatefulWidget {
     required this.selectedCurrency,
     required this.bestRetailRates,
     required this.bestGrossRates,
-    required Function this.onPointClick,
+    required this.onPointClick,
     required this.sortedByBuy,
   });
 
   @override
-  _RatesTable createState() => _RatesTable();
+  State<RatesTable> createState() => _RatesTable();
 }
 
 class _RatesTable extends State<RatesTable> {
-  getPointCurrencyRateContainer(ExchangePoint rate, String property) {
+  Widget getPointCurrencyRateContainer(ExchangePoint rate, String property) {
     num currencyValue = rate.get(property);
     bool isBestGross =
         rate.gross > 0 && currencyValue == widget.bestGrossRates.get(property);
     bool isBestRetail = rate.gross == 0 &&
         currencyValue == widget.bestRetailRates.get(property);
 
-    bool isBuy = property.contains(BUY_KEY);
+    bool isBuy = property.contains(buyPrefix);
 
     // The best rate is bold as well as colored: color alone doesn't reach everyone (Apple HIG).
     final style = isBestGross || isBestRetail
@@ -215,13 +215,13 @@ class _RatesTable extends State<RatesTable> {
                                     Expanded(
                                       child: getPointCurrencyRateContainer(
                                         rate,
-                                        '$BUY_KEY$selectedCurrency',
+                                        '$buyPrefix$selectedCurrency',
                                       ),
                                     ),
                                     Expanded(
                                       child: getPointCurrencyRateContainer(
                                         rate,
-                                        '$SELL_KEY$selectedCurrency',
+                                        '$sellPrefix$selectedCurrency',
                                       ),
                                     ),
                                   ],
@@ -241,7 +241,7 @@ class _RatesTable extends State<RatesTable> {
                               Text(
                                 DateFormat('HH:mm').format(
                                   DateTime.fromMillisecondsSinceEpoch(
-                                    rate.date_update * 1000 as int,
+                                    rate.dateUpdate * 1000 as int,
                                   ),
                                 ),
                                 style: AppTypography.subheadline.copyWith(color: secondaryLabel),

@@ -20,9 +20,9 @@ class ExchangeRatesProvider with ChangeNotifier {
 
   bool get showBuy => _showBuy;
 
-  String get buyKey => '$BUY_KEY$_currency';
+  String get buyKey => '$buyPrefix$_currency';
 
-  String get sellKey => '$SELL_KEY$_currency';
+  String get sellKey => '$sellPrefix$_currency';
 
   List<ExchangePoint> get items => _exchangeRates.where((el) {
         return el.get(buyKey) != 0 || el.get(sellKey) != 0;

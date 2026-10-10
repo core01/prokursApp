@@ -4,10 +4,10 @@ class City {
   final int id;
   final String title;
 
-  static const ALMATY_ID = 2;
-  static const ASTANA_ID = 3;
-  static const OSKEMEN_ID = 4;
-  static const PAVLODAR_ID = 1;
+  static const almatyId = 2;
+  static const astanaId = 3;
+  static const oskemenId = 4;
+  static const pavlodarId = 1;
 
   const City({required this.id, required this.title});
 

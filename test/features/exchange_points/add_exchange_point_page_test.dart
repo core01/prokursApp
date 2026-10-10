@@ -6,7 +6,7 @@ import 'package:prokurs/features/exchange_points/domain/models/city.dart';
 import 'package:prokurs/features/exchange_points/presentation/pages/add_exchange_point_page.dart';
 import 'package:provider/provider.dart';
 
-const _cities = [City(id: City.ASTANA_ID, title: 'Астана')];
+const _cities = [City(id: City.astanaId, title: 'Астана')];
 
 class _FakeCities extends CitiesProvider {
   @override

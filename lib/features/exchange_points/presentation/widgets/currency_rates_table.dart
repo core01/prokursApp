@@ -80,7 +80,7 @@ class CurrencyRatesTable extends StatelessWidget {
             child: Align(
               alignment: Alignment.centerRight,
               child: Text(
-                'Обновлено: ${formatDateTime(point.date_update)}',
+                'Обновлено: ${formatDateTime(point.dateUpdate)}',
                 style: AppTypography.caption1.copyWith(color: secondaryLabel),
               ),
             ),

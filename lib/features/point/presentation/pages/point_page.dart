@@ -15,7 +15,7 @@ class PointPage extends StatelessWidget {
         ModalRoute.of(context)!.settings.arguments as PointScreenArguments;
     final exchangePoint = args.exchangePoint;
     var datetime = DateTime.fromMillisecondsSinceEpoch(
-        exchangePoint.date_update.toInt() * 1000);
+        exchangePoint.dateUpdate.toInt() * 1000);
 
     var updateTime = getUpdateTime(datetime);
 

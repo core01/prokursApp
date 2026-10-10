@@ -1,11 +1,11 @@
 import 'package:flag/flag.dart';
 
 class Currency {
-  static const String USD = 'USD';
-  static const String EUR = 'EUR';
-  static const String RUR = 'RUB';
-  static const String CNY = 'CNY';
-  static const String GBP = 'GBP';
+  static const String usd = 'USD';
+  static const String eur = 'EUR';
+  static const String rub = 'RUB';
+  static const String cny = 'CNY';
+  static const String gbp = 'GBP';
 }
 
 class CurrencyItem {
@@ -19,27 +19,28 @@ class CurrencyItem {
       this.id, this.label, this.icon, this.unicode, this.countryCode);
 }
 
-const USD =
-    CurrencyItem(Currency.USD, Currency.USD, '🇺🇸', '\u{0024}', FlagsCode.US);
-const EUR =
-    CurrencyItem(Currency.EUR, Currency.EUR, '🇪🇺', '\u{20AC}', FlagsCode.EU);
-const RUR =
-    CurrencyItem(Currency.RUR, Currency.RUR, '🇷🇺', '\u{20BD}', FlagsCode.RU);
-const CNY =
-    CurrencyItem(Currency.CNY, Currency.CNY, '🇨🇳', '\u{00A5}', FlagsCode.CN);
-const GBP =
-    CurrencyItem(Currency.GBP, Currency.GBP, '🇬🇧', '\u{00A3}', FlagsCode.GB);
+const usd =
+    CurrencyItem(Currency.usd, Currency.usd, '🇺🇸', '\u{0024}', FlagsCode.US);
+const eur =
+    CurrencyItem(Currency.eur, Currency.eur, '🇪🇺', '\u{20AC}', FlagsCode.EU);
+const rub =
+    CurrencyItem(Currency.rub, Currency.rub, '🇷🇺', '\u{20BD}', FlagsCode.RU);
+const cny =
+    CurrencyItem(Currency.cny, Currency.cny, '🇨🇳', '\u{00A5}', FlagsCode.CN);
+const gbp =
+    CurrencyItem(Currency.gbp, Currency.gbp, '🇬🇧', '\u{00A3}', FlagsCode.GB);
 
-const List<CurrencyItem> CURRENCY_LIST = [
-  USD,
-  EUR,
-  RUR,
-  CNY,
-  GBP,
+const List<CurrencyItem> currencyList = [
+  usd,
+  eur,
+  rub,
+  cny,
+  gbp,
 ];
 
-const BUY_KEY = 'buy';
-const SELL_KEY = 'sell';
+// A rate key is one of these plus the currency code: buyUSD, sellEUR.
+const buyPrefix = 'buy';
+const sellPrefix = 'sell';
 
 class SignUpResult {
   final String email;

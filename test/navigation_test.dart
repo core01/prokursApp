@@ -25,7 +25,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 // A JWT whose payload is {"username":"owner@mail.kz"}; the signature isn't checked.
 const _accessToken = 'x.eyJ1c2VybmFtZSI6Im93bmVyQG1haWwua3oifQ.x';
 
-const _cities = [City(id: City.ASTANA_ID, title: 'Астана')];
+const _cities = [City(id: City.astanaId, title: 'Астана')];
 
 class _FakeCities extends CitiesProvider {
   @override
@@ -117,11 +117,11 @@ ExchangePoint _pointWith({
       sellCNY: 0,
       buyGBP: 0,
       sellGBP: 0,
-      date_update: 1700000000,
-      day_and_night: 0,
+      dateUpdate: 1700000000,
+      dayAndNight: 0,
       gross: gross,
       wholesaleNote: 'Оптовые курсы от 100 000 тенге',
-      city_id: City.ASTANA_ID,
+      cityId: City.astanaId,
       latitude: latitude,
       longitude: longitude,
     );
@@ -143,7 +143,7 @@ Future<void> _openPoint(WidgetTester tester, ExchangePoint point) async {
 
 void main() {
   setUp(
-    () => SharedPreferences.setMockInitialValues({'cityId': City.ASTANA_ID}),
+    () => SharedPreferences.setMockInitialValues({'cityId': City.astanaId}),
   );
 
   testWidgets(

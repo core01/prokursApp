@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:prokurs/features/exchange_points/domain/models/exchange_point.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-const String EMPTY_CURRENCY_VALUE = '-';
+const String emptyCurrencyValue = '-';
 
 String getPointCurrencyRateStringFormatted(
     ExchangePoint point, String property) {
@@ -11,12 +11,12 @@ String getPointCurrencyRateStringFormatted(
   num currencyValue = point.get(property);
 
   return currencyValue == 0
-      ? EMPTY_CURRENCY_VALUE
+      ? emptyCurrencyValue
       : numberFormatter.format((currencyValue));
 }
 
 bool canRenderCurrencyRow(String buyValue, String sellValue) {
-  return buyValue != EMPTY_CURRENCY_VALUE || sellValue != EMPTY_CURRENCY_VALUE;
+  return buyValue != emptyCurrencyValue || sellValue != emptyCurrencyValue;
 }
 
 String getUpdateTime(DateTime date) {

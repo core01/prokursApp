@@ -176,7 +176,7 @@ class ExchangePointForm {
       sellCny: _parseRate(sellCNY),
       buyGbp: _parseRate(buyGBP),
       sellGbp: _parseRate(sellGBP),
-      dayAndNight: original.day_and_night.toInt(),
+      dayAndNight: original.dayAndNight.toInt(),
       longitude: original.longitude,
       latitude: original.latitude,
       workModes: original.workModes,
@@ -190,7 +190,7 @@ class ExchangePointForm {
       info: InfoInput.dirty(point.info ?? ''),
       phones: PhonesInput.dirty(
           point.phones.isEmpty ? const [''] : point.phones),
-      city: CityInput.dirty(point.city_id.toInt()),
+      city: CityInput.dirty(point.cityId.toInt()),
       gross: point.gross,
       wholesaleNote: point.wholesaleNote ?? '',
       buyUSD: point.buyUSD != 0 ? point.buyUSD.toString() : '',

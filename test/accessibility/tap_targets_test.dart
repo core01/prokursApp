@@ -25,7 +25,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // No network in tests (the API client isn't initialized): the providers serve fixed data.
 const _cities = [
-  City(id: City.ASTANA_ID, title: 'Астана'),
+  City(id: City.astanaId, title: 'Астана'),
   City(id: 10, title: 'Караганда'),
 ];
 
@@ -59,10 +59,10 @@ ExchangePoint _point(int id) => ExchangePoint(
   sellCNY: 0,
   buyGBP: 0,
   sellGBP: 0,
-  date_update: 1700000000,
-  day_and_night: 0,
+  dateUpdate: 1700000000,
+  dayAndNight: 0,
   gross: 0,
-  city_id: City.ASTANA_ID,
+  cityId: City.astanaId,
 );
 
 class _FakeRates extends ExchangeRatesProvider {
@@ -170,7 +170,7 @@ void main() {
   setUpAll(_loadAppFonts);
 
   setUp(() {
-    SharedPreferences.setMockInitialValues({'cityId': City.ASTANA_ID});
+    SharedPreferences.setMockInitialValues({'cityId': City.astanaId});
     PackageInfo.setMockInitialValues(
       appName: 'prokurs',
       packageName: 'kz.prokurs',

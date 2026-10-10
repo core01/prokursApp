@@ -25,7 +25,7 @@ class MyPointsPage extends StatefulWidget {
   final ExchangePointsService? service;
 
   @override
-  _MyPointsState createState() => _MyPointsState();
+  State<MyPointsPage> createState() => _MyPointsState();
 }
 
 class _MyPointsState extends State<MyPointsPage> {
