@@ -42,34 +42,20 @@ class ExchangeRatesProvider with ChangeNotifier {
   }
 
   void sortExchangeRates() {
+    // Best first, points without that rate last: the highest buy rate, the lowest sell rate.
     _exchangeRates.sort((a, b) {
-      var returningValue;
-      var compareValue;
-      var value;
       if (_showBuy) {
-        value = b.get(buyKey);
-        compareValue = a.get(buyKey);
-
-        if (value == 0) {
-          returningValue = -1;
-        } else if (compareValue == 0) {
-          returningValue = 1;
-        } else {
-          returningValue = value.compareTo(compareValue);
-        }
-      } else {
-        value = a.get(sellKey);
-        compareValue = b.get(sellKey);
-
-        if (compareValue == 0) {
-          returningValue = -1;
-        } else if (value == 0) {
-          returningValue = 1;
-        } else {
-          returningValue = value.compareTo(compareValue);
-        }
+        final num value = b.get(buyKey);
+        final num compareValue = a.get(buyKey);
+        if (value == 0) return -1;
+        if (compareValue == 0) return 1;
+        return value.compareTo(compareValue);
       }
-      return returningValue;
+      final num value = a.get(sellKey);
+      final num compareValue = b.get(sellKey);
+      if (compareValue == 0) return -1;
+      if (value == 0) return 1;
+      return value.compareTo(compareValue);
     });
 
     debugPrint(
@@ -117,13 +103,13 @@ class ExchangeRatesProvider with ChangeNotifier {
       _exchangeRates = response.rates.map(ExchangePoint.fromRate).toList();
       _bestRetailRates = BestRates.fromDto(response.best.retail);
       _bestGrossRates = BestRates.fromDto(response.best.gross);
+      // Only after a success: a failed refresh keeps the old list, which must not read as fresh.
+      _updateTime = DateTime.now();
+      sortExchangeRates();
 
       notifyListeners();
     } catch (err) {
       debugPrint("Error during rates fetch $err");
     }
-
-    _updateTime = DateTime.now();
-    sortExchangeRates();
   }
 }
