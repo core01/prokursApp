@@ -35,17 +35,36 @@ class TranslationService {
     'username': 'Email',
     'password': 'Пароль',
     'fullName': 'Имя',
+    // The organization (API v2 profile) and a point's license appendix.
+    'organizationName': 'Наименование организации',
+    'bin': 'БИН',
+    'legalAddress': 'Юридический адрес',
+    'directorName': 'ФИО руководителя',
+    'contactPhone': 'Контактный телефон',
+    'licenseNumber': 'Номер лицензии',
+    'licenseDate': 'Дата выдачи лицензии',
+    'license_appendix_number': 'Номер приложения',
+    'license_appendix_date': 'Дата приложения',
   };
 
   // What a failed rule (`errors[].constraint`) means: "field.constraint" first, then the
   // constraint alone.
   static const _constraintTexts = {
     'phone_numbers.matches': 'нужен формат +7 701 123 4567 или 4 цифры',
+    'contactPhone.matches': 'нужен формат +7 701 123 4567',
+    'licenseDate.matches': 'неверная дата',
+    'license_appendix_date.matches': 'неверная дата',
+    'isBin': 'неверный БИН, проверьте все 12 цифр',
+    'isIso8601': 'такой даты нет',
+    'isNotInFuture': 'не может быть в будущем',
     'min': 'не может быть отрицательным',
     'max': 'слишком большое значение',
     'isNumber': 'нужно число, не больше двух знаков после запятой',
     'isNotEmpty': 'не заполнено',
     'isEmail': 'неверный email',
+    'maxLength': 'слишком длинное значение',
+    'isLatitude': 'вне допустимого диапазона',
+    'isLongitude': 'вне допустимого диапазона',
     'matches': 'неверный формат',
   };
 

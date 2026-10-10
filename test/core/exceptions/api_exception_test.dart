@@ -54,6 +54,8 @@ void main() {
         {'field': 'buyUSD', 'constraint': 'min'},
         {'field': 'phone_numbers', 'constraint': 'matches'},
         {'field': 'work_modes.mon', 'constraint': 'arrayMinSize'},
+        {'field': 'name', 'constraint': 'maxLength'},
+        {'field': 'latitude', 'constraint': 'isLatitude'},
         {'field': 'something_new', 'constraint': 'min'},
       ],
     }));
@@ -62,7 +64,32 @@ void main() {
       'Покупка USD: не может быть отрицательным',
       'Телефоны: нужен формат +7 701 123 4567 или 4 цифры',
       'Режим работы: неверное значение',
+      'Название: слишком длинное значение',
+      'Координаты: вне допустимого диапазона',
       'Проверьте введённые данные',
+    ]);
+  });
+
+  test("the organization's and the appendix's field errors are named", () {
+    final e = ApiException.fromDio(_failed(400, body: {
+      'message': ['bin must be a valid БИН'],
+      'errors': [
+        {'field': 'bin', 'constraint': 'isBin'},
+        {'field': 'contactPhone', 'constraint': 'matches'},
+        {'field': 'licenseDate', 'constraint': 'isNotInFuture'},
+        {'field': 'license_appendix_date', 'constraint': 'matches'},
+        {'field': 'license_appendix_number', 'constraint': 'maxLength'},
+        {'field': 'organizationName', 'constraint': 'maxLength'},
+      ],
+    }));
+
+    expect(e.toString().split('\n'), [
+      'БИН: неверный БИН, проверьте все 12 цифр',
+      'Контактный телефон: нужен формат +7 701 123 4567',
+      'Дата выдачи лицензии: не может быть в будущем',
+      'Дата приложения: неверная дата',
+      'Номер приложения: слишком длинное значение',
+      'Наименование организации: слишком длинное значение',
     ]);
   });
 
