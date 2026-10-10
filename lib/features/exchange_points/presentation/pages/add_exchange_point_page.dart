@@ -452,6 +452,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                           placeholder: "Введите название",
                           onChanged: _onNameChanged,
                           maxLines: null,
+                          maxLength: 255, // the API's limit: longer is a 400
                         ),
                       ),
                       _fieldRow(
@@ -514,6 +515,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                             placeholder: 'Оптовые курсы от 100 000 тенге',
                             onChanged: _onWholesaleNoteChanged,
                             maxLines: null,
+                            maxLength: 500,
                           ),
                         ),
                     ],
@@ -578,6 +580,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
     required ValueChanged<String> onChanged,
     TextInputType? keyboardType,
     int? maxLines = 1,
+    int? maxLength,
   }) {
     return CupertinoTextField.borderless(
       controller: controller,
@@ -587,6 +590,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
           horizontal: AppSpacing.xs, vertical: _fieldVerticalPadding),
       keyboardType: keyboardType,
       maxLines: maxLines,
+      maxLength: maxLength,
       onChanged: onChanged,
     );
   }
