@@ -5,6 +5,7 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
+import '../models/change_password_input.dart';
 import '../models/create_user_input.dart';
 import '../models/login_dto.dart';
 import '../models/login_response_dto.dart';
@@ -49,6 +50,12 @@ abstract class AuthClient {
   @POST('/v2/auth/log-out')
   Future<void> authControllerLogOutV2({
     @Header('refresh-token') required String refreshToken,
+  });
+
+  /// Change the password; signs out the other devices
+  @POST('/v2/auth/change-password')
+  Future<LoginResponseDto> authControllerChangePasswordV2({
+    @Body() required ChangePasswordInput body,
   });
 
   /// Refresh access token.

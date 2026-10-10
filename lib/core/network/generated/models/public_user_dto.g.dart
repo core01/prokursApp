@@ -14,10 +14,22 @@ PublicUserDto _$PublicUserDtoFromJson(Map<String, dynamic> json) =>
           : PublicUserAttributesDto.fromJson(
               json['attributes'] as Map<String, dynamic>,
             ),
+      profile: json['profile'] == null
+          ? null
+          : PublicUserProfileDto.fromJson(
+              json['profile'] as Map<String, dynamic>,
+            ),
+      organization: json['organization'] == null
+          ? null
+          : PublicUserOrganizationDto.fromJson(
+              json['organization'] as Map<String, dynamic>,
+            ),
     );
 
 Map<String, dynamic> _$PublicUserDtoToJson(PublicUserDto instance) =>
     <String, dynamic>{
       'username': instance.username,
       'attributes': ?instance.attributes,
+      'profile': ?instance.profile,
+      'organization': ?instance.organization,
     };

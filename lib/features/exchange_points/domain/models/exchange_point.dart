@@ -27,6 +27,12 @@ class ExchangePoint {
   final WorkModesDto? workModes;
   final String? description;
 
+  /// The license appendix issued for this point: only the owner's own copy has it (the public
+  /// list leaves it out), and the status is the administration's check, never edited.
+  final String? licenseAppendixNumber;
+  final DateTime? licenseAppendixDate;
+  final PersonalPointV2DtoLicenseAppendixStatus? licenseAppendixStatus;
+
   bool get hasLogo => logo != null && logo!.isNotEmpty;
 
   ExchangePoint({
@@ -54,6 +60,9 @@ class ExchangePoint {
     this.wholesaleNote,
     this.workModes,
     this.description,
+    this.licenseAppendixNumber,
+    this.licenseAppendixDate,
+    this.licenseAppendixStatus,
   });
 
   Map<String, dynamic> _toMap() {
@@ -142,6 +151,9 @@ class ExchangePoint {
       wholesaleNote: dto.wholesaleNote,
       workModes: dto.workModes,
       description: dto.description,
+      licenseAppendixNumber: dto.licenseAppendixNumber,
+      licenseAppendixDate: dto.licenseAppendixDate,
+      licenseAppendixStatus: dto.licenseAppendixStatus,
     );
   }
 }

@@ -4,7 +4,14 @@ import 'package:prokurs/features/exchange_points/domain/models/exchange_point.da
 import 'package:prokurs/features/exchange_points/presentation/forms/exchange_point_form.dart';
 import 'package:prokurs/features/exchange_points/presentation/forms/form_inputs.dart';
 
-ExchangePoint _point({String? description}) => ExchangePoint(
+ExchangePoint _point({
+  String? description,
+  String? appendixNumber,
+  DateTime? appendixDate,
+}) =>
+    ExchangePoint(
+      licenseAppendixNumber: appendixNumber,
+      licenseAppendixDate: appendixDate,
       id: 7,
       name: 'Обменник',
       info: 'ул. Абая 1',
@@ -103,6 +110,75 @@ void main() {
 
     expect(json.containsKey('description'), isTrue);
     expect(json['description'], isNull);
+  });
+
+  group('the license appendix', () {
+    test('a stored one goes back unchanged, so its check is not reset', () {
+      final original = _point(appendixNumber: 'A-100', appendixDate: DateTime(2024, 3, 15));
+      final form = ExchangePointForm.fromExchangePoint(original).copyWith(buyUSD: '490');
+
+      final input = form.toReplaceInput(original);
+
+      expect(input.licenseAppendixNumber, 'A-100');
+      expect(input.licenseAppendixDate, DateTime(2024, 3, 15));
+    });
+
+    test('a point without one sends both keys as explicit null: the API requires them', () {
+      final original = _point();
+      final json =
+          ExchangePointForm.fromExchangePoint(original).toReplaceInput(original).toJson();
+
+      expect(json.containsKey('license_appendix_number'), isTrue);
+      expect(json['license_appendix_number'], isNull);
+      expect(json.containsKey('license_appendix_date'), isTrue);
+      expect(json['license_appendix_date'], isNull);
+    });
+
+    test('a typed one is trimmed, a blank one and a cleared date are sent as null', () {
+      final original = _point(appendixNumber: 'A-100', appendixDate: DateTime(2024, 3, 15));
+      final form = ExchangePointForm.fromExchangePoint(original);
+
+      final typed = form.copyWith(
+        licenseAppendixNumber: '  B-7  ',
+        licenseAppendixDate: DateTime(2025, 1, 2),
+      );
+      expect(typed.toReplaceInput(original).licenseAppendixNumber, 'B-7');
+      expect(typed.toReplaceInput(original).licenseAppendixDate, DateTime(2025, 1, 2));
+
+      final cleared =
+          form.copyWith(licenseAppendixNumber: '   ', clearLicenseAppendixDate: true);
+      expect(cleared.toReplaceInput(original).licenseAppendixNumber, isNull);
+      expect(cleared.toReplaceInput(original).licenseAppendixDate, isNull);
+    });
+
+    test('a new point takes them too, and leaves them out when blank', () {
+      final filled = const ExchangePointForm()
+          .copyWith(
+            city: const CityInput.dirty(2),
+            licenseAppendixNumber: 'A-100',
+            licenseAppendixDate: DateTime(2024, 3, 15),
+          )
+          .toCreateInput();
+      expect(filled.licenseAppendixNumber, 'A-100');
+      expect(filled.licenseAppendixDate, DateTime(2024, 3, 15));
+
+      final blank = const ExchangePointForm().copyWith(city: const CityInput.dirty(2));
+      expect(blank.toCreateInput().toJson().containsKey('license_appendix_number'), isFalse);
+    });
+
+    test('a date in the future blocks saving and is named; a long number too', () {
+      final base = ExchangePointForm.fromExchangePoint(_point());
+
+      final future = base.copyWith(licenseAppendixDate: DateTime(2099, 1, 1));
+      expect(future.isValid, isFalse);
+      expect(future.errorSummary(), ['Дата приложения — не может быть в будущем']);
+
+      final long = base.copyWith(licenseAppendixNumber: 'x' * 256);
+      expect(long.isValid, isFalse);
+      expect(long.errorSummary(), ['Номер приложения — не больше 255 символов']);
+
+      expect(base.copyWith(licenseAppendixNumber: 'x' * 255).isValid, isTrue);
+    });
   });
 
   test('days without a schedule are left out of work_modes', () {

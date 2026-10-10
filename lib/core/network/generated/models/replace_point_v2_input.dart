@@ -32,6 +32,8 @@ class ReplacePointV2Input {
     required this.wholesaleNote,
     required this.workModes,
     required this.description,
+    required this.licenseAppendixNumber,
+    required this.licenseAppendixDate,
   });
   
   factory ReplacePointV2Input.fromJson(Map<String, Object?> json) => _$ReplacePointV2InputFromJson(json);
@@ -116,6 +118,14 @@ class ReplacePointV2Input {
   /// Free-text description of the office
   @JsonKey(includeIfNull: true)
   final String? description;
+
+  /// Number of the license appendix issued for this point
+  @JsonKey(includeIfNull: true,name: 'license_appendix_number')
+  final String? licenseAppendixNumber;
+
+  /// Date the license appendix was issued, as YYYY-MM-DD, not later than today (Almaty)
+  @JsonKey(includeIfNull: true,name: 'license_appendix_date')
+  final DateTime? licenseAppendixDate;
 
   Map<String, Object?> toJson() => _$ReplacePointV2InputToJson(this);
 }

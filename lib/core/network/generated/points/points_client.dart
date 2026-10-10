@@ -10,6 +10,7 @@ import '../models/personal_point_v2_dto.dart';
 import '../models/public_point_v2_dto.dart';
 import '../models/replace_point_v2_input.dart';
 import '../models/success_response_dto.dart';
+import '../models/update_points_rates_v2_input.dart';
 
 part 'points_client.g.dart';
 
@@ -39,6 +40,14 @@ abstract class PointsClient {
   Future<PersonalPointV2Dto> pointsV2ControllerUpdateUserPointByIdV2({
     @Path('id') required int id,
     @Body() required ReplacePointV2Input body,
+  });
+
+  /// Set the same rates on several of the caller's points at once.
+  ///
+  /// All or none: an id that is not one of the caller's points fails the whole update (404). Each point gets its rates time renewed and its own socket event, as with PUT /personal/:id.
+  @PUT('/v2/points/personal/rates')
+  Future<List<PersonalPointV2Dto>> pointsV2ControllerUpdateUserPointsRatesV2({
+    @Body() required UpdatePointsRatesV2Input body,
   });
 
   /// Get a single published exchange point by id

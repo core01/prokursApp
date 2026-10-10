@@ -33,6 +33,10 @@ ReplacePointV2Input _$ReplacePointV2InputFromJson(Map<String, dynamic> json) =>
           ? null
           : WorkModesDto.fromJson(json['work_modes'] as Map<String, dynamic>),
       description: json['description'] as String?,
+      licenseAppendixNumber: json['license_appendix_number'] as String?,
+      licenseAppendixDate: json['license_appendix_date'] == null
+          ? null
+          : DateTime.parse(json['license_appendix_date'] as String),
     );
 
 Map<String, dynamic> _$ReplacePointV2InputToJson(
@@ -59,4 +63,6 @@ Map<String, dynamic> _$ReplacePointV2InputToJson(
   'wholesale_note': instance.wholesaleNote,
   'work_modes': instance.workModes,
   'description': instance.description,
+  'license_appendix_number': instance.licenseAppendixNumber,
+  'license_appendix_date': instance.licenseAppendixDate?.toIso8601String(),
 };

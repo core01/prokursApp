@@ -12,10 +12,20 @@ class CreateUserInput {
     required this.fullName,
     required this.username,
     required this.password,
+    this.organizationName,
+    this.bin,
   });
   
   factory CreateUserInput.fromJson(Map<String, Object?> json) => _$CreateUserInputFromJson(json);
   
+  /// Full name of the legal entity
+  @JsonKey(includeIfNull: false)
+  final String? organizationName;
+
+  /// BIN: 12 digits, with a correct check digit
+  @JsonKey(includeIfNull: false)
+  final String? bin;
+
   /// Full name of the user
   final String fullName;
 

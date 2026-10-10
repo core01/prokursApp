@@ -32,6 +32,8 @@ class CreatePointV2Input {
     this.wholesaleNote,
     this.workModes,
     this.description,
+    this.licenseAppendixNumber,
+    this.licenseAppendixDate,
   });
   
   factory CreatePointV2Input.fromJson(Map<String, Object?> json) => _$CreatePointV2InputFromJson(json);
@@ -76,6 +78,14 @@ class CreatePointV2Input {
   /// Free-text description of the office
   @JsonKey(includeIfNull: false)
   final String? description;
+
+  /// Number of the license appendix issued for this point
+  @JsonKey(includeIfNull: false,name: 'license_appendix_number')
+  final String? licenseAppendixNumber;
+
+  /// Date the license appendix was issued, as YYYY-MM-DD, not later than today (Almaty)
+  @JsonKey(includeIfNull: false,name: 'license_appendix_date')
+  final DateTime? licenseAppendixDate;
 
   /// USD buy rate
   @JsonKey(name: 'buyUSD')

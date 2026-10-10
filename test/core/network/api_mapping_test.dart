@@ -100,12 +100,27 @@ void main() {
   });
 
   test("a signed-in user's point: every API field is mapped or listed", () {
-    final json = _pointJson(phonesField: 'phone_numbers');
+    // The owner's own copy also has the license appendix: the public list leaves it out.
+    final json = _pointJson(phonesField: 'phone_numbers')
+      ..addAll({
+        'license_appendix_number': 'A-100',
+        'license_appendix_date': '2024-03-15',
+        'license_appendix_status': 'verified',
+      });
     final dto = PersonalPointV2Dto.fromJson(json);
 
-    expectEveryFieldHandled(dto.toJson(),
-        mapped: {..._pointMapped, 'phone_numbers'}, unused: _pointUnused);
-    _expectPoint(ExchangePoint.fromPersonal(dto));
+    expectEveryFieldHandled(dto.toJson(), mapped: {
+      ..._pointMapped,
+      'phone_numbers',
+      'license_appendix_number',
+      'license_appendix_date',
+      'license_appendix_status',
+    }, unused: _pointUnused);
+    final point = ExchangePoint.fromPersonal(dto);
+    _expectPoint(point);
+    expect(point.licenseAppendixNumber, 'A-100');
+    expect(point.licenseAppendixDate, DateTime(2024, 3, 15));
+    expect(point.licenseAppendixStatus, PersonalPointV2DtoLicenseAppendixStatus.verified);
   });
 
   test('a city: every API field is mapped or listed', () {

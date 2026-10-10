@@ -3,6 +3,8 @@ import 'package:prokurs/core/constants/app_constants.dart';
 import 'package:prokurs/core/theme/app_theme.dart';
 import 'package:prokurs/core/exceptions/api_exception.dart';
 import 'package:prokurs/core/exceptions/session_expired_exception.dart';
+import 'package:prokurs/core/utils/verification_status.dart';
+import 'package:prokurs/core/widgets/form_rows.dart';
 import 'package:prokurs/core/widgets/inline_notice.dart';
 import 'package:prokurs/core/widgets/list_tile_value.dart';
 import 'package:prokurs/features/exchange_points/data/providers/cities_provider.dart';
@@ -45,18 +47,17 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
       widget.service ?? ExchangePointsService();
 
   // Field labels share one column, so the fields line up.
-  static const _labelWidth = 96.0;
   static const _currencyCodeWidth = 48.0;
 
-  // A text field 44 pt tall at the default text size, like a list row: the body line is 22 pt.
-  static const _fieldVerticalPadding = (kMinInteractiveDimensionCupertino - 22) / 2;
+  // A text field 44 pt tall at the default text size, like a list row (see form_rows.dart).
+  static const _fieldVerticalPadding = formFieldVerticalPadding;
 
   // UIPickerView's row height.
   static const _pickerItemExtent = 32.0;
-
   final _nameController = TextEditingController();
   final _infoController = TextEditingController();
   final _wholesaleNoteController = TextEditingController();
+  final _appendixNumberController = TextEditingController();
 
   // Currency controllers
   final _buyUSDController = TextEditingController();
@@ -86,6 +87,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
     _nameController.dispose();
     _infoController.dispose();
     _wholesaleNoteController.dispose();
+    _appendixNumberController.dispose();
     // Dispose currency controllers
     _buyUSDController.dispose();
     _sellUSDController.dispose();
@@ -175,6 +177,7 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
       _nameController.text = _form.name.value;
       _infoController.text = _form.info.value;
       _wholesaleNoteController.text = _form.wholesaleNote;
+      _appendixNumberController.text = _form.licenseAppendixNumber;
 
       for (final controller in _phoneControllers) {
         controller.dispose();
@@ -212,6 +215,20 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
   void _onWholesaleNoteChanged(String value) {
     setState(() {
       _form = _form.copyWith(wholesaleNote: value);
+    });
+  }
+
+  void _onAppendixNumberChanged(String value) {
+    setState(() {
+      _form = _form.copyWith(licenseAppendixNumber: value);
+    });
+  }
+
+  void _onAppendixDateChanged(DateTime? value) {
+    setState(() {
+      _form = value == null
+          ? _form.copyWith(clearLicenseAppendixDate: true)
+          : _form.copyWith(licenseAppendixDate: value);
     });
   }
 
@@ -532,6 +549,43 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
                       _buildStyledCurrencyRow(gbp, _form.buyGBP, _form.sellGBP),
                     ],
                   ),
+                  // The point's own license papers: optional, and checked by the administration.
+                  CupertinoFormSection.insetGrouped(
+                    backgroundColor: AppColors.background,
+                    margin: sectionMargin,
+                    header: Text('ПРИЛОЖЕНИЕ К ЛИЦЕНЗИИ', style: sectionHeaderStyle),
+                    footer: Text(
+                      'Приложение к лицензии оформляется на каждый пункт отдельно. Данные '
+                      'видны только вам и администрации. Если вы измените номер или дату, '
+                      'проверка пройдёт заново.',
+                      style: sectionHeaderStyle,
+                    ),
+                    children: [
+                      _fieldRow(
+                        label: 'Номер',
+                        error: ExchangePointFormValidation.appendixNumberError(_form),
+                        field: _textField(
+                          controller: _appendixNumberController,
+                          placeholder: 'Номер приложения',
+                          onChanged: _onAppendixNumberChanged,
+                          maxLength: 255, // the API's limit: longer is a 400
+                        ),
+                      ),
+                      FormDateRow(
+                        label: 'Дата',
+                        value: _form.licenseAppendixDate,
+                        error: ExchangePointFormValidation.appendixDateError(_form),
+                        onChanged: _onAppendixDateChanged,
+                      ),
+                      if (_original?.licenseAppendixStatus != null)
+                        CupertinoListTile(
+                          title: const Text('Проверка администрацией'),
+                          additionalInfo: ListTileValue(
+                            verificationStatusLabel(_original!.licenseAppendixStatus!.json),
+                          ),
+                        ),
+                    ],
+                  ),
 
                   // Why the last save failed: next to the button the user just pressed.
                   if (_saveError != null)
@@ -558,21 +612,8 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
   }
 
   /// A labelled field in a form section; the error, if any, below it.
-  Widget _fieldRow({required String label, String? error, required Widget field}) {
-    return CupertinoFormRow(
-      padding: const EdgeInsetsDirectional.only(start: AppSpacing.lg, end: AppSpacing.xs),
-      prefix: SizedBox(width: _labelWidth, child: Text(label)),
-      error: error == null
-          ? null
-          : Text(
-              error,
-              style: AppTypography.footnote.copyWith(
-                color: AppColors.error.resolveFrom(context),
-              ),
-            ),
-      child: field,
-    );
-  }
+  Widget _fieldRow({required String label, String? error, required Widget field}) =>
+      FormFieldRow(label: label, error: error, child: field);
 
   CupertinoTextField _textField({
     required TextEditingController controller,
@@ -581,19 +622,15 @@ class _AddExchangePointPageState extends State<AddExchangePointPage> {
     TextInputType? keyboardType,
     int? maxLines = 1,
     int? maxLength,
-  }) {
-    return CupertinoTextField.borderless(
-      controller: controller,
-      placeholder: placeholder,
-      placeholderStyle: const TextStyle(color: AppColors.secondaryLabel),
-      padding: const EdgeInsetsDirectional.symmetric(
-          horizontal: AppSpacing.xs, vertical: _fieldVerticalPadding),
-      keyboardType: keyboardType,
-      maxLines: maxLines,
-      maxLength: maxLength,
-      onChanged: onChanged,
-    );
-  }
+  }) =>
+      formTextField(
+        controller: controller,
+        placeholder: placeholder,
+        onChanged: onChanged,
+        keyboardType: keyboardType,
+        maxLines: maxLines,
+        maxLength: maxLength,
+      );
 
   Widget _buildPhoneRow(int index) {
     return Row(

@@ -4,6 +4,7 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+import 'personal_point_v2_dto_license_appendix_status.dart';
 import 'work_modes_dto.dart';
 
 part 'personal_point_v2_dto.g.dart';
@@ -29,6 +30,7 @@ class PersonalPointV2Dto {
     required this.published,
     required this.sorting,
     required this.gross,
+    required this.licenseAppendixStatus,
     required this.dateUpdate,
     required this.phoneNumbers,
     this.info,
@@ -39,6 +41,8 @@ class PersonalPointV2Dto {
     this.wholesaleNote,
     this.workModes,
     this.description,
+    this.licenseAppendixNumber,
+    this.licenseAppendixDate,
   });
   
   factory PersonalPointV2Dto.fromJson(Map<String, Object?> json) => _$PersonalPointV2DtoFromJson(json);
@@ -141,6 +145,18 @@ class PersonalPointV2Dto {
   /// Free-text description of the office
   @JsonKey(includeIfNull: false)
   final String? description;
+
+  /// Number of the license appendix issued for this point
+  @JsonKey(includeIfNull: false,name: 'license_appendix_number')
+  final String? licenseAppendixNumber;
+
+  /// Date the license appendix was issued, as YYYY-MM-DD
+  @JsonKey(includeIfNull: false,name: 'license_appendix_date')
+  final DateTime? licenseAppendixDate;
+
+  /// The platform's check of the appendix; owners can't change it
+  @JsonKey(name: 'license_appendix_status')
+  final PersonalPointV2DtoLicenseAppendixStatus licenseAppendixStatus;
 
   /// Unix timestamp (seconds) when the point was last updated
   @JsonKey(name: 'date_update')

@@ -1,5 +1,6 @@
 import 'package:formz/formz.dart';
 import 'package:prokurs/core/network/generated/export.dart';
+import 'package:prokurs/core/utils/organization_rules.dart';
 import 'package:prokurs/features/exchange_points/domain/models/exchange_point.dart';
 import 'package:prokurs/features/exchange_points/presentation/forms/form_inputs.dart';
 
@@ -13,6 +14,10 @@ class ExchangePointForm {
   /// The wholesale conditions; the API shows them only while [gross] is on, so they are kept
   /// when it's switched off.
   final String wholesaleNote;
+
+  /// The license appendix issued for this point: both optional. The date is a day, or null.
+  final String licenseAppendixNumber;
+  final DateTime? licenseAppendixDate;
   final bool isSubmitted;
 
   // Currency rates
@@ -34,6 +39,8 @@ class ExchangePointForm {
     this.city = const CityInput.pure(),
     this.gross = 0,
     this.wholesaleNote = '',
+    this.licenseAppendixNumber = '',
+    this.licenseAppendixDate,
     this.isSubmitted = false,
     this.buyUSD = '',
     this.sellUSD = '',
@@ -54,6 +61,10 @@ class ExchangePointForm {
     CityInput? city,
     num? gross,
     String? wholesaleNote,
+    String? licenseAppendixNumber,
+    DateTime? licenseAppendixDate,
+    // A null date can't say "no date" by itself: it means "unchanged".
+    bool clearLicenseAppendixDate = false,
     bool? isSubmitted,
     String? buyUSD,
     String? sellUSD,
@@ -73,6 +84,10 @@ class ExchangePointForm {
       city: city ?? this.city,
       gross: gross ?? this.gross,
       wholesaleNote: wholesaleNote ?? this.wholesaleNote,
+      licenseAppendixNumber: licenseAppendixNumber ?? this.licenseAppendixNumber,
+      licenseAppendixDate: clearLicenseAppendixDate
+          ? null
+          : licenseAppendixDate ?? this.licenseAppendixDate,
       isSubmitted: isSubmitted ?? this.isSubmitted,
       buyUSD: buyUSD ?? this.buyUSD,
       sellUSD: sellUSD ?? this.sellUSD,
@@ -108,6 +123,8 @@ class ExchangePointForm {
 
   bool get isValid =>
       Formz.validate([name, info, phones, city]) &&
+      ExchangePointFormValidation.appendixNumberError(this) == null &&
+      ExchangePointFormValidation.appendixDateError(this) == null &&
       _rates.values.every((rate) => ExchangePointFormValidation.rateError(rate) == null);
 
   /// What to fix, one line per field: "Покупка USD — не может быть отрицательным".
@@ -118,6 +135,10 @@ class ExchangePointForm {
         if (phones.error == PhoneValidationError.empty) 'Телефон — не заполнен',
         if (phones.error == PhoneValidationError.invalid)
           'Телефон — формат +7 701 123 4567 или 4 цифры',
+        if (ExchangePointFormValidation.appendixNumberError(this) case final error?)
+          'Номер приложения — $error',
+        if (ExchangePointFormValidation.appendixDateError(this) case final error?)
+          'Дата приложения — $error',
         for (final MapEntry(key: label, value: rate) in _rates.entries)
           if (ExchangePointFormValidation.rateError(rate) case final error?) '$label — $error',
       ];
@@ -125,6 +146,12 @@ class ExchangePointForm {
   String? get _wholesaleNote {
     final note = wholesaleNote.trim();
     return note.isEmpty ? null : note;
+  }
+
+  /// The appendix's number, or null when blank (the API clears it).
+  String? get _licenseAppendixNumber {
+    final number = licenseAppendixNumber.trim();
+    return number.isEmpty ? null : number;
   }
 
   double _parseRate(String value) {
@@ -141,6 +168,8 @@ class ExchangePointForm {
       cityId: city.value!,
       gross: gross.toInt(),
       wholesaleNote: _wholesaleNote,
+      licenseAppendixNumber: _licenseAppendixNumber,
+      licenseAppendixDate: licenseAppendixDate,
       buyUsd: _parseRate(buyUSD),
       sellUsd: _parseRate(sellUSD),
       buyEur: _parseRate(buyEUR),
@@ -157,7 +186,8 @@ class ExchangePointForm {
   /// Call only on a valid form: the city must be selected.
   ///
   /// The API replaces the whole point, so the fields this form doesn't edit are sent back
-  /// as they are in [original].
+  /// as they are in [original]. The appendix is edited here: a blank one is sent as an explicit
+  /// null (the API requires both keys), and a changed one resets its check on the server.
   ReplacePointV2Input toReplaceInput(ExchangePoint original) {
     return ReplacePointV2Input(
       name: name.value,
@@ -166,6 +196,8 @@ class ExchangePointForm {
       cityId: city.value!,
       gross: gross.toInt(),
       wholesaleNote: _wholesaleNote,
+      licenseAppendixNumber: _licenseAppendixNumber,
+      licenseAppendixDate: licenseAppendixDate,
       buyUsd: _parseRate(buyUSD),
       sellUsd: _parseRate(sellUSD),
       buyEur: _parseRate(buyEUR),
@@ -193,6 +225,8 @@ class ExchangePointForm {
       city: CityInput.dirty(point.cityId.toInt()),
       gross: point.gross,
       wholesaleNote: point.wholesaleNote ?? '',
+      licenseAppendixNumber: point.licenseAppendixNumber ?? '',
+      licenseAppendixDate: point.licenseAppendixDate,
       buyUSD: point.buyUSD != 0 ? point.buyUSD.toString() : '',
       sellUSD: point.sellUSD != 0 ? point.sellUSD.toString() : '',
       buyEUR: point.buyEUR != 0 ? point.buyEUR.toString() : '',
@@ -256,6 +290,17 @@ class ExchangePointFormValidation {
       case null:
         return null;
     }
+  }
+
+  /// What's wrong with the appendix's number, or null: the API's column holds 255 characters.
+  static String? appendixNumberError(ExchangePointForm form) =>
+      form.licenseAppendixNumber.trim().length > 255 ? 'не больше 255 символов' : null;
+
+  /// What's wrong with the appendix's date, or null. The wheel doesn't go past today, so a later
+  /// date can only be one the server already holds.
+  static String? appendixDateError(ExchangePointForm form) {
+    final date = form.licenseAppendixDate;
+    return date != null && !isNotFutureDate(date) ? 'не может быть в будущем' : null;
   }
 
   /// Error for the phone field at [index].

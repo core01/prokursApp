@@ -172,6 +172,41 @@ class _PointsClient implements PointsClient {
   }
 
   @override
+  Future<List<PersonalPointV2Dto>> pointsV2ControllerUpdateUserPointsRatesV2({
+    required UpdatePointsRatesV2Input body,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(body.toJson());
+    final _options = _setStreamType<List<PersonalPointV2Dto>>(
+      Options(method: 'PUT', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/v2/points/personal/rates',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<List<dynamic>>(_options);
+    late List<PersonalPointV2Dto> _value;
+    try {
+      _value = _result.data!
+          .map(
+            (dynamic i) =>
+                PersonalPointV2Dto.fromJson(i as Map<String, dynamic>),
+          )
+          .toList();
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
   Future<PublicPointV2Dto> pointsV2ControllerFindPublicPointByIdV2({
     required int id,
   }) async {
